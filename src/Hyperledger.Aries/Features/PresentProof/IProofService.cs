@@ -12,7 +12,6 @@ namespace Hyperledger.Aries.Features.PresentProof
     /// </summary>
     public interface IProofService
     {
-
         /// <summary>
         /// Creates a proof proposal.
         /// </summary>
@@ -224,5 +223,13 @@ namespace Hyperledger.Aries.Features.PresentProof
             IAgentContext agentContext,
             ProofRequest proofRequest,
             string attributeReferent);
+
+        /// <summary>
+        /// Process a presentation acknowledge message.
+        /// </summary>
+        /// <param name="agentContext">Agent Context.</param>
+        /// <param name="presentationAcknowledgeMessage"></param>
+        /// <returns>The proof record associated with the acknowledge message.</returns>
+        Task<ProofRecord> ProcessAcknowledgeMessage(IAgentContext agentContext, PresentationAcknowledgeMessage presentationAcknowledgeMessage);
     }
 }

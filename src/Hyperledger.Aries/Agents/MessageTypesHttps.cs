@@ -87,6 +87,11 @@
         public class PresentProofNames
         {
             /// <summary>
+            /// Acknowledge Presentation Message Type Name
+            /// </summary>
+            public const string AcknowledgePresentation = "https://didcomm.org/present-proof/1.0/ack";
+            
+            /// <summary>
             /// Propose Presentation Message Type Name
             /// </summary>
             public const string ProposePresentation = "https://didcomm.org/present-proof/1.0/propose-presentation";

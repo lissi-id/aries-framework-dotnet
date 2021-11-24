@@ -8,7 +8,6 @@ using Hyperledger.Aries.Decorators.Attachments;
 using Hyperledger.Aries.Decorators.Threading;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Extensions;
-using Hyperledger.Aries.Models.Events;
 using Hyperledger.Aries.Utils;
 using Hyperledger.Indy.AnonCredsApi;
 using Hyperledger.Indy.PoolApi;
@@ -21,6 +20,7 @@ using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Decorators.Service;
 using System.Diagnostics;
+using Hyperledger.Aries.Common;
 
 namespace Hyperledger.Aries.Features.PresentProof
 {
@@ -227,7 +227,6 @@ namespace Hyperledger.Aries.Features.PresentProof
         public virtual async Task<bool> VerifyProofAsync(IAgentContext agentContext, string proofRequestJson, string proofJson, bool validateEncoding = true)
         {
             var proof = JsonConvert.DeserializeObject<PartialProof>(proofJson);
-            var proofRequest = proofRequestJson.ToObject<ProofRequest>();
 
             // If any values are revealed, validate encoding
             // against expected values
@@ -283,7 +282,20 @@ namespace Hyperledger.Aries.Features.PresentProof
                 throw new AriesFrameworkException(ErrorCode.RecordInInvalidState,
                     $"Proof record state was invalid. Expected '{ProofState.Accepted}', found '{proofRecord.State}'");
 
-            return await VerifyProofAsync(agentContext, proofRecord.RequestJson, proofRecord.ProofJson);
+            var result = await VerifyProofAsync(agentContext, proofRecord.RequestJson, proofRecord.ProofJson);
+            
+            var threadId = proofRecord.GetTag(TagConstants.LastThreadId);
+            var acknowledgeMessage = new PresentationAcknowledgeMessage
+            {
+                Id = threadId,
+                Status = "OK"
+            };
+            acknowledgeMessage.ThreadFrom(threadId);
+
+            var connection = await ConnectionService.GetAsync(agentContext, proofRecord.ConnectionId);
+            await MessageService.SendAsync(agentContext, acknowledgeMessage, connection);
+            
+            return result;
         }
 
         /// <inheritdoc />
@@ -309,6 +321,21 @@ namespace Hyperledger.Aries.Features.PresentProof
                 var searchResult = await search.NextAsync(attributeReferent, 100);
                 return JsonConvert.DeserializeObject<List<Credential>>(searchResult);
             }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<ProofRecord> ProcessAcknowledgeMessage(IAgentContext agentContext, PresentationAcknowledgeMessage acknowledgeMessage)
+        {
+            var proofRecord = await this.GetByThreadIdAsync(agentContext, acknowledgeMessage.GetThreadId());
+
+            EventAggregator.Publish(new ServiceMessageProcessingEvent
+            {
+                RecordId = proofRecord.Id,
+                MessageType = acknowledgeMessage.Type,
+                ThreadId = acknowledgeMessage.GetThreadId()
+            });
+            
+            return proofRecord;
         }
 
         /// <inheritdoc />
@@ -632,8 +659,7 @@ namespace Hyperledger.Aries.Features.PresentProof
                 proofRecord.RequestJson = requestJson;
                 await RecordService.UpdateAsync(agentContext.Wallet, proofRecord);
             }
-
-
+            
             EventAggregator.Publish(new ServiceMessageProcessingEvent
             {
                 RecordId = proofRecord.Id,
