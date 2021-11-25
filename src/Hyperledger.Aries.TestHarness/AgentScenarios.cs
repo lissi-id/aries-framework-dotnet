@@ -9,6 +9,7 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Common;
 using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Contracts;
+using Hyperledger.Aries.Decorators.Threading;
 using Hyperledger.Aries.Features.BasicMessage;
 using Hyperledger.Aries.Features.DidExchange;
 using Hyperledger.Aries.Features.Discovery;
@@ -176,11 +177,11 @@ namespace Hyperledger.TestHarness
                 holderCredRecord.GetTag(TagConstants.LastThreadId));
         }
 
-        public static async Task ProofProtocolAsync(MockAgent requestor, MockAgent holder,
-            ConnectionRecord requestorConnection, ConnectionRecord holderConnection, ProofRequest proofRequest)
+        public static async Task ProofProtocolAsync(MockAgent requester, MockAgent holder,
+            ConnectionRecord requesterConnection, ConnectionRecord holderConnection, ProofRequest proofRequest)
         {
-            var proofService = requestor.GetService<IProofService>();
-            var messageService = requestor.GetService<IMessageService>();
+            var proofService = requester.GetService<IProofService>();
+            var messageService = requester.GetService<IMessageService>();
 
             // Hook into message event
             var requestSlim = new SemaphoreSlim(0, 1);
@@ -188,8 +189,8 @@ namespace Hyperledger.TestHarness
                 .Where(x => x.MessageType == MessageTypes.PresentProofNames.RequestPresentation)
                 .Subscribe(x => requestSlim.Release());
 
-            var (requestMsg, requestorRecord) = await proofService.CreateRequestAsync(requestor.Context, proofRequest, requestorConnection.Id);
-            await messageService.SendAsync(requestor.Context, requestMsg, requestorConnection);
+            var (requestMsg, requesterRecord) = await proofService.CreateRequestAsync(requester.Context, proofRequest, requesterConnection.Id);
+            await messageService.SendAsync(requester.Context, requestMsg, requesterConnection);
 
             await requestSlim.WaitAsync(TimeSpan.FromSeconds(30));
 
@@ -200,7 +201,7 @@ namespace Hyperledger.TestHarness
 
             // Hook into message event
             var proofSlim = new SemaphoreSlim(0, 1);
-            requestor.GetService<IEventAggregator>().GetEventByType<ServiceMessageProcessingEvent>()
+            requester.GetService<IEventAggregator>().GetEventByType<ServiceMessageProcessingEvent>()
                 .Where(x => x.MessageType == MessageTypes.PresentProofNames.Presentation)
                 .Subscribe(x => requestSlim.Release());
 
@@ -216,15 +217,19 @@ namespace Hyperledger.TestHarness
 
             await proofSlim.WaitAsync(TimeSpan.FromSeconds(30));
 
-            var requestorProofRecord = await proofService.GetAsync(requestor.Context, requestorRecord.Id);
+            var requesterProofRecord = await proofService.GetAsync(requester.Context, requesterRecord.Id);
             var holderProofRecord = await proofService.GetAsync(holder.Context, holderRecord.Id);
 
-            Assert.True(requestorProofRecord.State == ProofState.Accepted);
+            Assert.True(requesterProofRecord.State == ProofState.Accepted);
             Assert.True(holderProofRecord.State == ProofState.Accepted);
 
-            var isProofValid = await proofService.VerifyProofAsync(requestor.Context, requestorProofRecord.Id);
-
+            var isProofValid = await proofService.VerifyProofAsync(requester.Context, requesterProofRecord.Id);
             Assert.True(isProofValid);
+            
+            var acknowledgeMessage = await proofService.CreateAcknowledgeMessage(requester.Context, requesterProofRecord.Id);
+            await messageService.SendAsync(requester.Context, acknowledgeMessage, requesterConnection);
+
+            await proofSlim.WaitAsync(TimeSpan.FromSeconds(30));
         }
 
         public static async Task<DiscoveryDiscloseMessage> DiscoveryProtocolWithReturnRoutingAsync(MockAgent requestor, MockAgent holder, ConnectionRecord requestorConnection, ConnectionRecord holderConnection)

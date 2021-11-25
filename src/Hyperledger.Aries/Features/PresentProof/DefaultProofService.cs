@@ -10,7 +10,6 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Utils;
 using Hyperledger.Indy.AnonCredsApi;
-using Hyperledger.Indy.PoolApi;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,7 +18,6 @@ using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Decorators.Service;
-using System.Diagnostics;
 using Hyperledger.Aries.Common;
 
 namespace Hyperledger.Aries.Features.PresentProof
@@ -282,20 +280,7 @@ namespace Hyperledger.Aries.Features.PresentProof
                 throw new AriesFrameworkException(ErrorCode.RecordInInvalidState,
                     $"Proof record state was invalid. Expected '{ProofState.Accepted}', found '{proofRecord.State}'");
 
-            var result = await VerifyProofAsync(agentContext, proofRecord.RequestJson, proofRecord.ProofJson);
-            
-            var threadId = proofRecord.GetTag(TagConstants.LastThreadId);
-            var acknowledgeMessage = new PresentationAcknowledgeMessage
-            {
-                Id = threadId,
-                Status = "OK"
-            };
-            acknowledgeMessage.ThreadFrom(threadId);
-
-            var connection = await ConnectionService.GetAsync(agentContext, proofRecord.ConnectionId);
-            await MessageService.SendAsync(agentContext, acknowledgeMessage, connection);
-            
-            return result;
+            return await VerifyProofAsync(agentContext, proofRecord.RequestJson, proofRecord.ProofJson);
         }
 
         /// <inheritdoc />
@@ -336,6 +321,22 @@ namespace Hyperledger.Aries.Features.PresentProof
             });
             
             return proofRecord;
+        }
+
+        /// <inheritdoc />
+        public async Task<PresentationAcknowledgeMessage> CreateAcknowledgeMessage(IAgentContext agentContext, string proofRecordId, string status = AcknowledgementStatusConstants.Ok)
+        {
+            var record = await GetAsync(agentContext, proofRecordId);
+            
+            var threadId = record.GetTag(TagConstants.LastThreadId);
+            var acknowledgeMessage = new PresentationAcknowledgeMessage(agentContext.UseMessageTypesHttps)
+            {
+                Id = threadId,
+                Status = status
+            };
+            acknowledgeMessage.ThreadFrom(threadId);
+
+            return acknowledgeMessage;
         }
 
         /// <inheritdoc />

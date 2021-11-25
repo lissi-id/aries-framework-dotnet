@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
+using Hyperledger.Aries.Common;
 using Hyperledger.Aries.Features.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Storage;
@@ -231,5 +232,14 @@ namespace Hyperledger.Aries.Features.PresentProof
         /// <param name="presentationAcknowledgeMessage"></param>
         /// <returns>The proof record associated with the acknowledge message.</returns>
         Task<ProofRecord> ProcessAcknowledgeMessage(IAgentContext agentContext, PresentationAcknowledgeMessage presentationAcknowledgeMessage);
+
+        /// <summary>
+        /// Creates a presentation acknowledge message.
+        /// </summary>
+        /// <param name="agentContext">Agent Context.</param>
+        /// <param name="proofRecordId">The ID of the proof record that is used.</param>
+        /// <param name="status">The status of the acknowledgement message</param>
+        /// <returns>The Presentation Acknowledgement Message.</returns>
+        Task<PresentationAcknowledgeMessage> CreateAcknowledgeMessage(IAgentContext agentContext, string proofRecordId, string status = AcknowledgementStatusConstants.Ok);
     }
 }
