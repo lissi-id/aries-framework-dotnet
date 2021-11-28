@@ -110,7 +110,7 @@ namespace Hyperledger.TestHarness
         public static async Task IssueCredentialAsync(MockAgent issuer, MockAgent holder, ConnectionRecord issuerConnection, ConnectionRecord holderConnection, List<CredentialPreviewAttribute> credentialAttributes)
         {
             var credentialService = issuer.GetService<ICredentialService>();
-            var messsageService = issuer.GetService<IMessageService>();
+            var messageService = issuer.GetService<IMessageService>();
             var schemaService = issuer.GetService<ISchemaService>();
             var provisionService = issuer.GetService<IProvisioningService>();
 
@@ -125,7 +125,7 @@ namespace Hyperledger.TestHarness
             var (definitionId, _) = await Scenarios.CreateDummySchemaAndNonRevokableCredDef(issuer.Context, schemaService,
                 issuerProv.IssuerDid, credentialAttributes.Select(_ => _.Name).ToArray());
 
-            (var offer, var issuerCredentialRecord) = await credentialService.CreateOfferAsync(
+            var (offer, issuerCredentialRecord) = await credentialService.CreateOfferAsync(
                 agentContext: issuer.Context,
                 config: new OfferConfiguration
                 {
@@ -134,7 +134,7 @@ namespace Hyperledger.TestHarness
                     CredentialAttributeValues = credentialAttributes,
                 },
                 connectionId: issuerConnection.Id);
-            await messsageService.SendAsync(issuer.Context, offer, issuerConnection);
+            await messageService.SendAsync(issuer.Context, offer, issuerConnection);
 
             await offerSlim.WaitAsync(TimeSpan.FromSeconds(30));
 
@@ -149,13 +149,13 @@ namespace Hyperledger.TestHarness
                 .Where(x => x.MessageType == MessageTypes.IssueCredentialNames.RequestCredential)
                 .Subscribe(x => requestSlim.Release());
 
-            (var request, var holderCredentialRecord) = await credentialService.CreateRequestAsync(holder.Context, offers[0].Id);
+            var (request, holderCredentialRecord) = await credentialService.CreateRequestAsync(holder.Context, offers[0].Id);
 
             Assert.NotNull(holderCredentialRecord.CredentialAttributesValues);
             
             Assert.True(holderCredentialRecord.CredentialAttributesValues.Count() == 2);
 
-            await messsageService.SendAsync(holder.Context, request, holderConnection);
+            await messageService.SendAsync(holder.Context, request, holderConnection);
 
             await requestSlim.WaitAsync(TimeSpan.FromSeconds(30));
 
@@ -165,10 +165,10 @@ namespace Hyperledger.TestHarness
                 .Where(x => x.MessageType == MessageTypes.IssueCredentialNames.IssueCredential)
                 .Subscribe(x => credentialSlim.Release());
 
-            (var cred, _) = await credentialService.CreateCredentialAsync(
+            var (cred, _) = await credentialService.CreateCredentialAsync(
                 agentContext: issuer.Context,
                 credentialId: issuerCredentialRecord.Id);
-            await messsageService.SendAsync(issuer.Context, cred, issuerConnection);
+            await messageService.SendAsync(issuer.Context, cred, issuerConnection);
 
             await credentialSlim.WaitAsync(TimeSpan.FromSeconds(30));
 
@@ -177,6 +177,10 @@ namespace Hyperledger.TestHarness
 
             Assert.Equal(CredentialState.Issued, issuerCredRecord.State);
             Assert.Equal(CredentialState.Issued, holderCredRecord.State);
+
+            var ackMessage =
+                await credentialService.CreateAcknowledgementMessageAsync(holder.Context, holderCredentialRecord.Id);
+            await messageService.SendAsync(holder.Context, ackMessage, holderConnection);
 
             Assert.Equal(
                 issuerCredRecord.GetTag(TagConstants.LastThreadId),

@@ -61,6 +61,11 @@
         public static class IssueCredentialNames
         {
             /// <summary>
+            /// Credential Acknowledge Message Type Name
+            /// </summary>
+            public const string AcknowledgeCredential = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/issue-credential/1.0/ack";
+            
+            /// <summary>
             /// Credential Propose Message Type Name
             /// </summary>
             public const string ProposeCredential = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/issue-credential/1.0/propose-credential";

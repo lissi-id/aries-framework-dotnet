@@ -61,6 +61,11 @@
         public static class IssueCredentialNames
         {
             /// <summary>
+            /// Credential Acknowledge Message Type Name
+            /// </summary>
+            public const string AcknowledgeCredential = "https://didcomm.org/issue-credential/1.0/ack";
+
+            /// <summary>
             /// Credential Propose Message Type Name
             /// </summary>
             public const string ProposeCredential = "https://didcomm.org/issue-credential/1.0/propose-credential";
