@@ -2,7 +2,7 @@ using System;
 using Hyperledger.Aries.Agents;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.PresentProof
+namespace Hyperledger.Aries.Features.PresentProof.Messages
 {
     /// <summary>
     /// Presentation acknowledge message

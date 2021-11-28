@@ -30,19 +30,19 @@ namespace Hyperledger.TestHarness
             var slim = new SemaphoreSlim(0, 1);
             
             var connectionService = invitee.GetService<IConnectionService>();
-            var messsageService = invitee.GetService<IMessageService>();
+            var messageService = invitee.GetService<IMessageService>();
 
             // Hook into response message event of second runtime to release semaphore
             inviter.GetService<IEventAggregator>().GetEventByType<ServiceMessageProcessingEvent>()
                 .Where(x => x.MessageType == MessageTypes.ConnectionResponse)
                 .Subscribe(x => slim.Release());
 
-            (var invitation, var inviterConnection) = await connectionService.CreateInvitationAsync(invitee.Context,
+            var (invitation, inviterConnection) = await connectionService.CreateInvitationAsync(invitee.Context,
                 new InviteConfiguration { AutoAcceptConnection = true });
 
-            (var request, var inviteeConnection) =
+            var (request, inviteeConnection) =
                 await connectionService.CreateRequestAsync(inviter.Context, invitation);
-            await messsageService.SendAsync(inviter.Context, request, inviteeConnection);
+            await messageService.SendAsync(inviter.Context, request, inviteeConnection);
 
             // Wait for connection to be established or continue after 30 sec timeout
             await slim.WaitAsync(TimeSpan.FromSeconds(30));
@@ -62,43 +62,49 @@ namespace Hyperledger.TestHarness
             return (connectionRecord1, connectionRecord2);
         }
 
-        public static async Task<(ConnectionRecord inviteeConnection, ConnectionRecord inviterConnection)> EstablishConnectionWithReturnRoutingAsync(MockAgent invitee, MockAgent inviter)
+        public static async Task<(ConnectionRecord inviteeConnection, ConnectionRecord inviterConnection)> EstablishConnectionWithReturnRoutingAsync(MockAgent inviter, MockAgent invitee)
         {
             var slim = new SemaphoreSlim(0, 1);
 
-            var connectionService = invitee.GetService<IConnectionService>();
-            var messsageService = invitee.GetService<IMessageService>();
+            var connectionService = inviter.GetService<IConnectionService>();
+            var messageService = inviter.GetService<IMessageService>();
 
             // Hook into response message event of second runtime to release semaphore
-            inviter.GetService<IEventAggregator>().GetEventByType<ServiceMessageProcessingEvent>()
+            invitee.GetService<IEventAggregator>().GetEventByType<ServiceMessageProcessingEvent>()
                 .Where(x => x.MessageType == MessageTypes.ConnectionResponse)
                 .Subscribe(x => slim.Release());
 
-            (var invitation, var inviterConnection) = await connectionService.CreateInvitationAsync(invitee.Context,
+            var (invitation, inviteeConnection) = await connectionService.CreateInvitationAsync(inviter.Context,
                 new InviteConfiguration { AutoAcceptConnection = true });
 
-            (var request, var inviteeConnection) =
-                await connectionService.CreateRequestAsync(inviter.Context, invitation);
-            var response = await messsageService.SendReceiveAsync<ConnectionResponseMessage>(inviter.Context, request, inviteeConnection);
+            var (request, inviterConnection) =
+                await connectionService.CreateRequestAsync(invitee.Context, invitation);
+            var response = await messageService.SendReceiveAsync<ConnectionResponseMessage>(invitee.Context, request, inviterConnection);
 
             Assert.NotNull(response);
-            await connectionService.ProcessResponseAsync(inviter.Context, response, inviteeConnection);
+            await connectionService.ProcessResponseAsync(invitee.Context, response, inviterConnection);
 
             await slim.WaitAsync(TimeSpan.FromSeconds(30));
+            
+            var ackMessage = await connectionService.CreateAcknowledgementMessageAsync(invitee.Context,
+                inviterConnection.Id);
+            await messageService.SendAsync(invitee.Context, ackMessage, inviterConnection);
+            
+            await slim.WaitAsync(TimeSpan.FromSeconds(30));
 
-            var connectionRecord1 = await connectionService.GetAsync(invitee.Context, inviterConnection.Id);
-            var connectionRecord2 = await connectionService.GetAsync(inviter.Context, inviteeConnection.Id);
+            var inviteeConnectionRecord = await connectionService.GetAsync(inviter.Context, inviteeConnection.Id);
+            var inviterConnectionRecord = await connectionService.GetAsync(invitee.Context, inviterConnection.Id);
 
-            Assert.Equal(ConnectionState.Connected, connectionRecord1.State);
-            Assert.Equal(ConnectionState.Connected, connectionRecord2.State);
-            Assert.Equal(connectionRecord1.MyDid, connectionRecord2.TheirDid);
-            Assert.Equal(connectionRecord1.TheirDid, connectionRecord2.MyDid);
+            Assert.Equal(ConnectionState.Connected, inviteeConnectionRecord.State);
+            Assert.Equal(ConnectionState.Connected, inviterConnectionRecord.State);
+            Assert.Equal(inviteeConnectionRecord.MyDid, inviterConnectionRecord.TheirDid);
+            Assert.Equal(inviteeConnectionRecord.TheirDid, inviterConnectionRecord.MyDid);
 
             Assert.Equal(
-                connectionRecord1.GetTag(TagConstants.LastThreadId),
-                connectionRecord2.GetTag(TagConstants.LastThreadId));
+                inviteeConnectionRecord.GetTag(TagConstants.LastThreadId),
+                inviterConnectionRecord.GetTag(TagConstants.LastThreadId));
 
-            return (connectionRecord1, connectionRecord2);
+            return (inviteeConnectionRecord, inviterConnectionRecord);
         }
 
         public static async Task IssueCredentialAsync(MockAgent issuer, MockAgent holder, ConnectionRecord issuerConnection, ConnectionRecord holderConnection, List<CredentialPreviewAttribute> credentialAttributes)
@@ -226,7 +232,7 @@ namespace Hyperledger.TestHarness
             var isProofValid = await proofService.VerifyProofAsync(requester.Context, requesterProofRecord.Id);
             Assert.True(isProofValid);
             
-            var acknowledgeMessage = await proofService.CreateAcknowledgeMessage(requester.Context, requesterProofRecord.Id);
+            var acknowledgeMessage = await proofService.CreateAcknowledgeMessageAsync(requester.Context, requesterProofRecord.Id);
             await messageService.SendAsync(requester.Context, acknowledgeMessage, requesterConnection);
 
             await proofSlim.WaitAsync(TimeSpan.FromSeconds(30));

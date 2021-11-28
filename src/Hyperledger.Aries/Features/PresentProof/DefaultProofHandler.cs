@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
+using Hyperledger.Aries.Features.PresentProof.Messages;
 
 namespace Hyperledger.Aries.Features.PresentProof
 {
@@ -75,7 +76,7 @@ namespace Hyperledger.Aries.Features.PresentProof
                 case MessageTypesHttps.PresentProofNames.AcknowledgePresentation:
                 {
                     var message = messageContext.GetMessage<PresentationAcknowledgeMessage>();
-                    var record = await _proofService.ProcessAcknowledgeMessage(agentContext, message);
+                    var record = await _proofService.ProcessAcknowledgeMessageAsync(agentContext, message);
 
                     messageContext.ContextRecord = record;
                     break;

@@ -6,6 +6,11 @@
     public static class MessageTypesHttps
     {
         /// <summary>
+        /// The connection acknowledgement.
+        /// </summary>
+        public const string ConnectionAcknowledgement = "https://didcomm.org/connections/1.0/ack";
+        
+        /// <summary>
         /// The connection invitation.
         /// </summary>
         public const string ConnectionInvitation = "https://didcomm.org/connections/1.0/invitation";

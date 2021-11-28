@@ -6,6 +6,11 @@
     public static class MessageTypes
     {
         /// <summary>
+        /// The connection acknowledgement.
+        /// </summary>
+        public const string ConnectionAcknowledgement = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/ack";
+
+        /// <summary>
         /// The connection invitation.
         /// </summary>
         public const string ConnectionInvitation = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/invitation";

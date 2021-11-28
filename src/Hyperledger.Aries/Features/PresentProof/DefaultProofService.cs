@@ -19,6 +19,7 @@ using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Decorators.Service;
 using Hyperledger.Aries.Common;
+using Hyperledger.Aries.Features.PresentProof.Messages;
 
 namespace Hyperledger.Aries.Features.PresentProof
 {
@@ -309,22 +310,7 @@ namespace Hyperledger.Aries.Features.PresentProof
         }
 
         /// <inheritdoc />
-        public virtual async Task<ProofRecord> ProcessAcknowledgeMessage(IAgentContext agentContext, PresentationAcknowledgeMessage acknowledgeMessage)
-        {
-            var proofRecord = await this.GetByThreadIdAsync(agentContext, acknowledgeMessage.GetThreadId());
-
-            EventAggregator.Publish(new ServiceMessageProcessingEvent
-            {
-                RecordId = proofRecord.Id,
-                MessageType = acknowledgeMessage.Type,
-                ThreadId = acknowledgeMessage.GetThreadId()
-            });
-            
-            return proofRecord;
-        }
-
-        /// <inheritdoc />
-        public async Task<PresentationAcknowledgeMessage> CreateAcknowledgeMessage(IAgentContext agentContext, string proofRecordId, string status = AcknowledgementStatusConstants.Ok)
+        public async Task<PresentationAcknowledgeMessage> CreateAcknowledgeMessageAsync(IAgentContext agentContext, string proofRecordId, string status = AcknowledgementStatusConstants.Ok)
         {
             var record = await GetAsync(agentContext, proofRecordId);
             
@@ -338,7 +324,22 @@ namespace Hyperledger.Aries.Features.PresentProof
 
             return acknowledgeMessage;
         }
+        
+        /// <inheritdoc />
+        public virtual async Task<ProofRecord> ProcessAcknowledgeMessageAsync(IAgentContext agentContext, PresentationAcknowledgeMessage acknowledgeMessage)
+        {
+            var proofRecord = await this.GetByThreadIdAsync(agentContext, acknowledgeMessage.GetThreadId());
 
+            EventAggregator.Publish(new ServiceMessageProcessingEvent
+            {
+                RecordId = proofRecord.Id,
+                MessageType = acknowledgeMessage.Type,
+                ThreadId = acknowledgeMessage.GetThreadId()
+            });
+            
+            return proofRecord;
+        }
+        
         /// <inheritdoc />
         public virtual async Task<(ProposePresentationMessage, ProofRecord)> CreateProposalAsync(IAgentContext agentContext, ProofProposal proofProposal, string connectionId)
         {
