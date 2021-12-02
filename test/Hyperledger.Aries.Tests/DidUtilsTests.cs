@@ -7,6 +7,9 @@ namespace Hyperledger.Aries.Tests
     {
         private const string VALID_FULL_VERKEY = "MeHaPyPGsbBCgMKo13oWK7MeHaPyPGsbBCgMKo13oWK7";
         private const string VALID_ABBREVIATED_VERKEY = "~MeHaPyPGsbBCgMKo13oWK7";
+        private const string VALID_DID_KEY = "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK";
+        private const string ORIG_VERKEY = "8HH5gYEeNc3z7PYXmd54d4x6qAfCNrqQqEB3nS7Zfu7K";
+        private const string DERIVED_DID_KEY = "did:key:z6MkmjY8GnV5i9YTDtPETC2uUAW6ejw3nk5mXF5yci5ab7th";
 
         [Fact]
         public void CanDetectFullVerkey()
@@ -32,5 +35,28 @@ namespace Hyperledger.Aries.Tests
             Assert.False(DidUtils.IsVerkey(""));
         }
 
+        [Fact]
+        public void CanDetectDidKey()
+        {
+            Assert.True(DidUtils.IsDidKey(VALID_DID_KEY));
+            Assert.False(DidUtils.IsDidKey(VALID_FULL_VERKEY));
+            Assert.False(DidUtils.IsDidKey(""));
+        }
+        
+        [Fact]
+        public void CanConvertDidKeyToVerkey()
+        {
+            var result = DidUtils.ConvertDidKeyToVerkey(DERIVED_DID_KEY);
+            
+            Assert.Equal(ORIG_VERKEY, result);
+        }
+        
+        [Fact]
+        public void CanConvertVerkeyToDidKey()
+        {
+            var result = DidUtils.ConvertVerkeyToDidKey(ORIG_VERKEY);
+            
+            Assert.Equal(DERIVED_DID_KEY, result);
+        }
     }
 }
