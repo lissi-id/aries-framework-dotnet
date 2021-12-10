@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Hyperledger.Aries.Configuration;
+using Hyperledger.Aries.Utils;
 
 namespace Hyperledger.Aries.Features.DidExchange
 {
@@ -38,13 +39,17 @@ namespace Hyperledger.Aries.Features.DidExchange
 
             if (!string.IsNullOrEmpty(provisioningRecord.Endpoint.Uri))
             {
+                var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
+                var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
+                var myKey = connection.MyVk != null ? useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : connection.MyVk : null;
+                
                 doc.Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
                     {
                         Id = $"{connection.MyDid};indy",
                         ServiceEndpoint = provisioningRecord.Endpoint.Uri,
-                        RecipientKeys = connection.MyVk != null ? new[] { connection.MyVk } : new string[0],
+                        RecipientKeys = myKey != null ? new []{ myKey } : new string[0],
                         RoutingKeys = provisioningRecord.Endpoint?.Verkey != null ? provisioningRecord.Endpoint.Verkey : new string[0]
                     }
                 };

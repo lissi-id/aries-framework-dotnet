@@ -15,6 +15,7 @@ using Xunit;
 using Hyperledger.Aries.Features.DidExchange;
 using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Storage;
+using Hyperledger.Aries.Utils;
 
 namespace Hyperledger.Aries.Tests.Protocols
 {
@@ -51,6 +52,42 @@ namespace Hyperledger.Aries.Tests.Protocols
             _issuerWallet = await AgentUtils.Create(_issuerConfig, Credentials);
             _holderWallet = await AgentUtils.Create(_holderConfig, Credentials);
             _holderWalletTwo = await AgentUtils.Create(_holderConfigTwo, Credentials);
+        }
+        
+        [Fact]
+        public async Task CanCreateMyDidDocWithVerkey()
+        {
+            var record = new ConnectionRecord
+            {
+                Id = "123",
+                MyVk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1"
+            };
+            record.SetTag("InvitationKey", "8HH5gYEeNc3z7PYXmd54d4x6qAfCNrqQqEB3nS7Zfu7K");
+
+            var didDoc = record.MyDidDoc(await _provisioningService.GetProvisioningAsync(_issuerWallet.Wallet));
+            
+            Assert.True(DidUtils.IsVerkey(didDoc.Keys[0].PublicKeyBase58));
+            Assert.True(didDoc.Services[0] is IndyAgentDidDocService);
+            Assert.True(DidUtils.IsVerkey(((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]));
+            Assert.Equal(didDoc.Keys[0].PublicKeyBase58, ((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]);
+        }
+        
+        [Fact]
+        public async Task CanCreateMyDidDocWithDidKey()
+        {
+            var record = new ConnectionRecord
+            {
+                Id = "123",
+                MyVk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1"
+            };
+            record.SetTag("InvitationKey", "did:key:z6MkmjY8GnV5i9YTDtPETC2uUAW6ejw3nk5mXF5yci5ab7th");
+
+            var didDoc = record.MyDidDoc(await _provisioningService.GetProvisioningAsync(_issuerWallet.Wallet));
+            
+            Assert.True(DidUtils.IsVerkey(didDoc.Keys[0].PublicKeyBase58));
+            Assert.True(didDoc.Services[0] is IndyAgentDidDocService);
+            Assert.True(DidUtils.IsDidKey(((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]));
+            Assert.Equal(DidUtils.ConvertVerkeyToDidKey(didDoc.Keys[0].PublicKeyBase58), ((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]);
         }
 
         [Fact]
