@@ -22,16 +22,21 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// <returns>DID Doc</returns>
         public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord)
         {
+            var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
+            var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
+            var myDidKey = connection.MyVk != null && useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : null;  
+            
+            var id = myDidKey ?? $"did:example:{connection.MyDid}";
             var doc = new DidDoc
             {
-                Id = connection.MyDid,
+                Id = id,
                 Keys = new List<DidDocKey>
                 {
                     new DidDocKey
                     {
-                        Id = $"{connection.MyDid}#keys-1",
+                        Id = $"{id}#keys-1",
                         Type = DefaultKeyType,
-                        Controller = connection.MyDid,
+                        Controller = id,
                         PublicKeyBase58 = connection.MyVk
                     }
                 }
@@ -39,17 +44,14 @@ namespace Hyperledger.Aries.Features.DidExchange
 
             if (!string.IsNullOrEmpty(provisioningRecord.Endpoint.Uri))
             {
-                var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
-                var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
-                var myKey = connection.MyVk != null ? useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : connection.MyVk : null;
-                
+                var recipientKey = myDidKey ?? connection.MyVk;
                 doc.Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
                     {
-                        Id = $"{connection.MyDid};indy",
+                        Id = $"{id};indy",
                         ServiceEndpoint = provisioningRecord.Endpoint.Uri,
-                        RecipientKeys = myKey != null ? new []{ myKey } : new string[0],
+                        RecipientKeys = recipientKey != null ? new []{ recipientKey } : new string[0],
                         RoutingKeys = provisioningRecord.Endpoint?.Verkey != null ? provisioningRecord.Endpoint.Verkey : new string[0]
                     }
                 };
@@ -65,26 +67,31 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// <returns>DID Doc</returns>
         public static DidDoc TheirDidDoc(this ConnectionRecord connection)
         {
+            var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
+            var isDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
+
+            var id = isDidKey ? theirKey : $"did:example:{connection.TheirDid}";
+            var verKey = isDidKey ? DidUtils.ConvertDidKeyToVerkey(connection.TheirVk) : connection.TheirVk;
             return new DidDoc
             {
-                Id = connection.TheirDid,
+                Id = id,
                 Keys = new List<DidDocKey>
                 {
                     new DidDocKey
                     {
-                        Id = $"{connection.TheirDid}#keys-1",
+                        Id = $"{id}#keys-1",
                         Type = DefaultKeyType,
-                        Controller = connection.TheirDid,
-                        PublicKeyBase58 = connection.TheirVk
+                        Controller = id,
+                        PublicKeyBase58 = verKey
                     }
                 },
                 Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
                     {
-                        Id = $"{connection.TheirDid};indy",
+                        Id = $"{id};indy",
                         ServiceEndpoint = connection.Endpoint.Uri,
-                        RecipientKeys = connection.TheirVk != null ? new[] { connection.TheirVk } : new string[0],
+                        RecipientKeys = verKey != null ? new[] { verKey } : new string[0],
                         RoutingKeys = connection.Endpoint?.Verkey != null ? connection.Endpoint.Verkey : new string[0]
                     }
                 }
