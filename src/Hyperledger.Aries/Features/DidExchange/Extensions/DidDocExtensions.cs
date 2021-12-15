@@ -23,15 +23,9 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// <param name="provisioningRecord">Provisioning record.</param>
         /// <param name="useDidKeyFormat">Boolean indicating if this is using the did:key format</param>
         /// <returns>DID Doc</returns>
-        public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord, bool useDidKeyFormat = false)
+        public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord)
         {
-            // Bookmark: Remove this
-            // var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
-            // var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
-            // var myDidKey = connection.MyVk != null && useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : null; 
-            
-            // bookmark: useDidKeyFormat can be determined by MyDid
-            useDidKeyFormat = DidUtils.IsDidKey(connection.MyDid);
+            var useDidKeyFormat = DidUtils.IsDidKey(connection.MyDid);
             
             // Bookmark: Why would one use did:example? 
             var id = connection.MyDid;

@@ -58,10 +58,12 @@ namespace Hyperledger.Aries.Tests.Protocols
         [Fact]
         public async Task CanCreateMyDidDocWithVerkey()
         {
+            var vk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1";
             var record = new ConnectionRecord
             {
                 Id = "123",
-                MyVk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1"
+                MyDid = vk,
+                MyVk = vk
             };
             record.SetTag("InvitationKey", "8HH5gYEeNc3z7PYXmd54d4x6qAfCNrqQqEB3nS7Zfu7K");
 
@@ -76,12 +78,16 @@ namespace Hyperledger.Aries.Tests.Protocols
         [Fact]
         public async Task CanCreateMyDidDocWithDidKey()
         {
+            var vk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1";
+            var didKey = "did:key:z6MkkPF1W655P1g5aGXwj5jcpjaUKS5RUtayKAnhEbDBzdJP";
+            
             var record = new ConnectionRecord
             {
                 Id = "123",
-                MyVk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1"
+                MyDid = didKey,
+                MyVk = vk,
             };
-            record.SetTag("InvitationKey", "did:key:z6MkmjY8GnV5i9YTDtPETC2uUAW6ejw3nk5mXF5yci5ab7th");
+            record.SetTag("InvitationKey", didKey);
 
             var didDoc = record.MyDidDoc(await _provisioningService.GetProvisioningAsync(_issuerWallet.Wallet));
             
