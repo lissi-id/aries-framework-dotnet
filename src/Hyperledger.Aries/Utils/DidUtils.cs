@@ -96,7 +96,7 @@ namespace Hyperledger.Aries.Utils
         /// <returns>The did:key representation of a verkey as string</returns>
         public static string ConvertVerkeyToDidKey(string verkey)
         {
-            if (IsVerkey(verkey))
+            if (IsFullVerkey(verkey))
             {
                 var bytes = Multibase.Base58.Decode(verkey);
                 byte[] codec = { 0xed, 0x01 };

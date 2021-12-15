@@ -24,7 +24,7 @@ namespace Hyperledger.TestHarness
 {
     public static class AgentScenarios
     {
-        public static async Task<(ConnectionRecord inviteeConnection,ConnectionRecord inviterConnection)> EstablishConnectionAsync(MockAgent invitee, MockAgent inviter)
+        public static async Task<(ConnectionRecord inviteeConnection,ConnectionRecord inviterConnection)> EstablishConnectionAsync(MockAgent invitee, MockAgent inviter, bool useDidKeyFormat = false)
         {
             var slim = new SemaphoreSlim(0, 1);
             
@@ -37,7 +37,7 @@ namespace Hyperledger.TestHarness
                 .Subscribe(x => slim.Release());
 
             (var invitation, var inviterConnection) = await connectionService.CreateInvitationAsync(invitee.Context,
-                new InviteConfiguration { AutoAcceptConnection = true });
+                new InviteConfiguration { AutoAcceptConnection = true, UseDidKeyFormat = useDidKeyFormat});
 
             (var request, var inviteeConnection) =
                 await connectionService.CreateRequestAsync(inviter.Context, invitation);
@@ -61,7 +61,7 @@ namespace Hyperledger.TestHarness
             return (connectionRecord1, connectionRecord2);
         }
 
-        public static async Task<(ConnectionRecord inviteeConnection, ConnectionRecord inviterConnection)> EstablishConnectionWithReturnRoutingAsync(MockAgent invitee, MockAgent inviter)
+        public static async Task<(ConnectionRecord inviteeConnection, ConnectionRecord inviterConnection)> EstablishConnectionWithReturnRoutingAsync(MockAgent invitee, MockAgent inviter, bool useDidKeyFormat = false)
         {
             var slim = new SemaphoreSlim(0, 1);
 
@@ -74,7 +74,7 @@ namespace Hyperledger.TestHarness
                 .Subscribe(x => slim.Release());
 
             (var invitation, var inviterConnection) = await connectionService.CreateInvitationAsync(invitee.Context,
-                new InviteConfiguration { AutoAcceptConnection = true });
+                new InviteConfiguration { AutoAcceptConnection = true, UseDidKeyFormat = useDidKeyFormat});
 
             (var request, var inviteeConnection) =
                 await connectionService.CreateRequestAsync(inviter.Context, invitation);

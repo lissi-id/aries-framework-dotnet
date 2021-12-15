@@ -25,7 +25,8 @@ namespace Hyperledger.TestHarness
             IAgentContext firstContext,
             IAgentContext secondContext,
             ConnectionInvitationMessage inviteMessage = null,
-            string inviteeconnectionId = null)
+            string inviteeconnectionId = null,
+            bool useDidKeyFormat = false)
         {
             // Create invitation by the issuer
             var connectionSecondId = Guid.NewGuid().ToString();
@@ -42,7 +43,8 @@ namespace Hyperledger.TestHarness
                 {
                     Name = "Holder",
                     ImageUrl = "www.holderdomain.com/profilephoto"
-                }
+                },
+                UseDidKeyFormat = useDidKeyFormat
             };
 
             if (inviteMessage == null)
