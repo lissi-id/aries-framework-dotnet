@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Utils;
 
@@ -13,20 +15,26 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// Default key type.
         /// </summary>
         public const string DefaultKeyType = "Ed25519VerificationKey2018";
-        
+
         /// <summary>
         /// Constructs my DID doc in a pairwise relationship from a connection record and the agents provisioning record.
         /// </summary>
         /// <param name="connection">Connection record.</param>
         /// <param name="provisioningRecord">Provisioning record.</param>
+        /// <param name="useDidKeyFormat">Boolean indicating if this is using the did:key format</param>
         /// <returns>DID Doc</returns>
-        public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord)
+        public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord, bool useDidKeyFormat = false)
         {
-            var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
-            var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
-            var myDidKey = connection.MyVk != null && useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : null;  
+            // Bookmark: Remove this
+            // var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
+            // var useDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
+            // var myDidKey = connection.MyVk != null && useDidKey ? DidUtils.ConvertVerkeyToDidKey(connection.MyVk) : null; 
             
-            var id = myDidKey ?? $"did:example:{connection.MyDid}";
+            // bookmark: useDidKeyFormat can be determined by MyDid
+            useDidKeyFormat = DidUtils.IsDidKey(connection.MyDid);
+            
+            // Bookmark: Why would one use did:example? 
+            var id = connection.MyDid;
             var doc = new DidDoc
             {
                 Id = id,
@@ -44,7 +52,9 @@ namespace Hyperledger.Aries.Features.DidExchange
 
             if (!string.IsNullOrEmpty(provisioningRecord.Endpoint.Uri))
             {
-                var recipientKey = myDidKey ?? connection.MyVk;
+                var recipientKey = useDidKeyFormat ? connection.MyDid : connection.MyVk;
+                var routingKeys = provisioningRecord.Endpoint.Verkey.Select(aVerkey =>
+                    useDidKeyFormat ? DidUtils.ConvertVerkeyToDidKey(aVerkey) : aVerkey);
                 doc.Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
@@ -52,7 +62,7 @@ namespace Hyperledger.Aries.Features.DidExchange
                         Id = $"{id};indy",
                         ServiceEndpoint = provisioningRecord.Endpoint.Uri,
                         RecipientKeys = recipientKey != null ? new []{ recipientKey } : new string[0],
-                        RoutingKeys = provisioningRecord.Endpoint?.Verkey != null ? provisioningRecord.Endpoint.Verkey : new string[0]
+                        RoutingKeys = routingKeys.ToList()
                     }
                 };
             }
@@ -67,6 +77,7 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// <returns>DID Doc</returns>
         public static DidDoc TheirDidDoc(this ConnectionRecord connection)
         {
+            // Bookmark: Update did:key usage
             var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
             var isDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
 
