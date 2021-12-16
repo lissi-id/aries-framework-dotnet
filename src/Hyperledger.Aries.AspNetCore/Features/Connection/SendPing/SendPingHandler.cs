@@ -88,7 +88,7 @@ namespace Hyperledger.Aries.AspNetCore.Features.Connections
       {
         await MessageService.SendAsync(agentContext, trustPingMessage, connectionRecord);
 
-        await semaphoreSlim.WaitAsync(TimeSpan.FromSeconds(5));
+        await semaphoreSlim.WaitAsync(TimeSpan.FromSeconds(5), aCancellationToken);
       }
 
       var response = new SendPingResponse(aSendPingRequest.CorrelationId, success);
