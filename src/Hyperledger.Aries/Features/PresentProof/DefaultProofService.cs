@@ -19,6 +19,7 @@ using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Decorators.Service;
 using Hyperledger.Aries.Common;
+using Hyperledger.Aries.Features.PresentProof.Messages;
 
 namespace Hyperledger.Aries.Features.PresentProof
 {
@@ -661,7 +662,7 @@ namespace Hyperledger.Aries.Features.PresentProof
                 proofRecord.RequestJson = requestJson;
                 await RecordService.UpdateAsync(agentContext.Wallet, proofRecord);
             }
-
+            
             EventAggregator.Publish(new ServiceMessageProcessingEvent
             {
                 RecordId = proofRecord.Id,
