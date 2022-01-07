@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Hyperledger.Aries.Configuration;
 
 namespace Hyperledger.Aries.Features.DidExchange
@@ -44,8 +45,8 @@ namespace Hyperledger.Aries.Features.DidExchange
                     {
                         Id = $"{connection.MyDid};indy",
                         ServiceEndpoint = provisioningRecord.Endpoint.Uri,
-                        RecipientKeys = connection.MyVk != null ? new []{ connection.MyVk } : new string[0],
-                        RoutingKeys = provisioningRecord.Endpoint.Verkey
+                        RecipientKeys = connection.MyVk != null ? new[] { connection.MyVk } : Array.Empty<string>(),
+                        RoutingKeys = provisioningRecord.Endpoint?.Verkey ?? Array.Empty<string>()
                     }
                 };
             }
@@ -79,8 +80,8 @@ namespace Hyperledger.Aries.Features.DidExchange
                     {
                         Id = $"{connection.TheirDid};indy",
                         ServiceEndpoint = connection.Endpoint.Uri,
-                        RecipientKeys = connection.TheirVk != null ? new[] { connection.TheirVk } : new string[0],
-                        RoutingKeys = connection.Endpoint?.Verkey != null ? connection.Endpoint.Verkey : new string[0]
+                        RecipientKeys = connection.TheirVk != null ? new[] { connection.TheirVk } : Array.Empty<string>(),
+                        RoutingKeys = connection.Endpoint?.Verkey ?? Array.Empty<string>()
                     }
                 }
             };
