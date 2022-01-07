@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Hyperledger.Aries.Configuration;
-using Hyperledger.Aries.Utils;
 
 namespace Hyperledger.Aries.Features.DidExchange
 {
@@ -21,24 +18,19 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// </summary>
         /// <param name="connection">Connection record.</param>
         /// <param name="provisioningRecord">Provisioning record.</param>
-        /// <param name="useDidKeyFormat">Boolean indicating if this is using the did:key format</param>
         /// <returns>DID Doc</returns>
         public static DidDoc MyDidDoc(this ConnectionRecord connection, ProvisioningRecord provisioningRecord)
         {
-            var useDidKeyFormat = DidUtils.IsDidKey(connection.MyDid);
-            
-            // Bookmark: Why would one use did:example? 
-            var id = connection.MyDid;
             var doc = new DidDoc
             {
-                Id = id,
+                Id = connection.MyDid,
                 Keys = new List<DidDocKey>
                 {
                     new DidDocKey
                     {
-                        Id = $"{id}#keys-1",
+                        Id = $"{connection.MyDid}#keys-1",
                         Type = DefaultKeyType,
-                        Controller = id,
+                        Controller = connection.MyDid,
                         PublicKeyBase58 = connection.MyVk
                     }
                 }
@@ -46,17 +38,14 @@ namespace Hyperledger.Aries.Features.DidExchange
 
             if (!string.IsNullOrEmpty(provisioningRecord.Endpoint.Uri))
             {
-                var recipientKey = useDidKeyFormat ? connection.MyDid : connection.MyVk;
-                var routingKeys = provisioningRecord.Endpoint.Verkey.Select(aVerkey =>
-                    useDidKeyFormat ? DidUtils.ConvertVerkeyToDidKey(aVerkey) : aVerkey);
                 doc.Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
                     {
-                        Id = $"{id};indy",
+                        Id = $"{connection.MyDid};indy",
                         ServiceEndpoint = provisioningRecord.Endpoint.Uri,
-                        RecipientKeys = recipientKey != null ? new []{ recipientKey } : new string[0],
-                        RoutingKeys = routingKeys.ToList()
+                        RecipientKeys = connection.MyVk != null ? new []{ connection.MyVk } : new string[0],
+                        RoutingKeys = provisioningRecord.Endpoint.Verkey
                     }
                 };
             }
@@ -71,32 +60,26 @@ namespace Hyperledger.Aries.Features.DidExchange
         /// <returns>DID Doc</returns>
         public static DidDoc TheirDidDoc(this ConnectionRecord connection)
         {
-            // Bookmark: Update did:key usage
-            var theirKey = connection.TheirVk ?? connection.GetTag("InvitationKey");
-            var isDidKey = string.IsNullOrWhiteSpace(theirKey) == false && DidUtils.IsDidKey(theirKey);
-
-            var id = isDidKey ? theirKey : $"did:example:{connection.TheirDid}";
-            var verKey = isDidKey ? DidUtils.ConvertDidKeyToVerkey(connection.TheirVk) : connection.TheirVk;
             return new DidDoc
             {
-                Id = id,
+                Id = connection.TheirDid,
                 Keys = new List<DidDocKey>
                 {
                     new DidDocKey
                     {
-                        Id = $"{id}#keys-1",
+                        Id = $"{connection.TheirDid}#keys-1",
                         Type = DefaultKeyType,
-                        Controller = id,
-                        PublicKeyBase58 = verKey
+                        Controller = connection.TheirDid,
+                        PublicKeyBase58 = connection.TheirVk
                     }
                 },
                 Services = new List<IDidDocServiceEndpoint>
                 {
                     new IndyAgentDidDocService
                     {
-                        Id = $"{id};indy",
+                        Id = $"{connection.TheirDid};indy",
                         ServiceEndpoint = connection.Endpoint.Uri,
-                        RecipientKeys = verKey != null ? new[] { verKey } : new string[0],
+                        RecipientKeys = connection.TheirVk != null ? new[] { connection.TheirVk } : new string[0],
                         RoutingKeys = connection.Endpoint?.Verkey != null ? connection.Endpoint.Verkey : new string[0]
                     }
                 }

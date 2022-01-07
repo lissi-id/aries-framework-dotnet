@@ -54,48 +54,6 @@ namespace Hyperledger.Aries.Tests.Protocols
             _holderWallet = await AgentUtils.Create(_holderConfig, Credentials);
             _holderWalletTwo = await AgentUtils.Create(_holderConfigTwo, Credentials);
         }
-        
-        [Fact]
-        public async Task CanCreateMyDidDocWithVerkey()
-        {
-            var vk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1";
-            var record = new ConnectionRecord
-            {
-                Id = "123",
-                MyDid = vk,
-                MyVk = vk
-            };
-            record.SetTag("InvitationKey", "8HH5gYEeNc3z7PYXmd54d4x6qAfCNrqQqEB3nS7Zfu7K");
-
-            var didDoc = record.MyDidDoc(await _provisioningService.GetProvisioningAsync(_issuerWallet.Wallet));
-            
-            Assert.True(DidUtils.IsVerkey(didDoc.Keys[0].PublicKeyBase58));
-            Assert.True(didDoc.Services[0] is IndyAgentDidDocService);
-            Assert.True(DidUtils.IsVerkey(((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]));
-            Assert.Equal(didDoc.Keys[0].PublicKeyBase58, ((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]);
-        }
-        
-        [Fact]
-        public async Task CanCreateMyDidDocWithDidKey()
-        {
-            var vk = "6vyxuqpe3UBcTmhF3Wmmye2UVroa51Lcd9smQKFB5QX1";
-            var didKey = "did:key:z6MkkPF1W655P1g5aGXwj5jcpjaUKS5RUtayKAnhEbDBzdJP";
-            
-            var record = new ConnectionRecord
-            {
-                Id = "123",
-                MyDid = didKey,
-                MyVk = vk,
-            };
-            record.SetTag("InvitationKey", didKey);
-
-            var didDoc = record.MyDidDoc(await _provisioningService.GetProvisioningAsync(_issuerWallet.Wallet));
-            
-            Assert.True(DidUtils.IsVerkey(didDoc.Keys[0].PublicKeyBase58));
-            Assert.True(didDoc.Services[0] is IndyAgentDidDocService);
-            Assert.True(DidUtils.IsDidKey(((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]));
-            Assert.Equal(DidUtils.ConvertVerkeyToDidKey(didDoc.Keys[0].PublicKeyBase58), ((IndyAgentDidDocService)didDoc.Services[0]).RecipientKeys[0]);
-        }
 
         [Fact]
         public async Task CanCreateInvitationAsync()
@@ -123,6 +81,7 @@ namespace Hyperledger.Aries.Tests.Protocols
             var connection = await _connectionService.GetAsync(_issuerWallet, connectionId);
 
             Assert.True(DidUtils.IsDidKey(msg.RecipientKeys.First()));
+            Assert.True(DidUtils.IsDidKey(msg.RoutingKeys.First()));
             Assert.False(connection.MultiPartyInvitation);
             Assert.Equal(ConnectionState.Invited, connection.State);
             Assert.Equal(connectionId, connection.Id);
