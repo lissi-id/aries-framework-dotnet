@@ -55,3 +55,4 @@ jobs:
           packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
           nuGetFeedType: 'internal'
           publishVstsFeed: 'a8209a3a-386c-408b-886a-037df8eadf21/5ecbcca4-3db8-47df-9230-c819b1d9e0ea'
+          allowPackageConflicts: true
