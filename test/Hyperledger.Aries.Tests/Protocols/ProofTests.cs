@@ -27,6 +27,7 @@ using Microsoft.Extensions.Options;
 using Hyperledger.Aries.Extensions;
 using FluentAssertions;
 using Hyperledger.Aries.Configuration;
+using Hyperledger.Aries.TestHarness;
 
 namespace Hyperledger.Aries.Tests.Protocols
 {

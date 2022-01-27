@@ -7,6 +7,7 @@ using Hyperledger.Aries.Decorators;
 using Hyperledger.Aries.Decorators.Attachments;
 using Hyperledger.Aries.Decorators.Service;
 using Hyperledger.Aries.Decorators.Threading;
+using Hyperledger.Aries.Decorators.PleaseAck;
 using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Models.Events;
 using Hyperledger.Aries.Models.Records;
@@ -24,7 +25,7 @@ using Hyperledger.Aries.Payments;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Indy;
 using Polly;
-using Hyperledger.Aries.Features.PresentProof;
+using Hyperledger.Aries.Features.RevocationNotification;
 
 namespace Hyperledger.Aries.Features.IssueCredential
 {
@@ -173,7 +174,7 @@ namespace Hyperledger.Aries.Features.IssueCredential
         }
 
         /// <inheritdoc />
-        public virtual async Task RevokeCredentialAsync(IAgentContext agentContext, string credentialId)
+        public virtual async Task RevokeCredentialAsync(IAgentContext agentContext, string credentialId, bool sendRevocationNotification = false)
         {
             var credentialRecord = await GetAsync(agentContext, credentialId);
 
@@ -211,12 +212,27 @@ namespace Hyperledger.Aries.Features.IssueCredential
                 paymentInfo: paymentInfo);
 
             if (paymentInfo != null)
-            {
                 await RecordService.UpdateAsync(agentContext.Wallet, paymentInfo.PaymentAddress);
-            }
 
             // Update local credential record
             await RecordService.UpdateAsync(agentContext.Wallet, credentialRecord);
+            
+            if (!sendRevocationNotification)
+                return;
+
+            Logger.LogInformation($"Sending Revocation Notification for {credentialId}...");
+
+            var msg = new RevocationNotificationMessage
+            {
+                ThreadId = credentialRecord.GetTag(TagConstants.LastThreadId)
+            };
+            msg.AddDecorator(new PleaseAckDecorator(new [] {OnValues.OUTCOME}), DecoratorNames.PleaseAckDecorator);
+
+            var connection = await ConnectionService.GetAsync(agentContext, credentialRecord.ConnectionId);
+            await MessageService.SendAsync(
+                agentContext,
+                msg,
+                connection);
         }
 
         /// <inheritdoc />
