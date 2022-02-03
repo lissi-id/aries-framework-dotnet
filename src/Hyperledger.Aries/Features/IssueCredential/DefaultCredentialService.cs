@@ -9,7 +9,6 @@ using Hyperledger.Aries.Decorators.Service;
 using Hyperledger.Aries.Decorators.Threading;
 using Hyperledger.Aries.Decorators.PleaseAck;
 using Hyperledger.Aries.Extensions;
-using Hyperledger.Aries.Models.Events;
 using Hyperledger.Aries.Models.Records;
 using Hyperledger.Aries.Utils;
 using Hyperledger.Indy.AnonCredsApi;
@@ -19,7 +18,9 @@ using Newtonsoft.Json.Linq;
 using Hyperledger.Indy.DidApi;
 using Hyperledger.Aries.Features.DidExchange;
 using Hyperledger.Aries.Agents;
+using Hyperledger.Aries.Common;
 using Hyperledger.Aries.Configuration;
+using Hyperledger.Aries.Features.IssueCredential.Models;
 using Hyperledger.Aries.Ledger;
 using Hyperledger.Aries.Payments;
 using Hyperledger.Aries.Storage;
@@ -249,6 +250,39 @@ namespace Hyperledger.Aries.Features.IssueCredential
             }
 
             await RecordService.DeleteAsync<CredentialRecord>(agentContext.Wallet, credentialId);
+        }
+
+        /// <inheritdoc />
+        public async Task<CredentialAcknowledgeMessage> CreateAcknowledgementMessageAsync(IAgentContext agentContext, string credentialRecordId,
+            string status = AcknowledgementStatusConstants.Ok)
+        {
+            var record = await GetAsync(agentContext, credentialRecordId);
+            
+            var threadId = record.GetTag(TagConstants.LastThreadId);
+            var acknowledgeMessage = new CredentialAcknowledgeMessage(agentContext.UseMessageTypesHttps)
+            {
+                Id = threadId,
+                Status = status
+            };
+            acknowledgeMessage.ThreadFrom(threadId);
+
+            return acknowledgeMessage;
+        }
+
+        /// <inheritdoc />
+        public async Task<CredentialRecord> ProcessAcknowledgementMessageAsync(IAgentContext agentContext,
+            CredentialAcknowledgeMessage credentialAcknowledgeMessage)
+        {
+            var credentialRecord = await this.GetByThreadIdAsync(agentContext, credentialAcknowledgeMessage.GetThreadId());
+
+            EventAggregator.Publish(new ServiceMessageProcessingEvent
+            {
+                RecordId = credentialRecord.Id,
+                MessageType = credentialAcknowledgeMessage.Type,
+                ThreadId = credentialAcknowledgeMessage.GetThreadId()
+            });
+            
+            return credentialRecord;
         }
 
         /// <inheritdoc />

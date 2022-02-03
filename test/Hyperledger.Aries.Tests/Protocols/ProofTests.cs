@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Hyperledger.Aries.Contracts;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.IssueCredential;
-using Hyperledger.Aries.Models.Events;
 using Hyperledger.TestHarness;
 using Hyperledger.TestHarness.Utils;
 using Hyperledger.Indy.WalletApi;
@@ -28,6 +27,7 @@ using Hyperledger.Aries.Extensions;
 using FluentAssertions;
 using Hyperledger.Aries.Configuration;
 using Hyperledger.Aries.TestHarness;
+using Hyperledger.Aries.Common;
 
 namespace Hyperledger.Aries.Tests.Protocols
 {
