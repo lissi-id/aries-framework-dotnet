@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Indy.NonSecretsApi;
 using Hyperledger.Indy.WalletApi;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Storage
@@ -15,11 +17,15 @@ namespace Hyperledger.Aries.Storage
     /// <inheritdoc />
     public class DefaultWalletRecordService : IWalletRecordService
     {
+        private readonly ILogger<DefaultWalletRecordService> _logger;
         private readonly JsonSerializerSettings _jsonSettings;
 
         /// <summary>Initializes a new instance of the <see cref="DefaultWalletRecordService"/> class.</summary>
-        public DefaultWalletRecordService()
+        public DefaultWalletRecordService(
+            ILogger<DefaultWalletRecordService> logger)
         {
+            _logger = logger;
+            
             _jsonSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -47,13 +53,27 @@ namespace Hyperledger.Aries.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task<List<T>> SearchAsync<T>(Wallet wallet, ISearchQuery query, SearchOptions options, int count, int skip)
+        public virtual async Task<List<T>> SearchAsync<T>(
+            Wallet wallet,
+            ISearchQuery query,
+            SearchOptions options,
+            int count,
+            int skip,
+            [CallerMemberName] string callerName = null)
             where T : RecordBase, new()
         {
+            _logger.LogTrace("OpenSearchAsync started for type {Type} at {Now} called by {CallerName}",
+                typeof(T),
+                DateTime.Now,
+                callerName);
             using (var search = await NonSecrets.OpenSearchAsync(wallet, new T().TypeName,
                 (query ?? SearchQuery.Empty).ToJson(),
                 (options ?? new SearchOptions()).ToJson()))
             {
+                _logger.LogTrace("OpenSearchAsync finished for type {Type} at {Now} called by {CallerName}",
+                    typeof(T),
+                    DateTime.Now,
+                    callerName);
                 if(skip > 0) {
                     await search.NextAsync(wallet, skip);
                 }
@@ -89,14 +109,22 @@ namespace Hyperledger.Aries.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task<T> GetAsync<T>(Wallet wallet, string id) where T : RecordBase, new()
+        public virtual async Task<T> GetAsync<T>(Wallet wallet, string id, [CallerMemberName] string callerName = null) where T : RecordBase, new()
         {
             try
             {
+                _logger.LogTrace("GetRecordAsync started for type {Type} at {Now} called by {CallerName}",
+                    typeof(T),
+                    DateTime.Now,
+                    callerName);
                 var recordJson = await NonSecrets.GetRecordAsync(wallet,
                     new T().TypeName,
                     id,
                     new SearchOptions().ToJson());
+                _logger.LogTrace("GetRecordAsync finished for type {Type} at {Now} called by {CallerName}",
+                    typeof(T),
+                    DateTime.Now,
+                    callerName);
 
                 if (recordJson == null) return null;
 
