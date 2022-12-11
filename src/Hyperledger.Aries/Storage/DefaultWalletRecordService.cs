@@ -61,17 +61,19 @@ namespace Hyperledger.Aries.Storage
             where T : RecordBase, new()
         {
             _logger.LogDebug($"OpenSearchAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             using (var search = await NonSecrets.OpenSearchAsync(wallet, new T().TypeName,
                        (query ?? SearchQuery.Empty).ToJson(),
                        (options ?? new SearchOptions()).ToJson()))
             {
-                _logger.LogDebug($"OpenSearchAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+                _logger.LogDebug($"OpenSearchAsync finished for type {typeof(T)} at {DateTime.Now} within {stopwatch.ElapsedMilliseconds}ms called by {callerName}");
                 if(skip > 0) {
                     await search.NextAsync(wallet, skip);
                 }
                 var result = JsonConvert.DeserializeObject<SearchResult>(await search.NextAsync(wallet, count), _jsonSettings);
 
-                return result.Records?
+                var res = result?.Records?
                            .Select(x =>
                            {
                                var record = JsonConvert.DeserializeObject<T>(x.Value, _jsonSettings);
@@ -81,6 +83,10 @@ namespace Hyperledger.Aries.Storage
                            })
                            .ToList()
                        ?? new List<T>();
+
+                stopwatch.Stop();
+                _logger.LogDebug($"SearchAsync finished for type {typeof(T)} at {DateTime.Now} within {stopwatch.ElapsedMilliseconds}ms called by {callerName}");
+                return res;
             }
         }
 
