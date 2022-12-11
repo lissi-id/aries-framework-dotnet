@@ -9,6 +9,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+        <PackageReference Include="NLog" Version="4.7.2" />
         <PackageReference Include="System.Reactive.Linq" Version="$(SystemReactiveLinqVersion)" />
         <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
 
