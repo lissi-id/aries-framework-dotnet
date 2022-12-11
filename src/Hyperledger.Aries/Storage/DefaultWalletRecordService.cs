@@ -18,10 +18,12 @@ namespace Hyperledger.Aries.Storage
     public class DefaultWalletRecordService : IWalletRecordService
     {
         private readonly JsonSerializerSettings _jsonSettings;
+        private readonly ILogger<DefaultWalletRecordService> _logger;
 
         /// <summary>Initializes a new instance of the <see cref="DefaultWalletRecordService"/> class.</summary>
-        public DefaultWalletRecordService()
+        public DefaultWalletRecordService(ILogger<DefaultWalletRecordService> logger)
         {
+            _logger = logger;
             _jsonSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -58,12 +60,12 @@ namespace Hyperledger.Aries.Storage
             [CallerMemberName] string callerName = null)
             where T : RecordBase, new()
         {
-            Console.WriteLine($"OpenSearchAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+            _logger.LogDebug($"OpenSearchAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
             using (var search = await NonSecrets.OpenSearchAsync(wallet, new T().TypeName,
                        (query ?? SearchQuery.Empty).ToJson(),
                        (options ?? new SearchOptions()).ToJson()))
             {
-                Console.WriteLine($"OpenSearchAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+                _logger.LogDebug($"OpenSearchAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
                 if(skip > 0) {
                     await search.NextAsync(wallet, skip);
                 }
@@ -103,12 +105,12 @@ namespace Hyperledger.Aries.Storage
         {
             try
             {
-                Console.WriteLine($"GetRecordAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+                _logger.LogDebug($"GetRecordAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
                 var recordJson = await NonSecrets.GetRecordAsync(wallet,
                     new T().TypeName,
                     id,
                     new SearchOptions().ToJson());
-                Console.WriteLine($"GetRecordAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
+                _logger.LogDebug($"GetRecordAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
 
                 if (recordJson == null) return null;
 
