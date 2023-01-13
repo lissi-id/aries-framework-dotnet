@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Indy.NonSecretsApi;
 using Hyperledger.Indy.WalletApi;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Storage
@@ -18,12 +16,10 @@ namespace Hyperledger.Aries.Storage
     public class DefaultWalletRecordService : IWalletRecordService
     {
         private readonly JsonSerializerSettings _jsonSettings;
-        private readonly ILogger<DefaultWalletRecordService> _logger;
 
         /// <summary>Initializes a new instance of the <see cref="DefaultWalletRecordService"/> class.</summary>
-        public DefaultWalletRecordService(ILogger<DefaultWalletRecordService> logger)
+        public DefaultWalletRecordService()
         {
-            _logger = logger;
             _jsonSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -51,29 +47,19 @@ namespace Hyperledger.Aries.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task<List<T>> SearchAsync<T>(
-            Wallet wallet,
-            ISearchQuery query,
-            SearchOptions options,
-            int count,
-            int skip,
-            [CallerMemberName] string callerName = null)
+        public virtual async Task<List<T>> SearchAsync<T>(Wallet wallet, ISearchQuery query, SearchOptions options, int count, int skip)
             where T : RecordBase, new()
         {
-            _logger.LogDebug($"OpenSearchAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var search = await NonSecrets.OpenSearchAsync(wallet, new T().TypeName,
-                       (query ?? SearchQuery.Empty).ToJson(),
-                       (options ?? new SearchOptions()).ToJson()))
+                (query ?? SearchQuery.Empty).ToJson(),
+                (options ?? new SearchOptions()).ToJson()))
             {
-                _logger.LogDebug($"OpenSearchAsync finished for type {typeof(T)} at {DateTime.Now} within {stopwatch.ElapsedMilliseconds}ms called by {callerName}");
                 if(skip > 0) {
                     await search.NextAsync(wallet, skip);
                 }
                 var result = JsonConvert.DeserializeObject<SearchResult>(await search.NextAsync(wallet, count), _jsonSettings);
 
-                var res = result?.Records?
+                return result.Records?
                            .Select(x =>
                            {
                                var record = JsonConvert.DeserializeObject<T>(x.Value, _jsonSettings);
@@ -83,10 +69,6 @@ namespace Hyperledger.Aries.Storage
                            })
                            .ToList()
                        ?? new List<T>();
-
-                stopwatch.Stop();
-                _logger.LogDebug($"SearchAsync finished for type {typeof(T)} at {DateTime.Now} within {stopwatch.ElapsedMilliseconds}ms called by {callerName}");
-                return res;
             }
         }
 
@@ -107,16 +89,14 @@ namespace Hyperledger.Aries.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task<T> GetAsync<T>(Wallet wallet, string id, [CallerMemberName] string callerName = null) where T : RecordBase, new()
+        public virtual async Task<T> GetAsync<T>(Wallet wallet, string id) where T : RecordBase, new()
         {
             try
             {
-                _logger.LogDebug($"GetRecordAsync started for type {typeof(T)} at {DateTime.Now} called by {callerName}");
                 var recordJson = await NonSecrets.GetRecordAsync(wallet,
                     new T().TypeName,
                     id,
                     new SearchOptions().ToJson());
-                _logger.LogDebug($"GetRecordAsync finished for type {typeof(T)} at {DateTime.Now} called by {callerName}");
 
                 if (recordJson == null) return null;
 

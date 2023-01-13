@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Hyperledger.Indy.WalletApi;
 
@@ -29,13 +28,7 @@ namespace Hyperledger.Aries.Storage
         /// <param name="count">The number of items to return</param>
         /// <param name="skip">The number of items to skip</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        Task<List<T>> SearchAsync<T>(
-            Wallet wallet,
-            ISearchQuery query = null,
-            SearchOptions options = null,
-            int count = 10,
-            int skip = 0,
-            [CallerMemberName] string callerName = null) where T : RecordBase, new();
+        Task<List<T>> SearchAsync<T>(Wallet wallet, ISearchQuery query = null, SearchOptions options = null, int count = 10, int skip = 0) where T : RecordBase, new();
 
         /// <summary>
         /// Updates the record async.
@@ -52,7 +45,7 @@ namespace Hyperledger.Aries.Storage
         /// <param name="wallet">Wallet.</param>
         /// <param name="id">Identifier.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        Task<T> GetAsync<T>(Wallet wallet, string id, [CallerMemberName] string callerName = null) where T : RecordBase, new();
+        Task<T> GetAsync<T>(Wallet wallet, string id) where T : RecordBase, new();
 
         /// <summary>
         /// Deletes the record async.

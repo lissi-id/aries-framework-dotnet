@@ -22,8 +22,24 @@ namespace Hyperledger.Aries.Utils
         /// <param name="credentialAttributes">The credential attributes.</param>
         public static string FormatCredentialValues(IEnumerable<CredentialPreviewAttribute> credentialAttributes)
         {
-            var result = credentialAttributes?.ToDictionary(item => item.Name, FormatStringCredentialAttribute);
-            return result?.ToJson();
+            if (credentialAttributes == null)
+                return null;
+
+            var result = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var item in credentialAttributes)
+            {
+                switch (item.MimeType)
+                {
+                    case CredentialMimeTypes.TextMimeType:
+                    case CredentialMimeTypes.ApplicationJsonMimeType:
+                    case CredentialMimeTypes.ImagePngMimeType:
+                        result.Add(item.Name, FormatStringCredentialAttribute(item));
+                        break;
+                    default:
+                        throw new AriesFrameworkException(ErrorCode.InvalidParameterFormat, $"{item.Name} mime type of {item.MimeType} not supported");
+                }
+            }
+            return result.ToJson();
         }
 
         static SHA256 sha256 = SHA256.Create();
@@ -123,7 +139,15 @@ namespace Hyperledger.Aries.Utils
         /// <returns></returns>
         public static object CastAttribute(object attributeValue, string mimeType)
         {
-            return (string)attributeValue;
+            switch (mimeType)
+            {
+                case CredentialMimeTypes.TextMimeType:
+                case CredentialMimeTypes.ApplicationJsonMimeType:
+                case CredentialMimeTypes.ImagePngMimeType:
+                    return (string)attributeValue;
+                default:
+                    throw new AriesFrameworkException(ErrorCode.InvalidParameterFormat, $"Mime type of {mimeType} not supported");
+            }
         }
 
         /// <summary>
@@ -134,7 +158,17 @@ namespace Hyperledger.Aries.Utils
         /// <returns></returns>
         public static object CastAttribute(JToken attributeValue, string mimeType)
         {
-            return attributeValue.Value<string>();
+            switch (mimeType)
+            {
+                case null:
+                    return attributeValue.Value<string>();
+                case CredentialMimeTypes.TextMimeType:
+                case CredentialMimeTypes.ApplicationJsonMimeType:
+                case CredentialMimeTypes.ImagePngMimeType:
+                    return attributeValue.Value<string>();
+                default:
+                    throw new AriesFrameworkException(ErrorCode.InvalidParameterFormat, $"Mime type of {mimeType} not supported");
+            }
         }
 
         /// <summary>
