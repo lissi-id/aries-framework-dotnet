@@ -40,6 +40,7 @@ namespace Hyperledger.Aries.Routing
             RoutingTypeNames.CreateInboxMessage,
             RoutingTypeNames.AddRouteMessage,
             RoutingTypeNames.AddDeviceInfoMessage,
+            RoutingTypeNames.UpsertDeviceInfoMessage,
             RoutingTypeNames.GetInboxItemsMessage,
             RoutingTypeNames.DeleteInboxItemsMessage
         };
