@@ -6,7 +6,7 @@ using Hyperledger.Aries.Storage;
 namespace Hyperledger.Aries.Features.SdJwt.Models.Records;
 
 /// <summary>
-///     A record that represents a Selective Disclosure JSON Web Token (SD-JWT) with additional properties.
+///     A record that represents a Selective Disclosure JSON Web Token (SD-JWT) Credential with additional properties.
 ///     Inherits from base class RecordBase.
 /// </summary>
 public class SdJwtRecord : RecordBase
