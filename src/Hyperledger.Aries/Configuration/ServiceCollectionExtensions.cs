@@ -7,6 +7,7 @@ using Hyperledger.Aries.Features.Discovery;
 using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
+using Hyperledger.Aries.Features.OpenID4VC.VCI.Services;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
@@ -17,6 +18,8 @@ using Hyperledger.Aries.Runtime;
 using Hyperledger.Aries.Signatures;
 using Hyperledger.Aries.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SD_JWT;
+using SD_JWT.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -76,6 +79,8 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.TryAddSingleton<IConnectionService, DefaultConnectionService>();
             builder.TryAddSingleton<ICredentialService, DefaultCredentialService>();
             builder.TryAddSingleton<IDidExchangeService, DefaultDidExchangeService>();
+            builder.TryAddSingleton<IHolder, Holder>();
+            builder.TryAddSingleton<IOidCredentialService, OidCredentialService>();
             builder.TryAddSingleton<ILedgerService, DefaultLedgerService>();
             builder.TryAddSingleton<ILedgerSigningService, DefaultLedgerSigningService>();
             builder.TryAddSingleton<IPoolService, DefaultPoolService>();

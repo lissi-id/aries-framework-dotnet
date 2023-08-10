@@ -52,4 +52,10 @@ public class OidIssuerMetadata
     /// </summary>
     [JsonProperty("credential_issuer")]
     public string CredentialIssuer { get; set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    [JsonProperty("authorization_server")]
+    public string? AuthorizationServer { get; set; }
 }

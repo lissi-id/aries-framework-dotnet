@@ -6,17 +6,24 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Hyperledger.Indy-VDR" Version="$(HyperledgerIndyVdrVersion)" />
+        <PackageReference Include="JWT" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
         <PackageReference Include="System.Reactive.Linq" Version="$(SystemReactiveLinqVersion)" />
-        <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+        <PackageReference Include="System.Text.Json" Version="7.0.3" />
 
         <PackageReference Include="Flurl" Version="$(FlurlVersion)" />
         <PackageReference Include="Hyperledger.Indy.Sdk" Version="$(HyperledgerIndySdkVersion)" />
-        <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Polly" Version="$(PollyVersion)" />
         <PackageReference Include="Stateless" Version="$(StatelessVersion)" />
         <PackageReference Include="Multiformats.Base" Version="2.0.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Features\OpenID4VC\VP\" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\sd-jwt-dotnet\src\SD-JWT\SD-JWT.csproj" />
     </ItemGroup>
 </Project>
