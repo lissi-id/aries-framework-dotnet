@@ -10,18 +10,6 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer.GrantT
 public class PreAuthorizedCode
 {
     /// <summary>
-    ///     Creates an instance of the PreAuthorizedCode class.
-    /// </summary>
-    /// <param name="value">
-    ///     The pre-authorized code representing the Credential Issuer's authorization for the Wallet to obtain
-    ///     Credentials of a certain type.
-    /// </param>
-    public PreAuthorizedCode(string value)
-    {
-        Value = value;
-    }
-    
-    /// <summary>
     ///     Gets or sets a boolean value specifying whether the Credential Issuer expects presentation of a user PIN along with
     ///     the Token Request in a Pre-Authorized Code Flow.
     /// </summary>
@@ -33,7 +21,7 @@ public class PreAuthorizedCode
     ///     Credentials of a certain type.
     /// </summary>
     [JsonProperty("pre-authorized_code")]
-    public string Value { get; set; }
+    public string Value { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a description of the user PIN that may be required along with the Token Request in a Pre-Authorized

@@ -1,12 +1,11 @@
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
+namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Error;
 
 /// <summary>
-///     Represents an error response from the OAuth 2.0 Authorization Server when the token request is invalid or
-///     unauthorized.
+///     Represents an error response when the request is invalid or unauthorized.
 /// </summary>
-public class TokenErrorResponse
+public class ErrorResponse
 {
     /// <summary>
     ///     Gets or sets the error code indicating the type of error that occurred.
