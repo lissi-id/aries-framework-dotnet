@@ -12,50 +12,24 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records;
 public class SdJwtRecord : RecordBase
 {
     /// <summary>
-    ///     Constructs a new instance of SdJwtRecord.
-    /// </summary>
-    /// <param name="issuerId">The unique identifier for the issuer.</param>
-    /// <param name="displayedAttributes">
-    ///     The attributes that should be displayed. These are represented as a dictionary where
-    ///     each key represents a language, and the value is another dictionary containing the attribute name and value in that
-    ///     language.
-    /// </param>
-    /// <param name="claims">
-    ///     The claims made. These are represented as a dictionary where each key is the name of the value,
-    ///     and the value is the actual value.
-    /// </param>
-    /// <param name="combinedIssuance">The combined issuance.</param>
-    public SdJwtRecord(
-        string issuerId,
-        Dictionary<string, Dictionary<string, string>> displayedAttributes,
-        Dictionary<string, string> claims,
-        string combinedIssuance)
-    {
-        IssuerId = issuerId;
-        DisplayedAttributes = displayedAttributes;
-        Claims = claims;
-        CombinedIssuance = combinedIssuance;
-    }
-    
-    /// <summary>
     ///     Gets or sets the attributes that should be displayed.
     /// </summary>
-    public Dictionary<string, Dictionary<string, string>> DisplayedAttributes { get; set; }
+    public Dictionary<string, Dictionary<string, string>> DisplayedAttributes { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the claims made.
     /// </summary>
-    public Dictionary<string, string> Claims { get; set; }
+    public Dictionary<string, string> Claims { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the combined issuance.
     /// </summary>
-    public string CombinedIssuance { get; set; }
+    public string CombinedIssuance { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the identifier for the issuer.
     /// </summary>
-    public string IssuerId { get; set; }
+    public string IssuerId { get; set; } = null!;
 
     /// <inheritdoc />
     public override string TypeName => "AF.SdJwtRecord";
