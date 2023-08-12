@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.Collections.Generic;
+using System.Net.Http;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
@@ -33,4 +35,27 @@ public class TokenRequest
     /// </summary>
     [JsonProperty("user_pin")]
     public string? UserPin { get; set; }
+
+    /// <summary>
+    ///     Converts the properties of the TokenRequest instance into an FormUrlEncodedContent type suitable for HTTP POST operations.
+    /// </summary>
+    /// <returns>Returns an instance of FormUrlEncodedContent containing the URL-encoded properties of the TokenRequest.</returns>
+    public FormUrlEncodedContent ToFormUrlEncoded()
+    {
+        var keyValuePairs = new List<KeyValuePair<string, string>>();
+
+        if (!string.IsNullOrEmpty(GrantType))
+            keyValuePairs.Add(new KeyValuePair<string, string>("grant_type", GrantType));
+
+        if (!string.IsNullOrEmpty(PreAuthorizedCode))
+            keyValuePairs.Add(new KeyValuePair<string, string>("pre-authorized_code", PreAuthorizedCode));
+
+        if (!string.IsNullOrEmpty(Scope))
+            keyValuePairs.Add(new KeyValuePair<string, string>("scope", Scope));
+
+        if (!string.IsNullOrEmpty(UserPin))
+            keyValuePairs.Add(new KeyValuePair<string, string>("user_pin", UserPin));
+
+        return new FormUrlEncodedContent(keyValuePairs);
+    }
 }

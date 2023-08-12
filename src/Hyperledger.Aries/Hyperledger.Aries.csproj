@@ -9,6 +9,8 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+        <PackageReference Include="SD-JWT" Version="0.1.0-CI-20230811-081003" />
+        <PackageReference Include="System.Collections.Immutable" Version="8.0.0-preview.7.23375.6" />
         <PackageReference Include="System.Reactive.Linq" Version="$(SystemReactiveLinqVersion)" />
         <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
 
