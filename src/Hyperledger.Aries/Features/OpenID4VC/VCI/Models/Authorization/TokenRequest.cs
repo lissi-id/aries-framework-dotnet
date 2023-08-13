@@ -4,58 +4,60 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
-
-/// <summary>
-///     Represents a request for an access token from an OAuth 2.0 Authorization Server.
-/// </summary>
-public class TokenRequest
+namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization
 {
     /// <summary>
-    ///     Gets or sets the grant type of the request. Determines the type of token request being made.
+    ///     Represents a request for an access token from an OAuth 2.0 Authorization Server.
     /// </summary>
-    [JsonProperty("grant_type")]
-    public string GrantType { get; set; } = null!;
-
-    /// <summary>
-    ///     Gets or sets the pre-authorized code. Represents the authorization to obtain specific credentials.
-    ///     This is required if the grant type is urn:ietf:params:oauth:grant-type:pre-authorized_code.
-    /// </summary>
-    [JsonProperty("pre-authorized_code")]
-    public string PreAuthorizedCode { get; set; } = null!;
-
-    /// <summary>
-    ///     Gets or sets the scope of the access request. Defines the permissions the client is asking for.
-    /// </summary>
-    [JsonProperty("scope")]
-    public string? Scope { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the user PIN. This value must be present if a PIN was required in a previous step.
-    /// </summary>
-    [JsonProperty("user_pin")]
-    public string? UserPin { get; set; }
-
-    /// <summary>
-    ///     Converts the properties of the TokenRequest instance into an FormUrlEncodedContent type suitable for HTTP POST operations.
-    /// </summary>
-    /// <returns>Returns an instance of FormUrlEncodedContent containing the URL-encoded properties of the TokenRequest.</returns>
-    public FormUrlEncodedContent ToFormUrlEncoded()
+    public class TokenRequest
     {
-        var keyValuePairs = new List<KeyValuePair<string, string>>();
+        /// <summary>
+        ///     Gets or sets the grant type of the request. Determines the type of token request being made.
+        /// </summary>
+        [JsonProperty("grant_type")]
+        public string GrantType { get; set; } = null!;
 
-        if (!string.IsNullOrEmpty(GrantType))
-            keyValuePairs.Add(new KeyValuePair<string, string>("grant_type", GrantType));
+        /// <summary>
+        ///     Gets or sets the pre-authorized code. Represents the authorization to obtain specific credentials.
+        ///     This is required if the grant type is urn:ietf:params:oauth:grant-type:pre-authorized_code.
+        /// </summary>
+        [JsonProperty("pre-authorized_code")]
+        public string PreAuthorizedCode { get; set; } = null!;
 
-        if (!string.IsNullOrEmpty(PreAuthorizedCode))
-            keyValuePairs.Add(new KeyValuePair<string, string>("pre-authorized_code", PreAuthorizedCode));
+        /// <summary>
+        ///     Gets or sets the scope of the access request. Defines the permissions the client is asking for.
+        /// </summary>
+        [JsonProperty("scope")]
+        public string? Scope { get; set; }
 
-        if (!string.IsNullOrEmpty(Scope))
-            keyValuePairs.Add(new KeyValuePair<string, string>("scope", Scope));
+        /// <summary>
+        ///     Gets or sets the user PIN. This value must be present if a PIN was required in a previous step.
+        /// </summary>
+        [JsonProperty("user_pin")]
+        public string? UserPin { get; set; }
 
-        if (!string.IsNullOrEmpty(UserPin))
-            keyValuePairs.Add(new KeyValuePair<string, string>("user_pin", UserPin));
+        /// <summary>
+        ///     Converts the properties of the TokenRequest instance into an FormUrlEncodedContent type suitable for HTTP POST
+        ///     operations.
+        /// </summary>
+        /// <returns>Returns an instance of FormUrlEncodedContent containing the URL-encoded properties of the TokenRequest.</returns>
+        public FormUrlEncodedContent ToFormUrlEncoded()
+        {
+            var keyValuePairs = new List<KeyValuePair<string, string>>();
 
-        return new FormUrlEncodedContent(keyValuePairs);
+            if (!string.IsNullOrEmpty(GrantType))
+                keyValuePairs.Add(new KeyValuePair<string, string>("grant_type", GrantType));
+
+            if (!string.IsNullOrEmpty(PreAuthorizedCode))
+                keyValuePairs.Add(new KeyValuePair<string, string>("pre-authorized_code", PreAuthorizedCode));
+
+            if (!string.IsNullOrEmpty(Scope))
+                keyValuePairs.Add(new KeyValuePair<string, string>("scope", Scope));
+
+            if (!string.IsNullOrEmpty(UserPin))
+                keyValuePairs.Add(new KeyValuePair<string, string>("user_pin", UserPin));
+
+            return new FormUrlEncodedContent(keyValuePairs);
+        }
     }
 }
