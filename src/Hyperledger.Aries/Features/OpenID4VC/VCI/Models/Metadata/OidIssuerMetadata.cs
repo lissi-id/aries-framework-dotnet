@@ -36,8 +36,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
 
         /// <summary>
         ///     Gets or sets the identifier of the OAuth 2.0 Authorization Server that the Credential Issuer relies on for
-        ///     authorization.
-        ///     If this property is omitted, it is assumed that the entity providing the Credential Issuer
+        ///     authorization. If this property is omitted, it is assumed that the entity providing the Credential Issuer
         ///     is also acting as the Authorization Server. In such cases, the Credential Issuer's
         ///     identifier is used as the OAuth 2.0 Issuer value to obtain the Authorization Server
         ///     metadata.

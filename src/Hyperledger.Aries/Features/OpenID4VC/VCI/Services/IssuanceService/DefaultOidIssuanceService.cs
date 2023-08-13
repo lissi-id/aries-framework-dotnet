@@ -19,9 +19,13 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
     public class DefaultOidIssuanceService : IOidIssuanceService
     {
         /// <summary>
+        ///     Initializes a new instance of the <see cref="DefaultOidIssuanceService" /> class.
         /// </summary>
-        /// <param name="httpClientFactory"></param>
-        /// <param name="jwtFactory"></param>
+        /// <param name="httpClientFactory">
+        ///     The factory to create instances of <see cref="HttpClient" />. Used for making HTTP
+        ///     requests.
+        /// </param>
+        /// <param name="jwtFactory">The factory responsible for creating JWT tokens.</param>
         public DefaultOidIssuanceService(
             IHttpClientFactory httpClientFactory,
             IJwtFactory jwtFactory)
