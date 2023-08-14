@@ -26,8 +26,15 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
         /// <param name="clientNonce">A nonce value for the client.</param>
         /// <param name="type">The type of the credential being requested.</param>
         /// <param name="tokenResponse">The token response from the previous token request.</param>
-        /// <returns>The credential response.</returns>
-        Task<OidCredentialResponse> RequestCredentialAsync(string credentialIssuer, string clientNonce, string type,
+        /// <returns>
+        ///     A tuple containing the credential response and the key alias used during the signing of the Proof of Possession
+        ///     JWT.
+        /// </returns>
+        /// <remarks>
+        ///     The returned key alias allows referencing a specific hardware key that was used for signing.
+        /// </remarks>
+        Task<(OidCredentialResponse, string)> RequestCredentialAsync(string credentialIssuer, string clientNonce,
+            string type,
             TokenResponse tokenResponse);
 
         /// <summary>

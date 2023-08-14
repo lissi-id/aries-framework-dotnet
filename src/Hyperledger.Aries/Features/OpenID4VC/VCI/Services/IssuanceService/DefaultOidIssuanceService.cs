@@ -57,13 +57,16 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
         }
 
         /// <inheritdoc />
-        public async Task<OidCredentialResponse> RequestCredentialAsync(
+        public async Task<(OidCredentialResponse, string)> RequestCredentialAsync(
             string credentialIssuer,
             string clientNonce,
             string type,
             TokenResponse tokenResponse)
         {
-            var jwt = await _jwtFactory.CreateJwtFromHardwareKeyAsync(credentialIssuer, clientNonce);
+            var keyAlias = Guid.NewGuid().ToString();
+            
+            var jwt = await _jwtFactory.CreateJwtFromHardwareKeyAsync(
+                credentialIssuer, clientNonce, keyAlias);
 
             var credentialRequest = BuildCredentialRequest(jwt, type);
             var responseData = await SendCredentialRequest(credentialIssuer, tokenResponse, credentialRequest);
@@ -81,7 +84,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
             if (credentialResponse.Credential == null)
                 throw new InvalidOperationException("Credential in response is null.");
 
-            return credentialResponse;
+            return (credentialResponse, keyAlias);
         }
 
         /// <inheritdoc />

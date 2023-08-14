@@ -53,5 +53,10 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Gets or sets the text color for the display.
         /// </summary>
         public string? TextColor { get; set; }
+        
+        /// <summary>
+        ///     Gets or sets the key record ID.
+        /// </summary>
+        public string? KeyRecordId { get; set; }
     }
 }

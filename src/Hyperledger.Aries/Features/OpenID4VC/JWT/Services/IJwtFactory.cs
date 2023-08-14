@@ -17,10 +17,13 @@ namespace Hyperledger.Aries.Features.OpenID4VC.JWT.Services
         ///     A unique token, typically used to prevent replay attacks by ensuring that the JWT is only used
         ///     once.
         /// </param>
+        /// <param name="keyAlias">
+        ///     An alias for the hardware key to be used in JWT creation.
+        /// </param>
         /// <returns>
         ///     A <see cref="Task{TResult}" /> representing the asynchronous operation. When evaluated, the task's result
         ///     contains a JWT string.
         /// </returns>
-        Task<string> CreateJwtFromHardwareKeyAsync(string audience, string nonce);
+        Task<string> CreateJwtFromHardwareKeyAsync(string audience, string nonce, string keyAlias);
     }
 }

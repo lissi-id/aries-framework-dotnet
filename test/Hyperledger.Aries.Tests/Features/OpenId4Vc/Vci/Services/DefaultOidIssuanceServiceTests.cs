@@ -68,7 +68,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             };
 
             const string jwtMock = "mockJwt";
-            _jwtFactoryMock.Setup(j => j.CreateJwtFromHardwareKeyAsync(It.IsAny<string>(), It.IsAny<string>()))
+            _jwtFactoryMock.Setup(j => j.CreateJwtFromHardwareKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(jwtMock);
 
             var credentialResponseContent = JsonConvert.SerializeObject(expectedCredentialResponse);
@@ -97,7 +97,8 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             );
 
             // Assert
-            actualCredentialResponse.Should().BeEquivalentTo(expectedCredentialResponse);
+            actualCredentialResponse.Item1.Should().BeEquivalentTo(expectedCredentialResponse);
+            actualCredentialResponse.Item2.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
