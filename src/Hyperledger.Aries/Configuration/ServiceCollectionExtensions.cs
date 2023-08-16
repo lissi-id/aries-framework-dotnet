@@ -7,6 +7,7 @@ using Hyperledger.Aries.Features.Discovery;
 using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
+using Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
@@ -70,27 +71,29 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddDefaultServices(this IServiceCollection builder)
         {
-            builder.TryAddSingleton<IEventAggregator, EventAggregator>();
             builder.TryAddSingleton<IBasicMessageService, DefaultBasicMessageService>();
-            builder.TryAddSingleton<IOutOfBandService, DefaultOutOfBandService>();
             builder.TryAddSingleton<IConnectionService, DefaultConnectionService>();
             builder.TryAddSingleton<ICredentialService, DefaultCredentialService>();
             builder.TryAddSingleton<IDidExchangeService, DefaultDidExchangeService>();
+            builder.TryAddSingleton<IDiscoveryService, DefaultDiscoveryService>();
+            builder.TryAddSingleton<IEventAggregator, EventAggregator>();
             builder.TryAddSingleton<ILedgerService, DefaultLedgerService>();
             builder.TryAddSingleton<ILedgerSigningService, DefaultLedgerSigningService>();
+            builder.TryAddSingleton<IMessageDispatcher, HttpMessageDispatcher>();
+            builder.TryAddSingleton<IMessageService, DefaultMessageService>();
+            builder.TryAddSingleton<IOutOfBandService, DefaultOutOfBandService>();
+            builder.TryAddSingleton<IPaymentService, DefaultPaymentService>();
             builder.TryAddSingleton<IPoolService, DefaultPoolService>();
             builder.TryAddSingleton<IProofService, DefaultProofService>();
-            builder.TryAddSingleton<IDiscoveryService, DefaultDiscoveryService>();
             builder.TryAddSingleton<IProvisioningService, DefaultProvisioningService>();
-            builder.TryAddSingleton<IMessageService, DefaultMessageService>();
-            builder.TryAddSingleton<IMessageDispatcher, HttpMessageDispatcher>();
+            builder.TryAddSingleton<IRevocationNotificationService, DefaultRevocationNotificationService>();
             builder.TryAddSingleton<ISchemaService, DefaultSchemaService>();
             builder.TryAddSingleton<ITailsService, DefaultTailsService>();
             builder.TryAddSingleton<IWalletRecordService, DefaultWalletRecordService>();
             builder.TryAddSingleton<IWalletService, DefaultWalletService>();
-            builder.TryAddSingleton<IPaymentService, DefaultPaymentService>();
-            builder.TryAddSingleton<IRevocationNotificationService, DefaultRevocationNotificationService>();
 
+            AddOpenIdDefaultServices(builder);
+            
             return builder;
         }
         
@@ -100,6 +103,13 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddSingleton<IPoolService, DefaultPoolServiceV2>();
             builder.AddSingleton<ISigningService, DefaultSigningService>();
 
+            return builder;
+        }
+
+        internal static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
+        {
+            builder.AddSingleton<IOidIssuanceService, DefaultOidIssuanceService>();
+            
             return builder;
         }
 

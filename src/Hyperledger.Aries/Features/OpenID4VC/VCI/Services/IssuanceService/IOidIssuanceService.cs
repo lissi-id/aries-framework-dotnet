@@ -33,7 +33,9 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
         /// <remarks>
         ///     The returned key alias allows referencing a specific hardware key that was used for signing.
         /// </remarks>
-        Task<(OidCredentialResponse, string)> RequestCredentialAsync(string credentialIssuer, string clientNonce,
+        Task<(OidCredentialResponse, string)> RequestCredentialAsync(
+            string credentialIssuer,
+            string clientNonce,
             string type,
             TokenResponse tokenResponse);
 
