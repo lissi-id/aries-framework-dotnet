@@ -11,6 +11,8 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
+using Hyperledger.Aries.Features.SdJwt.Services.KeyService;
+using Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService;
 using Hyperledger.Aries.Ledger;
 using Hyperledger.Aries.Ledger.V2;
 using Hyperledger.Aries.Payments;
@@ -18,6 +20,8 @@ using Hyperledger.Aries.Runtime;
 using Hyperledger.Aries.Signatures;
 using Hyperledger.Aries.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SD_JWT;
+using SD_JWT.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -108,6 +112,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
         {
+            builder.AddSingleton<IHolder, Holder>();
+            builder.AddSingleton<IKeyService, KeyService>();
+            builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
             builder.AddSingleton<IOidIssuanceService, DefaultOidIssuanceService>();
             
             return builder;

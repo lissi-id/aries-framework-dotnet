@@ -32,7 +32,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
                 {
                     Format = "SimpleCredential",
                     Type = "SimpleCredentialType",
-                    CredentialSubject = new Dictionary<string, Display>()
+                    CredentialSubject = new Dictionary<string, CredentialAttributeDisplay>()
                 }
             }
         };

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
+using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
@@ -40,8 +41,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         ///     Stores a new JWT record.
         /// </summary>
         /// <param name="context">The agent context.</param>
-        /// <param name="sdJwtRecord">The JWT record to store.</param>
+        /// <param name="combinedIssuance">The combined issuance.</param>
+        /// <param name="keyId">The key id.</param>
+        /// <param name="issuerMetadata">The issuer metadata.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored JWT record.</returns>
-        Task<string> StoreAsync(IAgentContext context, SdJwtRecord sdJwtRecord);
+        Task<string> StoreAsync(IAgentContext context, string combinedIssuance, string keyId,
+            OidIssuerMetadata issuerMetadata);
     }
 }

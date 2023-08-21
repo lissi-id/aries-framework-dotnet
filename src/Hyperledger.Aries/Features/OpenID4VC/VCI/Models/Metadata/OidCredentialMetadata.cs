@@ -14,7 +14,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         ///     Gets or sets the dictionary representing the attributes of the credential in different languages.
         /// </summary>
         [JsonProperty("credentialSubject")]
-        public Dictionary<string, CredentialAttributeDisplays> CredentialSubject { get; set; } = null!;
+        public Dictionary<string, CredentialAttributeDisplay> CredentialSubject { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets a list of display properties of the supported credential for different languages.
