@@ -5,7 +5,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text.Json;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Storage;
 using SD_JWT.Models;
 
@@ -20,7 +22,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets or sets the attributes that should be displayed.
         /// </summary>
-        public Dictionary<string, CredentialAttributeDisplay>? DisplayedAttributes { get; set; }
+        public Dictionary<string, OidCredentialSubjectAttribute>? DisplayedAttributes { get; set; }
 
         /// <summary>
         ///     Gets or sets the claims made.
@@ -34,7 +36,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
 
         /// <summary>
         /// </summary>
-        public List<Display>? Display { get; set; }
+        public List<OidCredentialDisplay>? Display { get; set; }
 
         /// <summary>
         ///     Gets or sets the combined issuance.
@@ -89,7 +91,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             };
 
             SetCredentialDisplayProperties(issuerMetadata, credentialFormatAndType);
-            SetIssuerDisplayProperties(issuerMetadata);
+            SetOidIssuerDisplayProperties(issuerMetadata);
         }
 
         /// <summary>
@@ -115,8 +117,8 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         {
             var issuerNameDictionary = new Dictionary<string, string>();
 
-            foreach (var display in issuerMetadata.Display?.Where(d => d.Locale != null) ?? Enumerable.Empty<Display>())
-                issuerNameDictionary[display.Locale!] = display.Name;
+            foreach (var display in issuerMetadata.Display?.Where(d => d.Locale != null) ?? Enumerable.Empty<OidIssuerDisplay>())
+                issuerNameDictionary[display.Locale!] = display.Name!;
 
             return issuerNameDictionary.Count > 0 ? issuerNameDictionary : null;
         }
@@ -154,7 +156,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties related to the issuer based on the issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        private void SetIssuerDisplayProperties(OidIssuerMetadata issuerMetadata)
+        private void SetOidIssuerDisplayProperties(OidIssuerMetadata issuerMetadata)
         {
             IssuerId = issuerMetadata.CredentialIssuer;
             IssuerName = CreateIssuerNameDictionary(issuerMetadata);

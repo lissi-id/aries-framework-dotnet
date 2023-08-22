@@ -10,7 +10,7 @@ using Hyperledger.Aries.Features.OpenID4VC.JWT.Services;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService

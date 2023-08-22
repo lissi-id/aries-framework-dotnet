@@ -7,7 +7,9 @@ using FluentAssertions;
 using Hyperledger.Aries.Features.OpenID4VC.JWT.Services;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService;
 using Moq;
 using Moq.Protected;
@@ -32,7 +34,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
                 {
                     Format = "SimpleCredential",
                     Type = "SimpleCredentialType",
-                    CredentialSubject = new Dictionary<string, CredentialAttributeDisplay>()
+                    CredentialSubject = new Dictionary<string, OidCredentialSubjectAttribute>()
                 }
             }
         };

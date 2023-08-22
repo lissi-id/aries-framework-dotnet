@@ -3,7 +3,7 @@
 using System.Threading.Tasks;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 
 namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
 {

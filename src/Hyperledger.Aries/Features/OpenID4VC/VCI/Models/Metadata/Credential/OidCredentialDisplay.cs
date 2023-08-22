@@ -2,40 +2,39 @@
 
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential
 {
     /// <summary>
-    ///     Represents various visual representations or descriptions associated with a particular resource.
+    ///     Represents the visual representations for the credential.
     /// </summary>
-    public class Display
+    public class OidCredentialDisplay
     {
         /// <summary>
-        ///     Gets or sets the logo associated with this representation.
+        ///     Gets or sets the logo associated with this Credential.
         /// </summary>
         [JsonProperty("logo")]
-        public Logo? Logo { get; set; }
+        public OidCredentialLogo? Logo { get; set; }
 
         /// <summary>
-        ///     Gets or sets the name of the resource being represented.
+        ///     Gets or sets the name of the Credential.
         /// </summary>
         [JsonProperty("name")]
         public string Name { get; set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the background color for this representation.
+        ///     Gets or sets the background color for the Credential.
         /// </summary>
         [JsonProperty("background_color")]
         public string? BackgroundColor { get; set; }
 
         /// <summary>
-        ///     Gets or sets the locale, which represents the specific culture or region, for which this representation is
-        ///     intended.
+        ///     Gets or sets the locale, which represents the specific culture or region.
         /// </summary>
         [JsonProperty("locale")]
         public string? Locale { get; set; }
 
         /// <summary>
-        ///     Gets or sets the text color for this representation.
+        ///     Gets or sets the text color for the Credential.
         /// </summary>
         [JsonProperty("text_color")]
         public string? TextColor { get; set; }

@@ -3,12 +3,12 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential
 {
     /// <summary>
-    ///     Represents a graphical identity or brand representation of a particular resource.
+    ///     Represents the Logo for a Credential.
     /// </summary>
-    public class Logo
+    public class OidCredentialLogo
     {
         /// <summary>
         ///     Gets or sets the alternate text that describes the logo image. This is typically used for accessibility purposes.

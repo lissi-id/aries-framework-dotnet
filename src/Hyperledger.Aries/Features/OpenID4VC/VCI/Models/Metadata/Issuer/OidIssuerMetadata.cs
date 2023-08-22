@@ -3,9 +3,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
 {
     /// <summary>
     ///     Represents the metadata of an OpenID4VCI Credential Issuer.
@@ -16,7 +18,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         ///     Gets or sets a list of display properties of a Credential Issuer for different languages.
         /// </summary>
         [JsonProperty("display")]
-        public List<Display>? Display { get; set; }
+        public List<OidIssuerDisplay>? Display { get; set; }
 
         /// <summary>
         ///     Gets or sets a list of metadata about separate credential types that the Credential Issuer can issue.
@@ -54,7 +56,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         ///     A list of display properties for the specified Credential or null if the Credential is not found in the
         ///     metadata.
         /// </returns>
-        public List<Display>? GetCredentialDisplay(OidCredentialFormatAndType credentialFormatAndType)
+        public List<OidCredentialDisplay>? GetCredentialDisplay(OidCredentialFormatAndType credentialFormatAndType)
         {
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
@@ -71,7 +73,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         ///     A dictionary of attribute names and their corresponding display properties for the specified Credential, or
         ///     null if the Credential is not found in the metadata.
         /// </returns>
-        public Dictionary<string, CredentialAttributeDisplay>? GetCredentialSubject(
+        public Dictionary<string, OidCredentialSubjectAttribute>? GetCredentialSubject(
             OidCredentialFormatAndType credentialFormatAndType)
         {
             var matchingCredential = CredentialsSupported
