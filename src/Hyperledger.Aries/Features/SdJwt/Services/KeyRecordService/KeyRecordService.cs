@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
+using Hyperledger.Aries.Features.SdJwt.Services.KeyRecordService;
 using Hyperledger.Aries.Storage;
 
 namespace Hyperledger.Aries.Features.SdJwt.Services.KeyService
 {
     /// <inheritdoc />
-    public class KeyService : IKeyService
+    public class KeyRecordService : IKeyRecordService
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="recordService"></param>
-        public KeyService(
+        public KeyRecordService(
             IWalletRecordService recordService)
         {
             _recordService = recordService;
@@ -40,12 +41,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.KeyService
         }
 
         /// <inheritdoc />
-        public async Task<string> StoreFromKeyAliasAsync(IAgentContext context, string keyAlias)
+        public async Task<string> StoreFromKeyIdAsync(IAgentContext context, string keyId)
         {
             var keyRecord = new KeyRecord
             {
                 Id = Guid.NewGuid().ToString(),
-                KeyAlias = keyAlias
+                KeyAlias = keyId
             };
 
             await _recordService.AddAsync(context.Wallet, keyRecord);

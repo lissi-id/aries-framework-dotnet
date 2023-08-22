@@ -4,12 +4,12 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
-namespace Hyperledger.Aries.Features.SdJwt.Services.KeyService
+namespace Hyperledger.Aries.Features.SdJwt.Services.KeyRecordService
 {
     /// <summary>
     ///     Provides methods for managing and accessing key records.
     /// </summary>
-    public interface IKeyService
+    public interface IKeyRecordService
     {
         /// <summary>
         ///     Retrieves a specific key record by its record ID.
@@ -40,10 +40,10 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.KeyService
         ///     Stores a new key record derived from a provided key alias.
         /// </summary>
         /// <param name="context">The agent context.</param>
-        /// <param name="keyAlias">The key alias from which the key record is derived.</param>
+        /// <param name="keyId">The key ID from which the key record is derived.</param>
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the ID of the stored key record.
         /// </returns>
-        Task<string> StoreFromKeyAliasAsync(IAgentContext context, string keyAlias);
+        Task<string> StoreFromKeyIdAsync(IAgentContext context, string keyId);
     }
 }
