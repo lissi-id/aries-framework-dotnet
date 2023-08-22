@@ -10,7 +10,7 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -18,9 +18,9 @@ using Xunit;
 
 namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
 {
-    public class DefaultOidIssuanceServiceTests
+    public class DefaultOid4VciServiceTests
     {
-        private DefaultOidIssuanceService _issuanceService;
+        private DefaultOid4VciService _oid4VciService;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         private readonly Mock<IJwtFactory> _jwtFactoryMock = new Mock<IJwtFactory>();
@@ -53,7 +53,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var expectedMetadata = JsonConvert.DeserializeObject<OidIssuerMetadata>(responseContent);
 
             // Act
-            var actualMetadata = await _issuanceService.FetchIssuerMetadataAsync("https://issuer.io");
+            var actualMetadata = await _oid4VciService.FetchIssuerMetadataAsync("https://issuer.io");
 
             // Assert
             actualMetadata.Should().BeEquivalentTo(expectedMetadata);
@@ -91,7 +91,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             };
 
             // Act
-            var actualCredentialResponse = await _issuanceService.RequestCredentialAsync(
+            var actualCredentialResponse = await _oid4VciService.RequestCredentialAsync(
                 "https://issuer.io",
                 "sampleClientNonce",
                 "SimpleCredentialType",
@@ -135,7 +135,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
 
             // Act
             var actualTokenResponse =
-                await _issuanceService.RequestTokenAsync(_oidIssuerMetadata, "samplePreAuthorizedCode");
+                await _oid4VciService.RequestTokenAsync(_oidIssuerMetadata, "samplePreAuthorizedCode");
 
             // Assert
             actualTokenResponse.Should().BeEquivalentTo(expectedTokenResponse);
@@ -153,7 +153,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            _issuanceService = new DefaultOidIssuanceService(_httpClientFactoryMock.Object, _jwtFactoryMock.Object);
+            _oid4VciService = new DefaultOid4VciService(_httpClientFactoryMock.Object, _jwtFactoryMock.Object);
         }
     }
 }

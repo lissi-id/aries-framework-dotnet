@@ -7,7 +7,7 @@ using Hyperledger.Aries.Features.Discovery;
 using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
@@ -115,7 +115,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddSingleton<IHolder, Holder>();
             builder.AddSingleton<IKeyService, KeyService>();
             builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
-            builder.AddSingleton<IOidIssuanceService, DefaultOidIssuanceService>();
+            builder.AddSingleton<IOid4VciService, DefaultOid4VciService>();
             
             return builder;
         }

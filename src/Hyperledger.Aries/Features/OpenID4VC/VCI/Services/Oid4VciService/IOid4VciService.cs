@@ -5,12 +5,12 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
 {
     /// <summary>
     ///     Provides an interface for services related to OpenID for Verifiable Credential Issuance.
     /// </summary>
-    public interface IOidIssuanceService
+    public interface IOid4VciService
     {
         /// <summary>
         ///     Fetches the metadata related to the OID issuer from the specified endpoint.

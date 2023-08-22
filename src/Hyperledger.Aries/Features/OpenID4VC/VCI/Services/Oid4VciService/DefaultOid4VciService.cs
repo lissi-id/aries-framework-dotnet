@@ -13,20 +13,20 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Services.IssuanceService
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
 {
     /// <inheritdoc />
-    public class DefaultOidIssuanceService : IOidIssuanceService
+    public class DefaultOid4VciService : IOid4VciService
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultOidIssuanceService" /> class.
+        ///     Initializes a new instance of the <see cref="DefaultOid4VciService" /> class.
         /// </summary>
         /// <param name="httpClientFactory">
         ///     The factory to create instances of <see cref="HttpClient" />. Used for making HTTP
         ///     requests.
         /// </param>
         /// <param name="jwtFactory">The factory responsible for creating JWT tokens.</param>
-        public DefaultOidIssuanceService(
+        public DefaultOid4VciService(
             IHttpClientFactory httpClientFactory,
             IJwtFactory jwtFactory)
         {
