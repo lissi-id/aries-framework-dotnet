@@ -82,13 +82,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <param name="issuerMetadata">The issuer metadata.</param>
         public void SetDisplayFromIssuerMetadata(OidIssuerMetadata issuerMetadata)
         {
-            var credential = new OidCredential
+            var credentialFormatAndType = new OidCredentialFormatAndType
             {
                 Format = "vc+sd-jwt",
                 Type = CredentialType
             };
 
-            SetCredentialDisplayProperties(issuerMetadata, credential);
+            SetCredentialDisplayProperties(issuerMetadata, credentialFormatAndType);
             SetIssuerDisplayProperties(issuerMetadata);
         }
 
@@ -143,11 +143,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties related to the credential based on the issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="credential">The credential.</param>
-        private void SetCredentialDisplayProperties(OidIssuerMetadata issuerMetadata, OidCredential credential)
+        /// <param name="credentialFormatAndType">The credential format and type.</param>
+        private void SetCredentialDisplayProperties(OidIssuerMetadata issuerMetadata, OidCredentialFormatAndType credentialFormatAndType)
         {
-            Display = issuerMetadata.GetCredentialDisplay(credential);
-            DisplayedAttributes = issuerMetadata.GetCredentialSubject(credential);
+            Display = issuerMetadata.GetCredentialDisplay(credentialFormatAndType);
+            DisplayedAttributes = issuerMetadata.GetCredentialSubject(credentialFormatAndType);
         }
 
         /// <summary>

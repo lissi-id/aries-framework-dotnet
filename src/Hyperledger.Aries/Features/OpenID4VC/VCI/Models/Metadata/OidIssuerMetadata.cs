@@ -49,16 +49,16 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         /// <summary>
         ///     Gets the display properties of a given Credential for different languages.
         /// </summary>
-        /// <param name="credential">The Credential to retrieve the display properties for.</param>
+        /// <param name="credentialFormatAndType">The Credential format and type to retrieve the display properties for.</param>
         /// <returns>
         ///     A list of display properties for the specified Credential or null if the Credential is not found in the
         ///     metadata.
         /// </returns>
-        public List<Display>? GetCredentialDisplay(OidCredential credential)
+        public List<Display>? GetCredentialDisplay(OidCredentialFormatAndType credentialFormatAndType)
         {
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credential.Format && credMetadata.Type == credential.Type);
+                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
 
             return matchingCredential?.Display;
         }
@@ -66,17 +66,17 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         /// <summary>
         ///     Gets the subject attributes of a given Credential.
         /// </summary>
-        /// <param name="credential">The Credential to retrieve the subject attributes for.</param>
+        /// <param name="credentialFormatAndType">The Credential format and type to retrieve the subject attributes for.</param>
         /// <returns>
         ///     A dictionary of attribute names and their corresponding display properties for the specified Credential, or
         ///     null if the Credential is not found in the metadata.
         /// </returns>
         public Dictionary<string, CredentialAttributeDisplay>? GetCredentialSubject(
-            OidCredential credential)
+            OidCredentialFormatAndType credentialFormatAndType)
         {
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credential.Format && credMetadata.Type == credential.Type);
+                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
 
             return matchingCredential?.CredentialSubject;
         }
@@ -84,19 +84,19 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Metadata
         /// <summary>
         ///     Gets the localized attribute names of a given Credential for a specific locale.
         /// </summary>
-        /// <param name="credential">The Credential to retrieve the localized attribute names for.</param>
+        /// <param name="credentialFormatAndType">The Credential format and type to retrieve the localized attribute names for.</param>
         /// <param name="locale">The locale to retrieve the attribute names in (e.g., "en-US").</param>
         /// <returns>
         ///     A list of localized attribute names for the specified Credential and locale, or null if no matching attributes
         ///     are found.
         /// </returns>
-        public List<string>? GetLocalizedCredentialAttributeNames(OidCredential credential, string locale)
+        public List<string>? GetLocalizedCredentialAttributeNames(OidCredentialFormatAndType credentialFormatAndType, string locale)
         {
             var displayNames = new List<string>();
 
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credential.Format && credMetadata.Type == credential.Type);
+                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
 
             if (matchingCredential == null)
                 return null;

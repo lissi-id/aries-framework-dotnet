@@ -25,7 +25,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer
         ///     the credential to be requested.
         /// </summary>
         [JsonProperty("credentials")]
-        public List<OidCredential> Credentials { get; set; } = null!;
+        public List<OidCredentialFormatAndType> Credentials { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the URL of the Credential Issuer from where the Wallet is requested to obtain one or more Credentials
