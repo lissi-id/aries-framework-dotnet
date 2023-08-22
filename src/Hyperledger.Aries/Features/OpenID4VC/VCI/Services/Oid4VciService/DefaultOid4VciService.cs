@@ -38,10 +38,10 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         private readonly IJwtFactory _jwtFactory;
 
         /// <inheritdoc />
-        public async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(string endpoint)
+        public async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint)
         {
             var httpClient = _httpClientFactory.CreateClient();
-            var metadataUrl = $"{endpoint}/.well-known/openid-credential-issuer";
+            var metadataUrl = new Uri(endpoint, ".well-known/openid-credential-issuer");
 
             var response = await httpClient.GetAsync(metadataUrl);
             var responseString = await response.Content.ReadAsStringAsync();

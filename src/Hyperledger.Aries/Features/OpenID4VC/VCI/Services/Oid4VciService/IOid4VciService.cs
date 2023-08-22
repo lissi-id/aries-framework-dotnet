@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
@@ -17,7 +18,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         /// </summary>
         /// <param name="endpoint">The endpoint URL to retrieve the issuer metadata.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the OID issuer metadata.</returns>
-        Task<OidIssuerMetadata> FetchIssuerMetadataAsync(string endpoint);
+        Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint);
 
         /// <summary>
         ///     Requests a verifiable credential using the provided parameters.

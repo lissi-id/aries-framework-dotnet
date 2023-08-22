@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -53,7 +54,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var expectedMetadata = JsonConvert.DeserializeObject<OidIssuerMetadata>(responseContent);
 
             // Act
-            var actualMetadata = await _oid4VciService.FetchIssuerMetadataAsync("https://issuer.io");
+            var actualMetadata = await _oid4VciService.FetchIssuerMetadataAsync(new Uri("https://issuer.io"));
 
             // Assert
             actualMetadata.Should().BeEquivalentTo(expectedMetadata);
