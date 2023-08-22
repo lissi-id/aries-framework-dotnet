@@ -17,14 +17,14 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         /// <summary>
         ///     Gets or sets a list of display properties of a Credential Issuer for different languages.
         /// </summary>
-        [JsonProperty("display")]
+        [JsonProperty("display", NullValueHandling = NullValueHandling.Ignore)]
         public List<OidIssuerDisplay>? Display { get; set; }
 
         /// <summary>
         ///     Gets or sets a list of metadata about separate credential types that the Credential Issuer can issue.
         /// </summary>
         [JsonProperty("credentials_supported")]
-        public OidCredentialMetadata[] CredentialsSupported { get; set; } = null!;
+        public List<OidCredentialMetadata> CredentialsSupported { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the URL of the Credential Issuer's Credential Endpoint.
@@ -45,7 +45,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     identifier is used as the OAuth 2.0 Issuer value to obtain the Authorization Server
         ///     metadata.
         /// </summary>
-        [JsonProperty("authorization_server")]
+        [JsonProperty("authorization_server", NullValueHandling = NullValueHandling.Ignore)]
         public string? AuthorizationServer { get; set; }
 
         /// <summary>

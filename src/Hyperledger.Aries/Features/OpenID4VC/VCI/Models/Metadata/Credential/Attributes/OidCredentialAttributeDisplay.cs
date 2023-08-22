@@ -12,13 +12,13 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.At
         /// <summary>
         ///     Gets or sets the name for the credential attribute.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string? Name { get; set; }
 
         /// <summary>
         ///     Gets or sets the locale, which represents the specific culture or region.
         /// </summary>
-        [JsonProperty("locale")]
+        [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
         public string? Locale { get; set; }
     }
 }

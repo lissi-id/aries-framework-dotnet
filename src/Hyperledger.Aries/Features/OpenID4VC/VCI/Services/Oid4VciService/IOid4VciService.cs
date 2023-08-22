@@ -28,7 +28,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         /// <param name="type">The type of the credential being requested.</param>
         /// <param name="tokenResponse">The token response from the previous token request.</param>
         /// <returns>
-        ///     A tuple containing the credential response and the key alias used during the signing of the Proof of Possession.
+        ///     A tuple containing the credential response and the key ID used during the signing of the Proof of Possession.
         /// </returns>
         Task<(OidCredentialResponse, string)> RequestCredentialAsync(
             string credentialIssuer,

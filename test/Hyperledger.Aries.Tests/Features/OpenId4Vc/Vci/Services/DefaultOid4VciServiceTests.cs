@@ -24,12 +24,12 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         private DefaultOid4VciService _oid4VciService;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
-        private readonly Mock<IKeyStore> _jwtFactoryMock = new Mock<IKeyStore>();
+        private readonly Mock<IKeyStore> _keyStoreMock = new Mock<IKeyStore>();
 
         private readonly OidIssuerMetadata _oidIssuerMetadata = new OidIssuerMetadata{
             CredentialIssuer = "https://issuer.io",
             CredentialEndpoint = "https://issuer.io/credential",
-            CredentialsSupported = new[]
+            CredentialsSupported = new List<OidCredentialMetadata>
             {
                 new OidCredentialMetadata
                 {
@@ -44,15 +44,15 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         public async Task CanGetIssuerMetadataAsync()
         {
             // Arrange
-            var responseContent = JsonConvert.SerializeObject(_oidIssuerMetadata);
+            const string responseContent = "{\"credential_issuer\":\"https://issuer.io\",\"credential_endpoint\":\"https://issuer.io/credential\",\"display\":[{\"name\":\"Aussteller\",\"locale\":\"de-DE\"},{\"name\":\"Issuer\",\"locale\":\"en-US\"}],\"credentials_supported\":[{\"id\":\"SimpleCredential\",\"format\":\"vc+sd-jwt\",\"type\":\"SimpleCredentialType\",\"cryptographic_binding_methods_supported\":[\"jwk\"],\"cryptographic_suites_supported\":[\"ES256\"],\"display\":[{\"name\":\"Einfacher Nachweis\",\"locale\":\"de-DE\",\"logo\":{\"url\":\"https://logo.png\",\"alt_text\":\"Logo\"},\"background_color\":\"#111111\",\"text_color\":\"#FFFFFF\"},{\"name\":\"Simple Credential\",\"locale\":\"en-US\",\"logo\":{\"url\":\"https://logo.png\",\"alt_text\":\"Logo\"},\"background_color\":\"#111111\",\"text_color\":\"#FFFFFF\"}],\"credentialSubject\":{\"first_name\":{\"display\":[{\"name\":\"First Name\",\"locale\":\"en-US\"},{\"name\":\"Vorname\",\"locale\":\"de-DE\"}]},\"last_name\":{\"display\":[{\"name\":\"Last Name\",\"locale\":\"en-US\"},{\"name\":\"Nachname\",\"locale\":\"de-DE\"}]}}}]}";
             SetupHttpClientSequence(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(responseContent)
             });
-
+            
             var expectedMetadata = JsonConvert.DeserializeObject<OidIssuerMetadata>(responseContent);
-
+            
             // Act
             var actualMetadata = await _oid4VciService.FetchIssuerMetadataAsync(new Uri("https://issuer.io"));
 
@@ -64,23 +64,20 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         public async Task CanRequestCredentialAsync()
         {
             // Arrange
-            var expectedCredentialResponse = new OidCredentialResponse
-            {
-                Credential = "sampleCredential",
-                Format = "SimpleCredential",
-            };
-
             const string jwtMock = "mockJwt";
-            _jwtFactoryMock.Setup(j => j.CreateProofOfPossessionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(jwtMock);
-
-            var credentialResponseContent = JsonConvert.SerializeObject(expectedCredentialResponse);
+            const string keyId = "keyId";
+            _keyStoreMock.Setup(j => j.CreateProofOfPossessionAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((jwtMock, keyId));
+            
+            const string credentialResponse = "{\"format\":\"vc+sd-jwt\",\"credential\":\"eyJhbGciOiAiRVMyNTYifQ.eyJfc2QiOlsiT0dfT2lCMk5ZS0JzTVhIOFVVb2luREhUT1h5VER1Z3JPdE94RFI2NF9ZcyIsIlQzbHRYQUFtODNJTXRUYkRTb1J2d1g2Tk10em1scV9ZWG9Vd1EwZDY0NEUiXSwiaXNzIjoiaHR0cHM6Ly9pc3N1ZXIuaW8vIiwiaWF0IjoxNTE2MjM5MDIyLCJ0eXBlIjoiU2ltcGxlQ3JlZGVudGlhbCIsImV4cCI6MTUxNjI0NzAyMiwiX3NkX2FsZyI6InNoYS0yNTYiLCJjbmYiOnsiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiVENBRVIxOVp2dTNPSEY0ajRXNHZmU1ZvSElQMUlMaWxEbHM3dkNlR2VtYyIsInkiOiJaeGppV1diWk1RR0hWV0tWUTRoYlNJaXJzVmZ1ZWNDRTZ0NGpUOUYySFpRIn19LCJhbGciOiJFUzI1NiJ9.OVSoCqHZLgAPaYK27gJx6J1ejwskP62xIHryqc1ZJYOR8yZdicSF4KXBk5qgocWZdiqEsri5Q3sW69xIfbmXSA~WyJseVMxN1ZzenNGb3doaFBnY3VuOTFRIiwgImV4cCIsIDE1NDE0OTQ3MjRd~WyJaRmNwSWxTNlJ5eWV2U3JTeFdJbDZRIiwgImdpdmVuX25hbWUiLCAiSm9obiJd~WyJVSHVVVUNlOWZzNUdody1mZ0JJWi13IiwgImZhbWlseV9uYW1lIiwgIkRvZSJd~WyJ3ZnR5YkpzYktzVWJDay1XaWpaQ3RRIiwgImVtYWlsIiwgInRlc3RAZXhhbXBsZS5jb20iXQ\"}";
             SetupHttpClientSequence(
                 new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(credentialResponseContent)
+                    Content = new StringContent(credentialResponse)
                 });
+
+            var expectedCredentialResponse = JsonConvert.DeserializeObject<OidCredentialResponse>(credentialResponse);
 
             var mockTokenResponse = new TokenResponse
             {
@@ -101,26 +98,19 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
 
             // Assert
             actualCredentialResponse.Item1.Should().BeEquivalentTo(expectedCredentialResponse);
-            actualCredentialResponse.Item2.Should().NotBeNullOrEmpty();
+            actualCredentialResponse.Item2.Should().BeEquivalentTo(keyId);
         }
 
         [Fact]
         public async Task CanRequestTokenAsync()
         {
             // Arrange
-            var expectedTokenResponse = new TokenResponse
-            {
-                AccessToken = "sampleAccessToken",
-                TokenType = "bearer",
-                ExpiresIn = 3600,
-                CNonce = "sampleCNonce",
-                CNonceExpiresIn = 3600
-            };
+            const string tokenResponse = "{\"access_token\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp..sHQ\",\"token_type\":\"bearer\",\"expires_in\": 86400,\"c_nonce\": \"tZignsnFbp\",\"c_nonce_expires_in\":86400}";
 
             const string authServerMetadata =
-                "{\"issuer\": \"https://issuer.io\", \"token_endpoint\": \"https://issuer.io/token\", \"token_endpoint_auth_methods_supported\": [\"urn:ietf:params:oauth:client-assertion-type:verifiable-presentation\"], \"response_types_supported\": [\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"]}\n";
+                "{\"issuer\":\"https://issuer.io\",\"token_endpoint\":\"https://issuer.io/token\",\"token_endpoint_auth_methods_supported\":[\"urn:ietf:params:oauth:client-assertion-type:verifiable-presentation\"],\"response_types_supported\":[\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"]}\n";
 
-            var tokenResponseContent = JsonConvert.SerializeObject(expectedTokenResponse);
+            var expectedTokenResponse = JsonConvert.DeserializeObject<TokenResponse>(tokenResponse);
 
             SetupHttpClientSequence(
                 new HttpResponseMessage
@@ -131,7 +121,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
                 new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(tokenResponseContent)
+                    Content = new StringContent(tokenResponse)
                 });
 
             // Act
@@ -154,7 +144,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            _oid4VciService = new DefaultOid4VciService(_httpClientFactoryMock.Object, _jwtFactoryMock.Object);
+            _oid4VciService = new DefaultOid4VciService(_httpClientFactoryMock.Object, _keyStoreMock.Object);
         }
     }
 }
