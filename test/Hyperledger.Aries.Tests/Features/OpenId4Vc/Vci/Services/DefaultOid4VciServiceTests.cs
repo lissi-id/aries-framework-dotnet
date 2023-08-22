@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Hyperledger.Aries.Features.OpenID4VC.JWT.Services;
+using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
@@ -24,7 +24,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         private DefaultOid4VciService _oid4VciService;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
-        private readonly Mock<IJwtFactory> _jwtFactoryMock = new Mock<IJwtFactory>();
+        private readonly Mock<IKeyStore> _jwtFactoryMock = new Mock<IKeyStore>();
 
         private readonly OidIssuerMetadata _oidIssuerMetadata = new OidIssuerMetadata{
             CredentialIssuer = "https://issuer.io",
@@ -71,7 +71,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             };
 
             const string jwtMock = "mockJwt";
-            _jwtFactoryMock.Setup(j => j.CreateJwtFromHardwareKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            _jwtFactoryMock.Setup(j => j.CreateProofOfPossessionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(jwtMock);
 
             var credentialResponseContent = JsonConvert.SerializeObject(expectedCredentialResponse);

@@ -8,15 +8,15 @@ using Hyperledger.Aries.Storage;
 namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
 {
     /// <summary>
-    ///     Provides methods for handling JWT credentials.
+    ///     Provides methods for handling SD-JWT credentials.
     /// </summary>
     public interface ISdJwtCredentialService
     {
         /// <summary>
-        ///     Retrieves a specific JWT record by its ID.
+        ///     Retrieves a specific SD-JWT record by its ID.
         /// </summary>
         /// <param name="context">The agent context.</param>
-        /// <param name="credentialId">The ID of the JWT credential record to retrieve.</param>
+        /// <param name="credentialId">The ID of the SD-JWT credential record to retrieve.</param>
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the <see cref="SdJwtRecord" />
         ///     associated with the given ID.
@@ -24,10 +24,10 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         Task<SdJwtRecord> GetAsync(IAgentContext context, string credentialId);
 
         /// <summary>
-        ///     Lists JWT records based on specified criteria.
+        ///     Lists SD-JWT records based on specified criteria.
         /// </summary>
         /// <param name="context">The agent context.</param>
-        /// <param name="query">The search query to filter JWT records. Default is null, meaning no filter.</param>
+        /// <param name="query">The search query to filter SD-JWT records. Default is null, meaning no filter.</param>
         /// <param name="count">The maximum number of records to retrieve. Default is 100.</param>
         /// <param name="skip">The number of records to skip. Default is 0.</param>
         /// <returns>
@@ -38,7 +38,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
             int skip = 0);
 
         /// <summary>
-        ///     Stores a new JWT record.
+        ///     Stores a new SD-JWT record.
         /// </summary>
         /// <param name="context">The agent context.</param>
         /// <param name="combinedIssuance">The combined issuance.</param>

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Flurl;
 using Hyperledger.Aries.Extensions;
-using Hyperledger.Aries.Features.OpenID4VC.JWT.Services;
+using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
@@ -25,17 +25,17 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         ///     The factory to create instances of <see cref="HttpClient" />. Used for making HTTP
         ///     requests.
         /// </param>
-        /// <param name="jwtFactory">The factory responsible for creating JWT tokens.</param>
+        /// <param name="keyStore">The key store.</param>
         public DefaultOid4VciService(
             IHttpClientFactory httpClientFactory,
-            IJwtFactory jwtFactory)
+            IKeyStore keyStore)
         {
             _httpClientFactory = httpClientFactory;
-            _jwtFactory = jwtFactory;
+            _keyStore = keyStore;
         }
 
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IJwtFactory _jwtFactory;
+        private readonly IKeyStore _keyStore;
 
         /// <inheritdoc />
         public async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint)
@@ -63,12 +63,10 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             string type,
             TokenResponse tokenResponse)
         {
-            var keyAlias = Guid.NewGuid().ToString();
-            
-            var jwt = await _jwtFactory.CreateJwtFromHardwareKeyAsync(
-                credentialIssuer, clientNonce, keyAlias);
+            var (proofOfPossession, keyId) = await _keyStore.CreateProofOfPossessionAsync(
+                credentialIssuer, clientNonce);
 
-            var credentialRequest = BuildCredentialRequest(jwt, type);
+            var credentialRequest = BuildCredentialRequest(proofOfPossession, type);
             var responseData = await SendCredentialRequest(credentialIssuer, tokenResponse, credentialRequest);
 
             var responseString = await responseData.Content.ReadAsStringAsync();
@@ -84,7 +82,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             if (credentialResponse.Credential == null)
                 throw new InvalidOperationException("Credential in response is null.");
 
-            return (credentialResponse, keyAlias);
+            return (credentialResponse, keyId);
         }
 
         /// <inheritdoc />

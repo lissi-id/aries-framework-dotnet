@@ -28,12 +28,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         /// <param name="type">The type of the credential being requested.</param>
         /// <param name="tokenResponse">The token response from the previous token request.</param>
         /// <returns>
-        ///     A tuple containing the credential response and the key alias used during the signing of the Proof of Possession
-        ///     JWT.
+        ///     A tuple containing the credential response and the key alias used during the signing of the Proof of Possession.
         /// </returns>
-        /// <remarks>
-        ///     The returned key alias allows referencing a specific hardware key that was used for signing.
-        /// </remarks>
         Task<(OidCredentialResponse, string)> RequestCredentialAsync(
             string credentialIssuer,
             string clientNonce,

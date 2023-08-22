@@ -4,7 +4,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest
 {
     /// <summary>
     ///     Represents the proof of possession of the key material that the issued credential is bound to.
-    ///     This contains the proof type and the JWT that acts as the proof of possession.
+    ///     This contains the JWT that acts as the proof of possession, with the proof type being "jwt".
     /// </summary>
     public class OidProofOfPossession
     {
@@ -15,7 +15,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest
         public string Jwt { get; set; }
 
         /// <summary>
-        ///     Gets or sets the type of proof.
+        ///     Gets or sets the type of proof, expected to be "jwt".
         /// </summary>
         [JsonProperty("proof_type")]
         public string ProofType { get; set; }
