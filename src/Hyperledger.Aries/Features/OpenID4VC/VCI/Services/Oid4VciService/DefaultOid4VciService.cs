@@ -92,7 +92,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             string? pin = null)
         {
             var authServer = await GetAuthorizationServerMetadata(metadata);
-            return await RequestTokenAsync(preAuthorizedCode, authServer, pin);
+            return await GetRequestTokenAsync(preAuthorizedCode, authServer, pin);
         }
 
         private static OidCredentialRequest BuildCredentialRequest(string jwt, string type)
@@ -154,7 +154,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             return await FetchAuthorizationServerMetadataAsync(endpointUrl);
         }
 
-        private async Task<TokenResponse> RequestTokenAsync(
+        private async Task<TokenResponse> GetRequestTokenAsync(
             string preAuthorizedCode,
             AuthorizationServerMetadata? authorizationServer,
             string? pin = null)
