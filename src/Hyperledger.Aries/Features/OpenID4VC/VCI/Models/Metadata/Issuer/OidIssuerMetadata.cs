@@ -15,16 +15,16 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
     public class OidIssuerMetadata
     {
         /// <summary>
-        ///     Gets or sets a list of display properties of a Credential Issuer for different languages.
-        /// </summary>
-        [JsonProperty("display", NullValueHandling = NullValueHandling.Ignore)]
-        public List<OidIssuerDisplay>? Display { get; set; }
-
-        /// <summary>
         ///     Gets or sets a list of metadata about separate credential types that the Credential Issuer can issue.
         /// </summary>
         [JsonProperty("credentials_supported")]
         public List<OidCredentialMetadata> CredentialsSupported { get; set; } = null!;
+
+        /// <summary>
+        ///     Gets or sets a list of display properties of a Credential Issuer for different languages.
+        /// </summary>
+        [JsonProperty("display", NullValueHandling = NullValueHandling.Ignore)]
+        public List<OidIssuerDisplay>? Display { get; set; }
 
         /// <summary>
         ///     Gets or sets the URL of the Credential Issuer's Credential Endpoint.
@@ -60,7 +60,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         {
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
+                    credMetadata.Format == credentialFormatAndType.Format &&
+                    credMetadata.Type == credentialFormatAndType.Type);
 
             return matchingCredential?.Display;
         }
@@ -78,7 +79,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         {
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
+                    credMetadata.Format == credentialFormatAndType.Format &&
+                    credMetadata.Type == credentialFormatAndType.Type);
 
             return matchingCredential?.CredentialSubject;
         }
@@ -92,13 +94,15 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     A list of localized attribute names for the specified Credential and locale, or null if no matching attributes
         ///     are found.
         /// </returns>
-        public List<string>? GetLocalizedCredentialAttributeNames(OidCredentialFormatAndType credentialFormatAndType, string locale)
+        public List<string>? GetLocalizedCredentialAttributeNames(OidCredentialFormatAndType credentialFormatAndType,
+            string locale)
         {
             var displayNames = new List<string>();
 
             var matchingCredential = CredentialsSupported
                 .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format && credMetadata.Type == credentialFormatAndType.Type);
+                    credMetadata.Format == credentialFormatAndType.Format &&
+                    credMetadata.Type == credentialFormatAndType.Type);
 
             if (matchingCredential == null)
                 return null;
@@ -108,9 +112,25 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
                 .Where(display => display.Locale == locale)
                 .Select(display => display.Name);
 
-            displayNames.AddRange(localeDisplayNames);
+            displayNames.AddRange(localeDisplayNames!);
 
             return displayNames.Count > 0 ? displayNames : null;
+        }
+
+        /// <summary>
+        ///     Gets the localized alias name of the Credential Issuer for a specific locale.
+        /// </summary>
+        /// <param name="locale">The locale to retrieve the issuer alias name in (e.g., "en-US").</param>
+        /// <returns>
+        ///     The localized alias name for the specified locale, or null if no matching alias is found.
+        /// </returns>
+        public string? GetLocalizedIssuerAlias(string locale)
+        {
+            if (Display == null)
+                return string.Empty;
+
+            var display = Display.FirstOrDefault(display => display.Locale == locale);
+            return display?.Name;
         }
     }
 }
