@@ -10,17 +10,40 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services
     public interface IKeyStore
     {
         /// <summary>
-        ///     Asynchronously creates a proof of possession based on the provided audience and nonce.
+        ///     Asynchronously generates a key for the specified algorithm and returns the key identifier.
         /// </summary>
+        /// <param name="alg">The algorithm for key generation (default is "ES256").</param>
+        /// <returns>A <see cref="Task{TResult}" /> representing the generated key's identifier as a string.</returns>
+        Task<string> GenerateKey(string alg = "ES256");
+
+        /// <summary>
+        ///     Asynchronously creates a proof of possession for a specific key, based on the provided audience and nonce.
+        /// </summary>
+        /// <param name="keyId">The identifier of the key to be used in creating the proof of possession.</param>
         /// <param name="audience">The intended recipient of the proof. Typically represents the entity that will verify it.</param>
         /// <param name="nonce">
-        ///     A unique token, typically used to prevent replay attacks by ensuring that the proof is only used
-        ///     once.
+        ///     A unique token, typically used to prevent replay attacks by ensuring that the proof is only used once.
         /// </param>
         /// <returns>
-        ///     A <see cref="Task{TResult}" /> representing the asynchronous operation. When evaluated, the task's result
-        ///     contains two strings, the first being the proof and the second being the key ID.
+        ///     A <see cref="Task{TResult}" /> representing the asynchronous operation. When evaluated, the task's result contains
+        ///     the proof.
         /// </returns>
-        Task<(string Proof, string KeyId)> CreateProofOfPossessionAsync(string audience, string nonce);
+        Task<string> GenerateProofOfPossessionAsync(string keyId, string audience, string nonce);
+
+        /// <summary>
+        ///     Asynchronously loads a key by its identifier and returns it as a JSON Web Key (JWK) containing the public key
+        ///     information.
+        /// </summary>
+        /// <param name="keyId">The identifier of the key to load.</param>
+        /// <returns>A <see cref="Task{TResult}" /> representing the loaded key as a JWK string.</returns>
+        Task<string> LoadKey(string keyId);
+
+        /// <summary>
+        ///     Asynchronously signs the given payload using the key identified by the provided key ID.
+        /// </summary>
+        /// <param name="keyId">The identifier of the key to use for signing.</param>
+        /// <param name="payload">The payload to sign.</param>
+        /// <returns>A <see cref="Task{TResult}" /> representing the signed payload as a byte array.</returns>
+        Task<byte[]> Sign(string keyId, byte[] payload);
     }
 }

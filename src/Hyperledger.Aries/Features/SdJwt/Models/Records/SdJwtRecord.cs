@@ -59,7 +59,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets or sets the key record ID.
         /// </summary>
-        public string? KeyRecordId { get; set; }
+        public string? KeyId { get; set; }
 
         /// <summary>
         ///     Creates a SdJwtRecord from a SdJwtDoc.

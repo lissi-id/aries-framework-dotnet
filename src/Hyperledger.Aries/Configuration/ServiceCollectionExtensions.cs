@@ -12,8 +12,6 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
-using Hyperledger.Aries.Features.SdJwt.Services.KeyRecordService;
-using Hyperledger.Aries.Features.SdJwt.Services.KeyService;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService;
 using Hyperledger.Aries.Ledger;
 using Hyperledger.Aries.Ledger.V2;
@@ -115,7 +113,6 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
         {
             builder.AddSingleton<IHolder, Holder>();
-            builder.AddSingleton<IKeyRecordService, KeyRecordService>();
             builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
             builder.AddSingleton<IOid4VciClientService, DefaultOid4VciClientService>();
             

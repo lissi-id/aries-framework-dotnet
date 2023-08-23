@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
-using Hyperledger.Aries.Features.SdJwt.Services.KeyRecordService;
-using Hyperledger.Aries.Features.SdJwt.Services.KeyService;
 using Hyperledger.Aries.Storage;
 using SD_JWT.Abstractions;
 
@@ -17,21 +15,17 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         /// <summary>
         ///     Initializes a new instance of the <see cref="DefaultSdJwtCredentialService" /> class.
         /// </summary>
-        /// <param name="keyRecordService">The service responsible for handling key records.</param>
         /// <param name="recordService">The service responsible for wallet record operations.</param>
         /// <param name="holder">The service responsible for holder operations.</param>
         public DefaultSdJwtCredentialService(
             IHolder holder,
-            IKeyRecordService keyRecordService,
             IWalletRecordService recordService)
         {
             _holder = holder;
-            _keyRecordService = keyRecordService;
             _recordService = recordService;
         }
 
         private readonly IHolder _holder;
-        private readonly IKeyRecordService _keyRecordService;
         private readonly IWalletRecordService _recordService;
 
         /// <inheritdoc />
@@ -60,9 +54,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
             record.Id = Guid.NewGuid().ToString();
 
             record.SetDisplayFromIssuerMetadata(issuerMetadata);
-
-            var keyRecordId = await _keyRecordService.StoreFromKeyIdAsync(context, keyId);
-            record.KeyRecordId = keyRecordId;
+            record.KeyId = keyId;
 
             await _recordService.AddAsync(context.Wallet, record);
 

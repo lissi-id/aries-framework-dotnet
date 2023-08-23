@@ -64,8 +64,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             string type,
             TokenResponse tokenResponse)
         {
-            var (proofOfPossession, keyId) = await _keyStore.CreateProofOfPossessionAsync(
-                credentialIssuer, clientNonce);
+            var keyId = await _keyStore.GenerateKey();
+            var proofOfPossession = await _keyStore.GenerateProofOfPossessionAsync(
+                keyId, credentialIssuer, clientNonce);
 
             var credentialRequest = BuildCredentialRequest(proofOfPossession, type);
             var responseData = await SendCredentialRequest(credentialIssuer, tokenResponse, credentialRequest);
