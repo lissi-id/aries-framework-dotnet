@@ -180,6 +180,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
             var requestData = new StringContent(credentialRequest.ToJson(), Encoding.UTF8, "application/json");
 
             var httpClientWithAuth = _httpClientFactory.CreateClient();
+            
+            httpClientWithAuth.DefaultRequestHeaders.Remove("Authorization");
+            
             httpClientWithAuth.DefaultRequestHeaders.Add("Authorization",
                 $"{tokenResponse.TokenType} {tokenResponse.AccessToken}");
 
