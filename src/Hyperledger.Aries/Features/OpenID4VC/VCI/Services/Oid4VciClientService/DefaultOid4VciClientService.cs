@@ -11,22 +11,23 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest;
 using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
 {
     /// <inheritdoc />
-    public class DefaultOid4VciService : IOid4VciService
+    public class DefaultOid4VciClientService : IOid4VciClientService
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultOid4VciService" /> class.
+        ///     Initializes a new instance of the <see cref="DefaultOid4VciClientService" /> class.
         /// </summary>
         /// <param name="httpClientFactory">
         ///     The factory to create instances of <see cref="HttpClient" />. Used for making HTTP
         ///     requests.
         /// </param>
         /// <param name="keyStore">The key store.</param>
-        public DefaultOid4VciService(
+        public DefaultOid4VciClientService(
             IHttpClientFactory httpClientFactory,
             IKeyStore keyStore)
         {
