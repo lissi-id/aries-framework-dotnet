@@ -7,9 +7,12 @@ using Hyperledger.Aries.Features.Discovery;
 using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
+using Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService;
 using Hyperledger.Aries.Ledger;
 using Hyperledger.Aries.Ledger.V2;
 using Hyperledger.Aries.Payments;
@@ -17,6 +20,8 @@ using Hyperledger.Aries.Runtime;
 using Hyperledger.Aries.Signatures;
 using Hyperledger.Aries.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SD_JWT;
+using SD_JWT.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -70,27 +75,29 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static IServiceCollection AddDefaultServices(this IServiceCollection builder)
         {
-            builder.TryAddSingleton<IEventAggregator, EventAggregator>();
             builder.TryAddSingleton<IBasicMessageService, DefaultBasicMessageService>();
-            builder.TryAddSingleton<IOutOfBandService, DefaultOutOfBandService>();
             builder.TryAddSingleton<IConnectionService, DefaultConnectionService>();
             builder.TryAddSingleton<ICredentialService, DefaultCredentialService>();
             builder.TryAddSingleton<IDidExchangeService, DefaultDidExchangeService>();
+            builder.TryAddSingleton<IDiscoveryService, DefaultDiscoveryService>();
+            builder.TryAddSingleton<IEventAggregator, EventAggregator>();
             builder.TryAddSingleton<ILedgerService, DefaultLedgerService>();
             builder.TryAddSingleton<ILedgerSigningService, DefaultLedgerSigningService>();
+            builder.TryAddSingleton<IMessageDispatcher, HttpMessageDispatcher>();
+            builder.TryAddSingleton<IMessageService, DefaultMessageService>();
+            builder.TryAddSingleton<IOutOfBandService, DefaultOutOfBandService>();
+            builder.TryAddSingleton<IPaymentService, DefaultPaymentService>();
             builder.TryAddSingleton<IPoolService, DefaultPoolService>();
             builder.TryAddSingleton<IProofService, DefaultProofService>();
-            builder.TryAddSingleton<IDiscoveryService, DefaultDiscoveryService>();
             builder.TryAddSingleton<IProvisioningService, DefaultProvisioningService>();
-            builder.TryAddSingleton<IMessageService, DefaultMessageService>();
-            builder.TryAddSingleton<IMessageDispatcher, HttpMessageDispatcher>();
+            builder.TryAddSingleton<IRevocationNotificationService, DefaultRevocationNotificationService>();
             builder.TryAddSingleton<ISchemaService, DefaultSchemaService>();
             builder.TryAddSingleton<ITailsService, DefaultTailsService>();
             builder.TryAddSingleton<IWalletRecordService, DefaultWalletRecordService>();
             builder.TryAddSingleton<IWalletService, DefaultWalletService>();
-            builder.TryAddSingleton<IPaymentService, DefaultPaymentService>();
-            builder.TryAddSingleton<IRevocationNotificationService, DefaultRevocationNotificationService>();
 
+            AddOpenIdDefaultServices(builder);
+            
             return builder;
         }
         
@@ -100,6 +107,15 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddSingleton<IPoolService, DefaultPoolServiceV2>();
             builder.AddSingleton<ISigningService, DefaultSigningService>();
 
+            return builder;
+        }
+
+        internal static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
+        {
+            builder.AddSingleton<IHolder, Holder>();
+            builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
+            builder.AddSingleton<IOid4VciClientService, DefaultOid4VciClientService>();
+            
             return builder;
         }
 
