@@ -35,6 +35,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         public Dictionary<string, string>? IssuerName { get; set; }
 
         /// <summary>
+        /// Gets or sets the display of the credential.
         /// </summary>
         public List<OidCredentialDisplay>? Display { get; set; }
 
@@ -161,5 +162,5 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             IssuerId = issuerMetadata.CredentialIssuer;
             IssuerName = CreateIssuerNameDictionary(issuerMetadata);
         }
-    }
+            }
 }
