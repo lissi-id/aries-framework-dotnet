@@ -8,7 +8,7 @@ using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
+using Hyperledger.Aries.Features.OpenId4Vc.VCI.Services.Oid4VciClientService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
@@ -463,6 +463,40 @@ namespace Microsoft.Extensions.DependencyInjection
             where TImplementation : class, IWalletService
         {
             builder.AddSingleton<IWalletService, TImplementation>();
+            return builder;
+        }
+        
+        /// <summary>
+        /// Adds the extended Sd-JWT credential service.
+        /// </summary>
+        /// <returns>The extended SD-JWT credential service.</returns>
+        /// <param name="builder">Builder.</param>
+        /// <typeparam name="TService">The 1st type parameter.</typeparam>
+        /// <typeparam name="TImplementation">The 2nd type parameter.</typeparam>
+        public static IServiceCollection AddExtendedSdJwtCredentialService<TService, TImplementation>(this IServiceCollection builder)
+            where TService : class, ISdJwtCredentialService
+            where TImplementation : class, TService, ISdJwtCredentialService
+        {
+            builder.AddSingleton<TImplementation>();
+            builder.AddSingleton<ISdJwtCredentialService>(x => x.GetService<TImplementation>());
+            builder.AddSingleton<TService>(x => x.GetService<TImplementation>());
+            return builder;
+        }
+        
+        /// <summary>
+        /// Adds the extended OpenID4Vci Client service.
+        /// </summary>
+        /// <returns>The extended OpenID4Vci Client service.</returns>
+        /// <param name="builder">Builder.</param>
+        /// <typeparam name="TService">The 1st type parameter.</typeparam>
+        /// <typeparam name="TImplementation">The 2nd type parameter.</typeparam>
+        public static IServiceCollection AddExtendedOid4VciClientService<TService, TImplementation>(this IServiceCollection builder)
+            where TService : class, IOid4VciClientService
+            where TImplementation : class, TService, IOid4VciClientService
+        {
+            builder.AddSingleton<TImplementation>();
+            builder.AddSingleton<IOid4VciClientService>(x => x.GetService<TImplementation>());
+            builder.AddSingleton<TService>(x => x.GetService<TImplementation>());
             return builder;
         }
     }
