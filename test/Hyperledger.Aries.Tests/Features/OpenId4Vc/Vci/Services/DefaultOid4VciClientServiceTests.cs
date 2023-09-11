@@ -11,7 +11,7 @@ using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService;
+using Hyperledger.Aries.Features.OpenId4Vc.VCI.Services.Oid4VciClientService;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;

@@ -14,7 +14,7 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
+namespace Hyperledger.Aries.Features.OpenId4Vc.VCI.Services.Oid4VciClientService
 {
     /// <inheritdoc />
     public class DefaultOid4VciClientService : IOid4VciClientService
@@ -39,7 +39,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         private readonly IKeyStore _keyStore;
 
         /// <inheritdoc />
-        public async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint)
+        public virtual async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint)
         {
             var httpClient = _httpClientFactory.CreateClient();
             var metadataUrl = new Uri(endpoint, ".well-known/openid-credential-issuer");
@@ -58,7 +58,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         }
 
         /// <inheritdoc />
-        public async Task<(OidCredentialResponse, string)> RequestCredentialAsync(
+        public virtual async Task<(OidCredentialResponse, string)> RequestCredentialAsync(
             string credentialIssuer,
             string clientNonce,
             string type,
@@ -88,7 +88,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciService
         }
 
         /// <inheritdoc />
-        public async Task<TokenResponse> RequestTokenAsync(OidIssuerMetadata metadata, string preAuthorizedCode,
+        public virtual async Task<TokenResponse> RequestTokenAsync(OidIssuerMetadata metadata, string preAuthorizedCode,
             string? pin = null)
         {
             var authServer = await GetAuthorizationServerMetadata(metadata);

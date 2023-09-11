@@ -13,6 +13,16 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
     public class DefaultSdJwtCredentialService : ISdJwtCredentialService
     {
         /// <summary>
+        ///     The service responsible for holder operations.
+        /// </summary>
+        protected readonly IHolder Holder;
+
+        /// <summary>
+        ///     The service responsible for wallet record operations.
+        /// </summary>
+        protected readonly IWalletRecordService RecordService;
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="DefaultSdJwtCredentialService" /> class.
         /// </summary>
         /// <param name="recordService">The service responsible for wallet record operations.</param>
@@ -21,17 +31,14 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
             IHolder holder,
             IWalletRecordService recordService)
         {
-            _holder = holder;
-            _recordService = recordService;
+            Holder = holder;
+            RecordService = recordService;
         }
 
-        private readonly IHolder _holder;
-        private readonly IWalletRecordService _recordService;
-
         /// <inheritdoc />
-        public async Task<SdJwtRecord> GetAsync(IAgentContext context, string credentialId)
+        public virtual async Task<SdJwtRecord> GetAsync(IAgentContext context, string credentialId)
         {
-            var record = await _recordService.GetAsync<SdJwtRecord>(context.Wallet, credentialId);
+            var record = await RecordService.GetAsync<SdJwtRecord>(context.Wallet, credentialId);
             if (record == null)
                 throw new AriesFrameworkException(ErrorCode.RecordNotFound, "SD-JWT Credential record not found");
 
@@ -39,24 +46,25 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         }
 
         /// <inheritdoc />
-        public Task<List<SdJwtRecord>> ListAsync(IAgentContext context, ISearchQuery query = null, int count = 100,
+        public virtual Task<List<SdJwtRecord>> ListAsync(IAgentContext context, ISearchQuery query = null,
+            int count = 100,
             int skip = 0)
         {
-            return _recordService.SearchAsync<SdJwtRecord>(context.Wallet, query, null, count, skip);
+            return RecordService.SearchAsync<SdJwtRecord>(context.Wallet, query, null, count, skip);
         }
 
         /// <inheritdoc />
-        public async Task<string> StoreAsync(IAgentContext context, string combinedIssuance,
+        public virtual async Task<string> StoreAsync(IAgentContext context, string combinedIssuance,
             string keyId, OidIssuerMetadata issuerMetadata)
         {
-            var sdJwtDoc = _holder.ReceiveCredential(combinedIssuance);
+            var sdJwtDoc = Holder.ReceiveCredential(combinedIssuance);
             var record = SdJwtRecord.FromSdJwtDoc(sdJwtDoc);
             record.Id = Guid.NewGuid().ToString();
 
             record.SetDisplayFromIssuerMetadata(issuerMetadata);
             record.KeyId = keyId;
 
-            await _recordService.AddAsync(context.Wallet, record);
+            await RecordService.AddAsync(context.Wallet, record);
 
             return record.Id;
         }
