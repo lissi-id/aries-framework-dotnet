@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Authorization
 {
     /// <summary>
     ///     Represents the metadata associated with an OAuth 2.0 Authorization Server.

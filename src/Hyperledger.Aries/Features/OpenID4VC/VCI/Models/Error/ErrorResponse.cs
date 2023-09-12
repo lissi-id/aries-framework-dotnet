@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Error
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Error
 {
     /// <summary>
     ///     Represents an error response when the request is invalid or unauthorized.

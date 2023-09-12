@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Newtonsoft.Json;
