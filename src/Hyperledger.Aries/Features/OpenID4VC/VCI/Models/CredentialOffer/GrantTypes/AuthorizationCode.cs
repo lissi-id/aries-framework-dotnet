@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer.GrantTypes
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer.GrantTypes
 {
     /// <summary>
     ///     Represents the parameters for the 'authorization_code' grant type.

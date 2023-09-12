@@ -1,9 +1,9 @@
 #nullable enable
 
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer.GrantTypes;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer.GrantTypes;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
 {
     /// <summary>
     ///     Represents the grant types that the Credential Issuer's AS is prepared to process for the credential offer.

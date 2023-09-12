@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 using Flurl;
 using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest;
-using Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Authorization;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialRequest;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialResponse;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenId4Vc.VCI.Services.Oid4VciClientService
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
 {
     /// <inheritdoc />
     public class DefaultOid4VciClientService : IOid4VciClientService

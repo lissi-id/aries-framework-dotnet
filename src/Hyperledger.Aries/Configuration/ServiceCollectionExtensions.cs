@@ -8,7 +8,6 @@ using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
-using Hyperledger.Aries.Features.OpenId4Vc.VCI.Services.Oid4VciClientService;
 using Hyperledger.Aries.Features.OutOfBand;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
