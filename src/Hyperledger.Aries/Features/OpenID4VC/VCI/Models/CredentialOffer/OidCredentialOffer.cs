@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
 {
     /// <summary>
     ///     Represents an OpenID4VCI Credential Offer, which is used to obtain one or more credentials from a Credential

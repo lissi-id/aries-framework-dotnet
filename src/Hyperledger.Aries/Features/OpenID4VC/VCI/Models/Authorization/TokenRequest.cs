@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.Authorization
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Authorization
 {
     /// <summary>
     ///     Represents a request for an access token from an OAuth 2.0 Authorization Server.

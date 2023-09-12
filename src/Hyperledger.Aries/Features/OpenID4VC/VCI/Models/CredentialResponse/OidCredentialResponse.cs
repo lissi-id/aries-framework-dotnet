@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialResponse
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialResponse
 {
     /// <summary>
     ///     Represents a Credential Response. The response can be either immediate or deferred. In the synchronous response,

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialOffer
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
 {
     /// <summary>
     ///     Represents a credential that the Wallet may request from the Credential Issuer as part of the OpenID4VCI Credential

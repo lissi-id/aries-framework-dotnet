@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.VCI.Models.CredentialRequest
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialRequest
 {
     /// <summary>
     ///     Represents the proof of possession of the key material that the issued credential is bound to.
