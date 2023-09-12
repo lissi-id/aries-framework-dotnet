@@ -94,8 +94,6 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.TryAddSingleton<ITailsService, DefaultTailsService>();
             builder.TryAddSingleton<IWalletRecordService, DefaultWalletRecordService>();
             builder.TryAddSingleton<IWalletService, DefaultWalletService>();
-
-            AddOpenIdDefaultServices(builder);
             
             return builder;
         }
@@ -109,7 +107,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        internal static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
+        /// <summary>
+        /// Adds the default OpenID services.
+        /// </summary>
+        /// <param name="builder"> The builder. </param>
+        public static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
         {
             builder.AddSingleton<IHolder, Holder>();
             builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
