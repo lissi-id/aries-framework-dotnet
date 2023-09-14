@@ -47,5 +47,15 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored JWT record.</returns>
         Task<string> StoreAsync(IAgentContext context, string combinedIssuance, string keyId,
             OidIssuerMetadata issuerMetadata);
+
+        /// <summary>
+        ///     Deletes a specific SD-JWT record by its ID.
+        /// </summary>
+        /// <param name="context">The agent context.</param>
+        /// <param name="recordId">The ID of the SD-JWT credential record to delete.</param>
+        /// <returns>
+        ///     A task representing the asynchronous operation. The task result indicates whether the deletion was successful.
+        /// </returns>
+        Task<bool> DeleteAsync(IAgentContext context, string recordId);
     }
 }
