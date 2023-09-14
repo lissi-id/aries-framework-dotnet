@@ -68,5 +68,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
 
             return record.Id;
         }
+
+        /// <inheritdoc />
+        public virtual async Task<bool> DeleteAsync(IAgentContext context, string recordId)
+        {
+            return await RecordService.DeleteAsync<SdJwtRecord>(context.Wallet, recordId);
+        }
     }
 }
