@@ -24,11 +24,12 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services
         /// <param name="nonce">
         ///     A unique token, typically used to prevent replay attacks by ensuring that the proof is only used once.
         /// </param>
+        /// <param name="type">The type of the proof. (For example "openid4vci-proof+jwt")</param>
         /// <returns>
         ///     A <see cref="Task{TResult}" /> representing the asynchronous operation. When evaluated, the task's result contains
         ///     the proof.
         /// </returns>
-        Task<string> GenerateProofOfPossessionAsync(string keyId, string audience, string nonce);
+        Task<string> GenerateProofOfPossessionAsync(string keyId, string audience, string nonce, string type);
 
         /// <summary>
         ///     Asynchronously loads a key by its identifier and returns it as a JSON Web Key (JWK) containing the public key

@@ -69,7 +69,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
         {
             var keyId = await _keyStore.GenerateKey();
             var proofOfPossession = await _keyStore.GenerateProofOfPossessionAsync(
-                keyId, credentialIssuer, clientNonce);
+                keyId, credentialIssuer, clientNonce, "openid4vci-proof+jwt");
 
             var credentialRequest = new OidCredentialRequest
             {
