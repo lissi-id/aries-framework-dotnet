@@ -97,7 +97,9 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
 
         [Theory]
         [InlineData("https://issuer.io", "https://issuer.io/.well-known/oauth-authorization-server")]
+        [InlineData("https://issuer.io/", "https://issuer.io/.well-known/oauth-authorization-server")]
         [InlineData("https://issuer.io/issuer1", "https://issuer.io/.well-known/oauth-authorization-server/issuer1")]
+        [InlineData("https://issuer.io/issuer1/", "https://issuer.io/.well-known/oauth-authorization-server/issuer1")]
         public async Task AuthServerUriIsBuiltFromCredentialIssuerCorrectly(string issuer, string expectedUriString)
         {
             // Arrange
@@ -143,7 +145,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             _keyStoreMock.Setup(j => j.GenerateKey(It.IsAny<string>()))
                 .ReturnsAsync(keyId);
             _keyStoreMock.Setup(j =>
-                    j.GenerateProofOfPossessionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    j.GenerateProofOfPossessionAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(jwtMock);
 
             const string credentialResponse =
@@ -199,7 +201,9 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
 
         [Theory]
         [InlineData("https://issuer.io", "https://issuer.io/.well-known/openid-credential-issuer")]
+        [InlineData("https://issuer.io/", "https://issuer.io/.well-known/openid-credential-issuer")]
         [InlineData("https://issuer.io/issuer1", "https://issuer.io/issuer1/.well-known/openid-credential-issuer")]
+        [InlineData("https://issuer.io/issuer1/", "https://issuer.io/issuer1/.well-known/openid-credential-issuer")]
         public async Task CredentialIssuerUriIsBuiltCorrectly(string inputUri, string expectedUriString)
         {
             // Arrange
