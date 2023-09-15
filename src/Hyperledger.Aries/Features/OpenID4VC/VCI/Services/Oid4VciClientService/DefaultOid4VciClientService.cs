@@ -41,16 +41,20 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
         public virtual async Task<OidIssuerMetadata> FetchIssuerMetadataAsync(Uri endpoint)
         {
             var httpClient = _httpClientFactory.CreateClient();
-            var metadataUrl = new Uri(endpoint, ".well-known/openid-credential-issuer");
+            
+            var baseEndpoint = endpoint.AbsolutePath.EndsWith("/") ? endpoint : new Uri(endpoint.OriginalString + "/");
+            var metadataUrl = new Uri(baseEndpoint, ".well-known/openid-credential-issuer");
 
             var response = await httpClient.GetAsync(metadataUrl);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
+            {
                 return JsonConvert.DeserializeObject<OidIssuerMetadata>(responseString)
                        ?? throw new InvalidOperationException(
                            "Failed to deserialize the issuer metadata. JSON: " +
                            responseString);
+            }
 
             throw new HttpRequestException(
                 $"Failed to get Issuer metadata. Status code is {response.StatusCode} with message {responseString}");
@@ -65,15 +69,27 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
         {
             var keyId = await _keyStore.GenerateKey();
             var proofOfPossession = await _keyStore.GenerateProofOfPossessionAsync(
-                keyId, credentialIssuer, clientNonce);
+                keyId, credentialIssuer, clientNonce, "openid4vci-proof+jwt");
 
-            var credentialRequest = BuildCredentialRequest(proofOfPossession, type);
+            var credentialRequest = new OidCredentialRequest
+            {
+                Format = "vc+sd-jwt",
+                Type = type,
+                Proof = new OidProofOfPossession
+                {
+                    ProofType = "jwt",
+                    Jwt = proofOfPossession
+                }
+            };
+
             var responseData = await SendCredentialRequest(credentialIssuer, tokenResponse, credentialRequest);
 
             var responseString = await responseData.Content.ReadAsStringAsync();
             if (!responseData.IsSuccessStatusCode)
+            {
                 throw new HttpRequestException(
                     $"Failed to request Credential. Status Code is {responseData.StatusCode} with message {responseString}");
+            }
 
             var credentialResponse = JsonConvert.DeserializeObject<OidCredentialResponse>(responseString)
                                      ?? throw new InvalidOperationException(
@@ -81,7 +97,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
                                          responseString);
 
             if (credentialResponse.Credential == null)
+            {
                 throw new InvalidOperationException("Credential in response is null.");
+            }
 
             return (credentialResponse, keyId);
         }
@@ -91,25 +109,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
             string? pin = null)
         {
             var authServer = await GetAuthorizationServerMetadata(metadata);
-            return await GetRequestTokenAsync(preAuthorizedCode, authServer, pin);
-        }
 
-        private static OidCredentialRequest BuildCredentialRequest(string jwt, string type)
-        {
-            return new OidCredentialRequest
-            {
-                Format = "vc+sd-jwt",
-                Type = type,
-                Proof = new OidProofOfPossession
-                {
-                    ProofType = "jwt",
-                    Jwt = jwt
-                }
-            };
-        }
-
-        private static Task<FormUrlEncodedContent> CreateRequestToken(string preAuthorizedCode, string? pin)
-        {
             var tokenRequest = new TokenRequest
             {
                 GrantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
@@ -117,60 +117,63 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
             };
 
             if (!string.IsNullOrEmpty(pin))
+            {
                 tokenRequest.UserPin = pin;
+            }
 
-            return Task.FromResult(tokenRequest.ToFormUrlEncoded());
+            var formUrlEncodedRequest = tokenRequest.ToFormUrlEncoded();
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync(authServer.TokenEndpoint, formUrlEncodedRequest);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<TokenResponse>(responseString) ??
+                       throw new InvalidOperationException("Failed to deserialize the token response. JSON: " +
+                                                           responseString);
+            }
+
+            throw new HttpRequestException(
+                $"Failed to get token. Status Code is {response.StatusCode} with message {responseString}");
         }
 
-        private async Task<AuthorizationServerMetadata> FetchAuthorizationServerMetadataAsync(string endpointUrl)
+        private async Task<AuthorizationServerMetadata> GetAuthorizationServerMetadata(OidIssuerMetadata metadata)
         {
+            var endpointUrl = GetAuthorizationServerUrl(metadata);
+
             var httpClient = _httpClientFactory.CreateClient();
             var response = await httpClient.GetAsync(endpointUrl);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
+            {
                 return JsonConvert.DeserializeObject<AuthorizationServerMetadata>(responseString)
                        ?? throw new InvalidOperationException(
                            "Failed to deserialize the authorization server metadata. JSON: " + responseString);
+            }
 
             throw new HttpRequestException(
                 $"Failed to get authorization server metadata. Status Code is: {response.StatusCode} with message {responseString}");
         }
 
-        private async Task<AuthorizationServerMetadata> GetAuthorizationServerMetadata(OidIssuerMetadata metadata)
+        private static string GetAuthorizationServerUrl(OidIssuerMetadata metadata)
         {
-            string endpointUrl;
             if (!string.IsNullOrEmpty(metadata.AuthorizationServer))
             {
-                endpointUrl = metadata.AuthorizationServer;
+                return metadata.AuthorizationServer;
             }
-            else
+
+            var credentialIssuerUrl = new Uri(metadata.CredentialIssuer);
+            if (string.IsNullOrEmpty(credentialIssuerUrl.AbsolutePath) || credentialIssuerUrl.AbsolutePath == "/")
             {
-                var credentialIssuerUrl = new Uri(metadata.CredentialIssuer);
-                endpointUrl = new Uri(credentialIssuerUrl, "/.well-known/oauth-authorization-server").ToString();
+                return
+                    $"{credentialIssuerUrl.GetLeftPart(UriPartial.Authority)}/.well-known/oauth-authorization-server";
             }
 
-            return await FetchAuthorizationServerMetadataAsync(endpointUrl);
-        }
-
-        private async Task<TokenResponse> GetRequestTokenAsync(
-            string preAuthorizedCode,
-            AuthorizationServerMetadata? authorizationServer,
-            string? pin = null)
-        {
-            var formUrlEncodedRequest = await CreateRequestToken(preAuthorizedCode, pin);
-
-            var httpClient = _httpClientFactory.CreateClient();
-            var response = await httpClient.PostAsync(authorizationServer?.TokenEndpoint, formUrlEncodedRequest);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<TokenResponse>(responseString) ??
-                       throw new InvalidOperationException("Failed to deserialize the token response. JSON: " +
-                                                           responseString);
-
-            throw new HttpRequestException(
-                $"Failed to get token. Status Code is {response.StatusCode} with message {responseString}");
+            var trimmedPath = credentialIssuerUrl.AbsolutePath.TrimEnd('/');
+            return
+                $"{credentialIssuerUrl.GetLeftPart(UriPartial.Authority)}/.well-known/oauth-authorization-server{trimmedPath}";
         }
 
         private async Task<HttpResponseMessage> SendCredentialRequest(
@@ -181,9 +184,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
             var requestData = new StringContent(credentialRequest.ToJson(), Encoding.UTF8, "application/json");
 
             var httpClientWithAuth = _httpClientFactory.CreateClient();
-            
+
             httpClientWithAuth.DefaultRequestHeaders.Remove("Authorization");
-            
+
             httpClientWithAuth.DefaultRequestHeaders.Add("Authorization",
                 $"{tokenResponse.TokenType} {tokenResponse.AccessToken}");
 
