@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Hyperledger.Aries.Tests.Features.SdJwt
 {
-    public class DefaultSdJwtVcHolderServiceTests
+    public class SdJwtVcHolderTests
     {
         [Fact]
         public async Task Can_Get_Credential_Candidates_For_Input_Descriptors()
@@ -45,43 +45,37 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var driverLicenseInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[]
                     { CreateField("$.id", idFilter), CreateField("$.issuer"), CreateField("$.dateOfBirth") }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.",
-                new [] { "A" });
+                new[] { "A" });
 
             var universityInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[] { CreateField("$.degree") }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "University Degree",
                 "We can only accept digital university degrees.");
 
             var expected = new List<CredentialCandidates>
             {
-                new CredentialCandidates
-                {
-                    InputDescriptorId = driverLicenseInputDescriptor.Id,
-                    Group = driverLicenseInputDescriptor.Group ?? new[] { "A" },
-                    Credentials = new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }
-                },
-                new CredentialCandidates
-                {
-                    InputDescriptorId = universityInputDescriptor.Id,
-                    Credentials = new List<ICredential> { universityCredential }
-                }
+                new CredentialCandidates(
+                    driverLicenseInputDescriptor.Id,
+                    new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }),
+                new CredentialCandidates(
+                    universityInputDescriptor.Id, new List<ICredential> { universityCredential })
             };
 
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[]
                 {
                     driverLicenseCredential, driverLicenseCredentialClone, universityCredential
                 },
-                new [] { driverLicenseInputDescriptor, universityInputDescriptor });
+                new[] { driverLicenseInputDescriptor, universityInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEquivalentTo(expected);
@@ -106,7 +100,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                     CreateField("$.id"), CreateField("$.issuer"),
                     CreateField("$.dateOfBirth"), CreateField("$.name")
                 }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
@@ -114,7 +108,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { employeeCredential },
                 new[] { driverLicenseInputDescriptor });
 
@@ -144,7 +138,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 {
                     CreateField("$.id", idFilter), CreateField("$.issuer"), CreateField("$.dateOfBirth")
                 }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
@@ -152,7 +146,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { driverLicenseCredential },
                 new[] { driverLicenseInputDescriptor });
 
@@ -192,28 +186,21 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             return field;
         }
 
-        private static Format CreateFormat(string[] supportedAlg, string supportedFormat)
+        private static Format CreateFormat(string[] supportedAlg)
         {
-            var alg = new Algorithm();
-            alg.PrivateSet(x => x.Alg, supportedAlg);
-
             var format = new Format();
-            format.PrivateSet(x => x.SupportedAlgorithms,
-                new Dictionary<string, Algorithm>
-                {
-                    { supportedFormat, alg }
-                });
+            format.PrivateSet(x => x.Alg, supportedAlg);
 
             return format;
         }
 
-        private static InputDescriptor CreateInputDescriptor(Constraints constraints, Format format, string id,
+        private static InputDescriptor CreateInputDescriptor(Constraints constraints, Dictionary<string, Format> formats, string id,
             string name, string purpose, string[]? group = null)
         {
             var inputDescriptor = new InputDescriptor();
 
             inputDescriptor.PrivateSet(x => x.Constraints, constraints);
-            inputDescriptor.PrivateSet(x => x.Format, format);
+            inputDescriptor.PrivateSet(x => x.Formats, formats);
             inputDescriptor.PrivateSet(x => x.Id, id);
             inputDescriptor.PrivateSet(x => x.Name, name);
             inputDescriptor.PrivateSet(x => x.Purpose, purpose);

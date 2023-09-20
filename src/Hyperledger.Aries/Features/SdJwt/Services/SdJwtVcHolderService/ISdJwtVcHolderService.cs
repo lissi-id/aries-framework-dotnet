@@ -4,7 +4,6 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
-using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
@@ -15,6 +14,25 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
     /// </summary>
     public interface ISdJwtVcHolderService
     {
+        /// <summary>
+        ///     Deletes a specific SD-JWT record by its ID.
+        /// </summary>
+        /// <param name="context">The agent context.</param>
+        /// <param name="recordId">The ID of the SD-JWT credential record to delete.</param>
+        /// <returns>
+        ///     A task representing the asynchronous operation. The task result indicates whether the deletion was successful.
+        /// </returns>
+        Task<bool> DeleteAsync(IAgentContext context, string recordId);
+
+        /// <summary>
+        ///     Finds the credential candidates based on the provided credentials and input descriptors.
+        /// </summary>
+        /// <param name="credentials">An array of available credentials.</param>
+        /// <param name="inputDescriptors">An array of input descriptors to be satisfied.</param>
+        /// <returns>An array of credential candidates, each containing a list of credentials that match the input descriptors.</returns>
+        Task<CredentialCandidates[]> FindCredentialCandidates(SdJwtRecord[] credentials,
+            InputDescriptor[] inputDescriptors);
+
         /// <summary>
         ///     Retrieves a specific SD-JWT record by its ID.
         /// </summary>
@@ -50,19 +68,5 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored JWT record.</returns>
         Task<string> StoreAsync(IAgentContext context, string combinedIssuance, string keyId,
             OidIssuerMetadata issuerMetadata);
-
-        /// <summary>
-        ///     Deletes a specific SD-JWT record by its ID.
-        /// </summary>
-        /// <param name="context">The agent context.</param>
-        /// <param name="recordId">The ID of the SD-JWT credential record to delete.</param>
-        /// <returns>
-        ///     A task representing the asynchronous operation. The task result indicates whether the deletion was successful.
-        /// </returns>
-        Task<bool> DeleteAsync(IAgentContext context, string recordId);
-        
-        Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials, InputDescriptor[] inputDescriptors);
-        
-        Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId);
     }
 }

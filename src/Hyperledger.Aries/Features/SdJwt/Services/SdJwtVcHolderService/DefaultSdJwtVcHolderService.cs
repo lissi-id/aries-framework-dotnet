@@ -8,6 +8,7 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
+using Hyperledger.Aries.Storage.Models.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SD_JWT.Abstractions;
@@ -40,11 +41,6 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             RecordService = recordService;
         }
 
-        public Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <inheritdoc />
         public virtual async Task<bool> DeleteAsync(IAgentContext context, string recordId)
         {
@@ -62,27 +58,21 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         }
 
         /// <inheritdoc />
-        public virtual Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials,
+        public virtual Task<CredentialCandidates[]> FindCredentialCandidates(SdJwtRecord[] credentials,
             InputDescriptor[] inputDescriptors)
         {
             var result = new List<CredentialCandidates>();
 
             foreach (var inputDescriptor in inputDescriptors)
             {
-                if (inputDescriptor.Format != null &&
-                    !inputDescriptor.Format.SupportedAlgorithms.Keys.Contains("vc+sd-jwt"))
+                if (!inputDescriptor.Formats.Keys.Contains("vc+sd-jwt"))
                 {
-                    continue;
+                    throw new NotSupportedException("Only vc+sd-jwt format is supported");
                 }
 
-                var credentialCandidates = new CredentialCandidates();
-
-                if (inputDescriptor.Constraints.Fields == null)
+                if (inputDescriptor.Constraints.Fields == null  || inputDescriptor.Constraints.Fields.Length == 0)
                 {
-                    credentialCandidates.InputDescriptorId = inputDescriptor.Id;
-                    credentialCandidates.Credentials.AddRange(credentials);
-                    result.Add(credentialCandidates);
-                    continue;
+                    throw new InvalidOperationException("Fields cannot be null or empty");
                 }
 
                 var matchingCredentials =
@@ -92,18 +82,10 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
                     continue;
                 }
 
-                credentialCandidates.InputDescriptorId = inputDescriptor.Id;
-                credentialCandidates.Credentials.AddRange(matchingCredentials);
-
-                if (string.Equals(inputDescriptor.Constraints.LimitDisclosure, "required"))
-                {
-                    credentialCandidates.LimitDisclosuresRequired = true; 
-                }
+                var limitDisclosuresRequired = string.Equals(inputDescriptor.Constraints.LimitDisclosure, "required");
                 
-                if (inputDescriptor.Group != null)
-                {
-                    credentialCandidates.Group = inputDescriptor.Group;
-                }
+                var credentialCandidates = new CredentialCandidates(inputDescriptor.Id,
+                    matchingCredentials, limitDisclosuresRequired);
                 
                 result.Add(credentialCandidates);
             }
