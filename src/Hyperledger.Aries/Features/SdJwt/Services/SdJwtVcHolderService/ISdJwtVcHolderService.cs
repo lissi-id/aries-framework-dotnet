@@ -2,7 +2,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
+<<<<<<< HEAD:src/Hyperledger.Aries/Features/SdJwt/Services/SdJwtVcHolderService/ISdJwtVcHolderService.cs
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
+=======
+using Hyperledger.Aries.Features.OpenID4VP.Models;
+using Hyperledger.Aries.Features.OpenID4VP.Services;
+>>>>>>> 9ead309 (define VP & Pex interfaces and models):src/Hyperledger.Aries/Features/SdJwt/Services/SdJwtCredentialService/ISdJwtCredentialService.cs
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
@@ -61,8 +66,20 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// </returns>
         Task<bool> DeleteAsync(IAgentContext context, string recordId);
         
+<<<<<<< HEAD:src/Hyperledger.Aries/Features/SdJwt/Services/SdJwtVcHolderService/ISdJwtVcHolderService.cs
         Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials, InputDescriptor[] inputDescriptors);
         
         Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId);
+=======
+        Task<CredentialCandidates[]> GetCredentialCandidates(InputDescriptor[] inputDescriptors);
+
+        /// <summary>
+        ///  returns base64 representation
+        /// </summary>
+        /// <param name="inputDescriptor"></param>
+        /// <param name="credentialId"></param>
+        /// <returns></returns>
+        Task<string> CreateSdJwtPresentationFormat(InputDescriptor inputDescriptor, string credentialId);
+>>>>>>> 9ead309 (define VP & Pex interfaces and models):src/Hyperledger.Aries/Features/SdJwt/Services/SdJwtCredentialService/ISdJwtCredentialService.cs
     }
 }
