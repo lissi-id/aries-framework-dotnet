@@ -21,6 +21,6 @@
         <PackageReference Include="System.Reactive.Linq" Version="$(SystemReactiveLinqVersion)" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Features\OpenID4VP\Models\" />
+      <Folder Include="Model\" />
     </ItemGroup>
 </Project>
