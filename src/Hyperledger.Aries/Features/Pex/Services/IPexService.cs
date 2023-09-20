@@ -8,6 +8,5 @@ namespace Hyperledger.Aries.Features.Pex.Services
         Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinition);
   
         Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentials);
-
     }
 }

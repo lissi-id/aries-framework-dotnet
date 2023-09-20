@@ -4,7 +4,6 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
-using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
