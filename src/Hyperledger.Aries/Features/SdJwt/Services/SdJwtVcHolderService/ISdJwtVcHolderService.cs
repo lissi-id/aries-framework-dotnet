@@ -60,8 +60,14 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// </returns>
         Task<bool> DeleteAsync(IAgentContext context, string recordId);
         
-        Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials, InputDescriptor[] inputDescriptors);
-        
-        Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId);
+        Task<CredentialCandidates[]> GetCredentialCandidates(InputDescriptor[] inputDescriptors);
+
+        /// <summary>
+        ///  returns base64 representation
+        /// </summary>
+        /// <param name="inputDescriptor"></param>
+        /// <param name="credentialId"></param>
+        /// <returns></returns>
+        Task<string> CreateSdJwtPresentationFormat(InputDescriptor inputDescriptor, string credentialId);
     }
 }
