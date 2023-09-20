@@ -8,12 +8,12 @@ using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
-namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
+namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 {
     /// <summary>
     ///     Provides methods for handling SD-JWT credentials.
     /// </summary>
-    public interface ISdJwtCredentialService
+    public interface ISdJwtVcHolderService
     {
         /// <summary>
         ///     Retrieves a specific SD-JWT record by its ID.

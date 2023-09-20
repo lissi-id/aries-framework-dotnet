@@ -9,10 +9,10 @@ using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 using SD_JWT.Abstractions;
 
-namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
+namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 {
     /// <inheritdoc />
-    public class DefaultSdJwtCredentialService : ISdJwtCredentialService
+    public class DefaultSdJwtVcHolderService : ISdJwtVcHolderService
     {
         /// <summary>
         ///     The service responsible for holder operations.
@@ -25,11 +25,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         protected readonly IWalletRecordService RecordService;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultSdJwtCredentialService" /> class.
+        ///     Initializes a new instance of the <see cref="DefaultSdJwtVcHolderService" /> class.
         /// </summary>
         /// <param name="recordService">The service responsible for wallet record operations.</param>
         /// <param name="holder">The service responsible for holder operations.</param>
-        public DefaultSdJwtCredentialService(
+        public DefaultSdJwtVcHolderService(
             IHolder holder,
             IWalletRecordService recordService)
         {
