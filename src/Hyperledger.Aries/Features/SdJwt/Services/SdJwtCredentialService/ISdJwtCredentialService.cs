@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
+using Hyperledger.Aries.Features.OpenID4VP.Models;
+using Hyperledger.Aries.Features.OpenID4VP.Services;
+using Hyperledger.Aries.Features.Pex.Models;
+using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
@@ -57,5 +61,15 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService
         ///     A task representing the asynchronous operation. The task result indicates whether the deletion was successful.
         /// </returns>
         Task<bool> DeleteAsync(IAgentContext context, string recordId);
+        
+        Task<CredentialCandidates[]> GetCredentialCandidates(InputDescriptor[] inputDescriptors);
+
+        /// <summary>
+        ///  returns base64 representation
+        /// </summary>
+        /// <param name="inputDescriptor"></param>
+        /// <param name="credentialId"></param>
+        /// <returns></returns>
+        Task<string> CreateSdJwtPresentationFormat(InputDescriptor inputDescriptor, string credentialId);
     }
 }

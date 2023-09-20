@@ -19,7 +19,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
     ///     A record that represents a Selective Disclosure JSON Web Token (SD-JWT) Credential with additional properties.
     ///     Inherits from base class RecordBase.
     /// </summary>
-    public class SdJwtRecord : RecordBase
+    public class SdJwtRecord : RecordBase, ICredential
     {
         /// <summary>
         ///     Gets or sets the attributes that should be displayed.
