@@ -4,144 +4,144 @@ using Newtonsoft.Json;
 namespace Hyperledger.Aries.Features.Pex.Models
 {
     /// <summary>
-    /// Represents a collection of input descriptors.
+    ///     Represents a collection of input descriptors.
     /// </summary>
     public class InputDescriptors
     {
         /// <summary>
-        /// Gets or sets the input descriptors.
+        ///     Gets or sets the input descriptors.
         /// </summary>
         [JsonProperty("input_descriptors")]
         public InputDescriptor[] Value { get; private set; } = null!;
     }
 
     /// <summary>
-    /// Represents details about an input descriptor. This class encapsulates properties for the top-level 
-    /// of an Input Descriptor Object.
+    ///     Represents details about an input descriptor. This class encapsulates properties for the top-level
+    ///     of an Input Descriptor Object.
     /// </summary>
     public class InputDescriptor
     {
         /// <summary>
-        /// Gets or sets the unique identifier for the input descriptor.
-        /// This MUST be a string that does not conflict with the id of another Input Descriptor Object 
-        /// in the same Presentation Definition.
+        ///     Gets or sets the constraints for the input descriptor.
+        ///     It defines conditions that must be met for the input.
         /// </summary>
-        [JsonProperty("id")]
-        public string Id { get; private set; } = null!;
+        [JsonProperty("constraints")]
+        public Constraints Constraints { get; private set; } = null!;
 
         /// <summary>
-        /// Gets or sets the human-friendly name that describes what the target schema represents. 
-        /// This property is optional.
-        /// </summary>
-        [JsonProperty("name")]
-        public string? Name { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the purpose for which the Claim's data is being requested.
-        /// This property is optional.
-        /// </summary>
-        [JsonProperty("purpose")]
-        public string? Purpose { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the format of the input descriptor.
-        /// This property is optional.
+        ///     Gets or sets the format of the input descriptor.
+        ///     This property is optional.
         /// </summary>
         [JsonProperty("format")]
         public Format? Format { get; private set; }
 
         /// <summary>
-        /// Gets or sets the constraints for the input descriptor.
-        /// It defines conditions that must be met for the input.
+        ///     Gets or sets the unique identifier for the input descriptor.
+        ///     This MUST be a string that does not conflict with the id of another Input Descriptor Object
+        ///     in the same Presentation Definition.
         /// </summary>
-        [JsonProperty("constraints")]
-        public Constraints Constraints { get; private set; } = null!;
-        
+        [JsonProperty("id")]
+        public string Id { get; private set; } = null!;
+
         /// <summary>
-        /// Gets the array of groups that the input descriptor belongs to. Needed for Submission Requirement Feature.
+        ///     Gets or sets the human-friendly name that describes what the target schema represents.
+        ///     This property is optional.
+        /// </summary>
+        [JsonProperty("name")]
+        public string? Name { get; private set; }
+
+        /// <summary>
+        ///     Gets or sets the purpose for which the Claim's data is being requested.
+        ///     This property is optional.
+        /// </summary>
+        [JsonProperty("purpose")]
+        public string? Purpose { get; private set; }
+
+        /// <summary>
+        ///     Gets the array of groups that the input descriptor belongs to. Needed for Submission Requirement Feature.
         /// </summary>
         [JsonProperty("group")]
         public string[]? Group { get; private set; }
     }
 
     /// <summary>
-    /// Represents the format of the input descriptor, encapsulating supported algorithms.
+    ///     Represents the format of the input descriptor, encapsulating supported algorithms.
     /// </summary>
     public class Format
     {
         /// <summary>
-        /// Gets a dictionary of supported algorithms for the format, keyed by their designations 
+        ///     Gets a dictionary of supported algorithms for the format, keyed by their designations
         /// </summary>
         public Dictionary<string, Algorithm> SupportedAlgorithms { get; private set; } = null!;
     }
 
     /// <summary>
-    /// Represents the details of a supported algorithm.
+    ///     Represents the details of a supported algorithm.
     /// </summary>
     public class Algorithm
     {
         /// <summary>
-        /// Gets the names of supported algorithms.
+        ///     Gets the names of supported algorithms.
         /// </summary>
         [JsonProperty("alg")]
         public string[] Alg { get; private set; } = null!;
     }
 
     /// <summary>
-    /// Represents constraints that are associated with an input descriptor.
-    /// Defines conditions that the input must meet.
+    ///     Represents constraints that are associated with an input descriptor.
+    ///     Defines conditions that the input must meet.
     /// </summary>
     public class Constraints
     {
         /// <summary>
-        /// Gets the array of fields. 
-        /// This property is optional.
+        ///     Gets the array of fields.
+        ///     This property is optional.
         /// </summary>
         [JsonProperty("fields")]
         public Field[]? Fields { get; private set; }
 
         /// <summary>
-        /// Gets the requirement for limit disclosures.
-        /// This property is optional.
+        ///     Gets the requirement for limit disclosures.
+        ///     This property is optional.
         /// </summary>
         [JsonProperty("limit_disclosure")]
         public string? LimitDisclosure { get; private set; }
     }
 
     /// <summary>
-    /// Represents the detailed structure of a specific field within the constraints.
+    ///     Represents the detailed structure of a specific field within the constraints.
     /// </summary>
     public class Field
     {
         /// <summary>
-        /// Gets the filter associated with the field to evaluate values against.
+        ///     Gets the filter associated with the field to evaluate values against.
         /// </summary>
         [JsonProperty("filter")]
         public Filter Filter { get; private set; } = null!;
 
         /// <summary>
-        /// Gets an array of JSONPath string expressions that select a target value from the input.
+        ///     Gets an array of JSONPath string expressions that select a target value from the input.
         /// </summary>
         [JsonProperty("path")]
         public string[] Path { get; private set; } = null!;
     }
 
     /// <summary>
-    /// Represents a filter applied to the value that is selected by the field's path.
+    ///     Represents a filter applied to the value that is selected by the field's path.
     /// </summary>
     public class Filter
     {
         /// <summary>
-        /// Gets the type of filter applied.
-        /// </summary>
-        [JsonProperty("type")]
-        public string Type { get; private set; } = null!;
-
-        /// <summary>
-        /// Gets the constant value which the selected value is evaluated against.
-        /// This property is optional.
+        ///     Gets the constant value which the selected value is evaluated against.
+        ///     This property is optional.
         /// </summary>
         [JsonProperty("const")]
         public string Const { get; private set; } = null!;
+
+        /// <summary>
+        ///     Gets the type of filter applied.
+        /// </summary>
+        [JsonProperty("type")]
+        public string Type { get; private set; } = null!;
     }
 }
