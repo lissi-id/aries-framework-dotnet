@@ -10,6 +10,7 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Storage;
+using Hyperledger.Aries.Storage.Models.Interfaces;
 using Newtonsoft.Json.Linq;
 using SD_JWT.Models;
 
