@@ -4,12 +4,12 @@ using System.Reflection;
 
 namespace Hyperledger.Aries.Tests.Features.Pex.Models
 {
-    public static class PexDataProvider
+    public static class PexTestsDataProvider
     {
         public static string GetInputDescriptorsJson()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var currentNamespace = typeof(PexDataProvider).Namespace;
+            var currentNamespace = typeof(PexTestsDataProvider).Namespace;
             var resourceName = $"{currentNamespace}.InputDescriptors.json";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
