@@ -36,4 +36,10 @@
     <ProjectReference Include="..\..\src\Hyperledger.Aries.TestHarness\Hyperledger.Aries.TestHarness.csproj" />
     <ProjectReference Include="..\..\src\Hyperledger.Aries.Payments.SovrinToken\Hyperledger.Aries.Payments.SovrinToken.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Features\Pex\Models\InputDescriptors.json" />
+    <EmbeddedResource Include="Features\Pex\Models\InputDescriptors.json" />
+    <None Remove="Features\Pex\Models\PresentationDefinition.json" />
+    <EmbeddedResource Include="Features\Pex\Models\PresentationDefinition.json" />
+  </ItemGroup>
 </Project>

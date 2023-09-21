@@ -3,8 +3,16 @@ using Hyperledger.Aries.Features.Pex.Models;
 
 namespace Hyperledger.Aries.Features.Pex.Services
 {
+    /// <summary>
+    /// Pex Service.
+    /// </summary>
     public interface IPexService
     {
+        /// <summary>
+        /// Parses the presentation definition.
+        /// </summary>
+        /// <param name="presentationDefinition">The JSON representation of a presentation definition.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the PresentationDefinition.</returns>
         Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinition);
   
         Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentials);

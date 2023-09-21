@@ -13,11 +13,11 @@ namespace Hyperledger.Aries.Tests.Features.Pex
         {
             var json = PexTestsDataProvider.GetInputDescriptorsJson();
 
-            var inputDescriptors = JsonConvert.DeserializeObject<InputDescriptors>(json);
+            var inputDescriptors = JsonConvert.DeserializeObject<InputDescriptor[]>(json);
             
-            inputDescriptors.Value.Length.Should().Be(2);
-            inputDescriptors.Value[0].Name.Should().Be("EU Driver's License");
-            inputDescriptors.Value[1].Name.Should().Be("US Passport");
+            inputDescriptors.Length.Should().Be(2);
+            inputDescriptors[0].Name.Should().Be("EU Driver's License");
+            inputDescriptors[1].Name.Should().Be("US Passport");
         }
     }
 }

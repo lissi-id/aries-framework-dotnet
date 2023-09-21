@@ -1,0 +1,92 @@
+{
+    "id": "123",
+    "input_descriptors": [
+        {
+            "id": "any type of credit card from any bank",
+            "name": "any type of credit card from any bank",
+            "purpose": "Please provide your credit card details",
+            "format": {
+                "jwt": {
+                    "alg": ["EdDSA", "ES256K", "ES384"]
+                },
+                "jwt_vc": {
+                    "alg": ["ES256K", "ES384"]
+                },
+                "jwt_vp": {
+                    "alg": ["EdDSA", "ES256K"]
+                },
+                "ldp_vc": {
+                    "proof_type": [
+                        "JsonWebSignature2020",
+                        "Ed25519Signature2018",
+                        "EcdsaSecp256k1Signature2019",
+                        "RsaSignature2018"
+                    ]
+                },
+                "ldp_vp": {
+                    "proof_type": ["Ed25519Signature2018"]
+                },
+                "ldp": {
+                    "proof_type": ["RsaSignature2018"]
+                }
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": [
+                            "$.termsOfUse.type"
+                        ],
+                        "filter": {
+                            "type": "string",
+                            "pattern": "https://train.trust-scheme.de/info"
+                        }
+                    },
+                    {
+                        "path": [
+                            "$.termsOfUse.trustScheme"
+                        ],
+                        "filter": {
+                            "type": "string",
+                            "pattern": "worldbankfederation.com"
+                        }
+                    },
+                    {
+                        "path": [
+                            "$.type"
+                        ],
+                        "filter": {
+                            "type": "string",
+                            "pattern": "creditCard"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "name": "Scalable trust example",
+    "format": {
+        "jwt": {
+            "alg": ["EdDSA", "ES256K", "ES384"]
+        },
+        "jwt_vc": {
+            "alg": ["ES256K", "ES384"]
+        },
+        "jwt_vp": {
+            "alg": ["EdDSA", "ES256K"]
+        },
+        "ldp_vc": {
+            "proof_type": [
+                "JsonWebSignature2020",
+                "Ed25519Signature2018",
+                "EcdsaSecp256k1Signature2019",
+                "RsaSignature2018"
+            ]
+        },
+        "ldp_vp": {
+            "proof_type": ["Ed25519Signature2018"]
+        },
+        "ldp": {
+            "proof_type": ["RsaSignature2018"]
+        }
+    }
+}

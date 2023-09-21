@@ -6,11 +6,21 @@ namespace Hyperledger.Aries.Tests.Features.Pex.Models
 {
     public static class PexTestsDataProvider
     {
+        public static string GetPresentationDefinitionJson()
+        {
+            return GetJson("PresentationDefinition.json");
+        }
+        
         public static string GetInputDescriptorsJson()
+        {
+            return GetJson("InputDescriptors.json");
+        }
+
+        private static string GetJson(string fileName)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var currentNamespace = typeof(PexTestsDataProvider).Namespace;
-            var resourceName = $"{currentNamespace}.InputDescriptors.json";
+            var resourceName = $"{currentNamespace}.{fileName}";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null)
