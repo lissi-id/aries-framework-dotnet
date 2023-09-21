@@ -11,7 +11,7 @@ namespace Hyperledger.Aries.Features.IssueCredential
     /// Represents a credential record in the agency wallet.
     /// </summary>
     /// <seealso cref="RecordBase" />
-    public class CredentialRecord : RecordBase, ICredential
+    public class CredentialRecord : RecordBase
     {
         private CredentialState _state;
 
