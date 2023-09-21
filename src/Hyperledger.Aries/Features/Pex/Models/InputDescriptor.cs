@@ -1,6 +1,7 @@
-namespace Hyperledger.Aries.Features.Pex.Models;
-
-public class InputDescriptor
+namespace Hyperledger.Aries.Features.Pex.Models
 {
-    public string Id { get; set; }
+    public class InputDescriptor
+    {
+        public string Id { get; set; }
+    }
 }

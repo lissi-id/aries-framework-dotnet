@@ -1,6 +1,6 @@
-using Hyperledger.Aries.Storage;
+using Hyperledger.Aries.Storage.Models.Interfaces;
 
-namespace Hyperledger.Aries.Features.OpenID4VP.Models
+namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
 {
     public class SelectedCredential
     {
