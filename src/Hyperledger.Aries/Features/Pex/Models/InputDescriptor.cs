@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -132,11 +131,4 @@ namespace Hyperledger.Aries.Features.Pex.Models
         [JsonProperty("type")]
         public string Type { get; private set; } = null!;
     }
-=======
-namespace Hyperledger.Aries.Features.Pex.Models;
-
-public class InputDescriptor
-{
-    public string Id { get; set; }
->>>>>>> 6a7b22c (define VP & Pex interfaces and models)
 }
