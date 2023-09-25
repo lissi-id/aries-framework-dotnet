@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.Pex.Models
 {
+    /// <summary>
+    /// Represents objects that articulate what proofs a Verifier requires
+    /// </summary>
     public class PresentationDefinition
     {
         /// <summary>
@@ -26,7 +29,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// <summary>
         /// This MUST be a string that describes the purpose for which the Presentation Definition's inputs are being used for.
         /// </summary>
-        public string? Purpose { get; set; }
+        public string? Purpose { get; private set; }
         
         /// <summary>
         ///     Gets or sets the format of the presentation definition

@@ -1,15 +1,13 @@
 namespace Hyperledger.Aries.Features.Pex.Models
 {
-    public class CredentialDescriptor
+    /// <summary>
+    /// The credential descriptor.
+    /// </summary>
+    public class CredentialDescriptor : Descriptor
     {
-        public string InputDescriptorId { get; set; }
-        
-        public string CredentialId { get; set; }
-        
-        public string Format { get; set; }
-        
-        public string Path { get; set; }
-        
-        public CredentialDescriptor? PathNested { get; set; }
+        /// <summary>
+        /// This MUST be the id value of a credential.
+        /// </summary>
+        public string CredentialId { get; set; } = null!;
     }
 }

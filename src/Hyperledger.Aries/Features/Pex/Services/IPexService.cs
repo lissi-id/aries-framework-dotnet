@@ -15,6 +15,12 @@ namespace Hyperledger.Aries.Features.Pex.Services
         /// <returns>A task that represents the asynchronous operation. The task result contains the PresentationDefinition.</returns>
         Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinition);
   
-        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentials);
+        /// <summary>
+        /// Creates a presentation submission.
+        /// </summary>
+        /// <param name="presentationDefinition">The presentation definition.</param>
+        /// <param name="credentialDescriptors">The credential descriptors.</param>
+        /// <returns></returns>
+        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentialDescriptors);
     }
 }

@@ -1,26 +1,17 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Hyperledger.Aries.Tests.Features.Pex.Models
 {
     public static class PexTestsDataProvider
     {
-        public static string GetPresentationDefinitionJson()
-        {
-            return GetJson("PresentationDefinition.json");
-        }
-        
-        public static string GetInputDescriptorsJson()
-        {
-            return GetJson("InputDescriptors.json");
-        }
-
-        private static string GetJson(string fileName)
+        public static string GetJsonForTestCase([CallerMemberName]string name = "")
         {
             var assembly = Assembly.GetExecutingAssembly();
             var currentNamespace = typeof(PexTestsDataProvider).Namespace;
-            var resourceName = $"{currentNamespace}.{fileName}";
+            var resourceName = $"{currentNamespace}.{name}.json";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null)

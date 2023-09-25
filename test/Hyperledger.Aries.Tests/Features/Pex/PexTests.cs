@@ -11,7 +11,7 @@ namespace Hyperledger.Aries.Tests.Features.Pex
         [Fact]
         public void Can_Parse_Input_Descriptors()
         {
-            var json = PexTestsDataProvider.GetInputDescriptorsJson();
+            var json = PexTestsDataProvider.GetJsonForTestCase();
 
             var inputDescriptors = JsonConvert.DeserializeObject<InputDescriptor[]>(json);
             
