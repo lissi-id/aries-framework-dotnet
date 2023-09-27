@@ -85,15 +85,21 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
                     continue;
                 }
 
-                var matchingRecords =
-                    FindMatchingRecordsForFields(credentials, inputDescriptor.Constraints.Fields);
-                if (matchingRecords.Length == 0)
+                var matchingCredentials =
+                    FindMatchingCredentialsForFields(credentials, inputDescriptor.Constraints.Fields);
+                if (matchingCredentials.Length == 0)
                 {
                     continue;
                 }
 
                 credentialCandidates.InputDescriptorId = inputDescriptor.Id;
-                credentialCandidates.Credentials.AddRange(matchingRecords);
+                credentialCandidates.Credentials.AddRange(matchingCredentials);
+                
+                if (inputDescriptor.Group != null)
+                {
+                    credentialCandidates.Group = inputDescriptor.Group;
+                }
+                
                 result.Add(credentialCandidates);
             }
 
@@ -124,7 +130,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             return record.Id;
         }
 
-        private static SdJwtRecord[] FindMatchingRecordsForFields(
+        private static SdJwtRecord[] FindMatchingCredentialsForFields(
             SdJwtRecord[] records, Field[] fields)
         {
             return (from sdJwtRecord in records
