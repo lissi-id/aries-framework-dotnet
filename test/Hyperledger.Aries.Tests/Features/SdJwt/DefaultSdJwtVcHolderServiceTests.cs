@@ -56,12 +56,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
                 Guid.NewGuid().ToString(),
                 "University Degree",
-                "We can only accept digital university degrees.",
-                new[] { "B" });
-
-            var inputDescriptors = new InputDescriptors();
-            inputDescriptors.PrivateSet(x => x.Value,
-                new[] { driverLicenseInputDescriptor, universityInputDescriptor });
+                "We can only accept digital university degrees.");
 
             var expected = new List<CredentialCandidates>
             {
@@ -74,7 +69,6 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 new CredentialCandidates
                 {
                     InputDescriptorId = universityInputDescriptor.Id,
-                    Group = universityInputDescriptor.Group ?? new[] { "B" },
                     Credentials = new List<ICredential> { universityCredential }
                 }
             };
@@ -87,7 +81,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 {
                     driverLicenseCredential, driverLicenseCredentialClone, universityCredential
                 },
-                inputDescriptors);
+                new [] { driverLicenseInputDescriptor, universityInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEquivalentTo(expected);
@@ -117,15 +111,12 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
 
-            var inputDescriptors = new InputDescriptors();
-            inputDescriptors.PrivateSet(x => x.Value, new[] { driverLicenseInputDescriptor });
-
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
             var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
                 new[] { employeeCredential },
-                inputDescriptors);
+                new[] { driverLicenseInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEmpty();
@@ -158,16 +149,12 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
 
-            var inputDescriptors = new InputDescriptors();
-            inputDescriptors.PrivateSet(x => x.Value,
-                new[] { driverLicenseInputDescriptor });
-
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
             var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
                 new[] { driverLicenseCredential },
-                inputDescriptors);
+                new[] { driverLicenseInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEmpty();
