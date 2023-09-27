@@ -94,6 +94,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 
                 credentialCandidates.InputDescriptorId = inputDescriptor.Id;
                 credentialCandidates.Credentials.AddRange(matchingCredentials);
+
+                if (string.Equals(inputDescriptor.Constraints.LimitDisclosure, "required"))
+                {
+                    credentialCandidates.LimitDisclosuresRequired = true; 
+                }
                 
                 if (inputDescriptor.Group != null)
                 {
