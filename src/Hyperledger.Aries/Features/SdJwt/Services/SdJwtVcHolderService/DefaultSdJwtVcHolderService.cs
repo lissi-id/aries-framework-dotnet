@@ -63,11 +63,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 
         /// <inheritdoc />
         public virtual Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials,
-            InputDescriptors inputDescriptors)
+            InputDescriptor[] inputDescriptors)
         {
             var result = new List<CredentialCandidates>();
 
-            foreach (var inputDescriptor in inputDescriptors.Value)
+            foreach (var inputDescriptor in inputDescriptors)
             {
                 if (inputDescriptor.Format != null &&
                     !inputDescriptor.Format.SupportedAlgorithms.Keys.Contains("vc+sd-jwt"))

@@ -4,18 +4,6 @@ using Newtonsoft.Json;
 namespace Hyperledger.Aries.Features.Pex.Models
 {
     /// <summary>
-    ///     Represents a collection of input descriptors.
-    /// </summary>
-    public class InputDescriptors
-    {
-        /// <summary>
-        ///     Gets or sets the input descriptors.
-        /// </summary>
-        [JsonProperty("input_descriptors")]
-        public InputDescriptor[] Value { get; private set; } = null!;
-    }
-
-    /// <summary>
     ///     Represents details about an input descriptor. This class encapsulates properties for the top-level
     ///     of an Input Descriptor Object.
     /// </summary>
