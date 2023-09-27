@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
@@ -35,5 +36,11 @@
     <ProjectReference Include="..\..\src\Hyperledger.Aries.AspNetCore\Hyperledger.Aries.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Hyperledger.Aries.TestHarness\Hyperledger.Aries.TestHarness.csproj" />
     <ProjectReference Include="..\..\src\Hyperledger.Aries.Payments.SovrinToken\Hyperledger.Aries.Payments.SovrinToken.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Features\Pex\Models\InputDescriptors.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\SdJwt\Models\" />
   </ItemGroup>
 </Project>
