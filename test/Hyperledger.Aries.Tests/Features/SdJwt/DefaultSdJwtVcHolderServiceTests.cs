@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Hyperledger.Aries.Tests.Features.SdJwt
 {
-    public class SdJwtVcHolderTests
+    public class DefaultSdJwtVcHolderServiceTests
     {
         [Fact]
         public async Task Can_Get_Credential_Candidates_For_Input_Descriptors()
@@ -48,7 +48,8 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
-                "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
+                "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.",
+                new [] { "A" });
 
             var universityInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[] { CreateField("$.degree") }),
@@ -56,7 +57,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 Guid.NewGuid().ToString(),
                 "University Degree",
                 "We can only accept digital university degrees.",
-                new[] { "A" });
+                new[] { "B" });
 
             var inputDescriptors = new InputDescriptors();
             inputDescriptors.PrivateSet(x => x.Value,
@@ -67,11 +68,13 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 new CredentialCandidates
                 {
                     InputDescriptorId = driverLicenseInputDescriptor.Id,
+                    Group = driverLicenseInputDescriptor.Group ?? new[] { "A" },
                     Credentials = new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }
                 },
                 new CredentialCandidates
                 {
                     InputDescriptorId = universityInputDescriptor.Id,
+                    Group = universityInputDescriptor.Group ?? new[] { "B" },
                     Credentials = new List<ICredential> { universityCredential }
                 }
             };
