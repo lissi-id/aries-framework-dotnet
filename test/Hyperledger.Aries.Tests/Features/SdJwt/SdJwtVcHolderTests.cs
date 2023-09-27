@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Hyperledger.Aries.Tests.Features.SdJwt
 {
-    public class DefaultSdJwtVcHolderServiceTests
+    public class SdJwtVcHolderTests
     {
         [Fact]
         public async Task Can_Get_Credential_Candidates_For_Input_Descriptors()
@@ -49,7 +49,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.",
-                new [] { "A" });
+                new[] { "A" });
 
             var universityInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[] { CreateField("$.degree") }),
@@ -60,28 +60,22 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
 
             var expected = new List<CredentialCandidates>
             {
-                new CredentialCandidates
-                {
-                    InputDescriptorId = driverLicenseInputDescriptor.Id,
-                    Group = driverLicenseInputDescriptor.Group ?? new[] { "A" },
-                    Credentials = new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }
-                },
-                new CredentialCandidates
-                {
-                    InputDescriptorId = universityInputDescriptor.Id,
-                    Credentials = new List<ICredential> { universityCredential }
-                }
+                new CredentialCandidates(
+                    driverLicenseInputDescriptor.Id,
+                    new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }),
+                new CredentialCandidates(
+                    universityInputDescriptor.Id, new List<ICredential> { universityCredential })
             };
 
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[]
                 {
                     driverLicenseCredential, driverLicenseCredentialClone, universityCredential
                 },
-                new [] { driverLicenseInputDescriptor, universityInputDescriptor });
+                new[] { driverLicenseInputDescriptor, universityInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEquivalentTo(expected);
@@ -114,7 +108,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { employeeCredential },
                 new[] { driverLicenseInputDescriptor });
 
@@ -152,7 +146,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { driverLicenseCredential },
                 new[] { driverLicenseInputDescriptor });
 
