@@ -9,11 +9,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         
         public string InputDescriptorId { get; set; }
         
-<<<<<<< HEAD
         public string[] Group { get; set; }
         
-=======
->>>>>>> d05d264 (implement GetCredentialCandidates with fields and filters in SdJwtVcHolderService)
         public List<ICredential> Credentials { get; set; } = new List<ICredential>();
     }
 }
