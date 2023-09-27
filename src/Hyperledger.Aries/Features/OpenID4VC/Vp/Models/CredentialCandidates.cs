@@ -5,6 +5,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
 {
     public class CredentialCandidates
     {
+        public bool LimitDisclosuresRequired { get; set; }
+        
         public string InputDescriptorId { get; set; }
         
         public string[] Group { get; set; }
