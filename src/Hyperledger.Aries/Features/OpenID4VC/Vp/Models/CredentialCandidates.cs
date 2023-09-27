@@ -7,6 +7,6 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
     {
         public string InputDescriptorId { get; set; }
         
-        public List<ICredential> Credentials { get; set; }
+        public List<ICredential> Credentials { get; set; } = new List<ICredential>();
     }
 }
