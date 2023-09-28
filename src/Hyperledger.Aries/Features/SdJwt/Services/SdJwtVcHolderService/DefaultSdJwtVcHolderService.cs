@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
@@ -7,6 +8,8 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SD_JWT.Abstractions;
 
 namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
@@ -37,6 +40,17 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             RecordService = recordService;
         }
 
+        public Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<bool> DeleteAsync(IAgentContext context, string recordId)
+        {
+            return await RecordService.DeleteAsync<SdJwtRecord>(context.Wallet, recordId);
+        }
+
         /// <inheritdoc />
         public virtual async Task<SdJwtRecord> GetAsync(IAgentContext context, string credentialId)
         {
@@ -45,6 +59,55 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
                 throw new AriesFrameworkException(ErrorCode.RecordNotFound, "SD-JWT Credential record not found");
 
             return record;
+        }
+
+        /// <inheritdoc />
+        public virtual Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials,
+            InputDescriptor[] inputDescriptors)
+        {
+            var result = new List<CredentialCandidates>();
+
+            foreach (var inputDescriptor in inputDescriptors)
+            {
+                if (!inputDescriptor.Formats.Keys.Contains("vc+sd-jwt"))
+                {
+                    continue;
+                }
+
+                var credentialCandidates = new CredentialCandidates();
+
+                if (inputDescriptor.Constraints.Fields == null)
+                {
+                    credentialCandidates.InputDescriptorId = inputDescriptor.Id;
+                    credentialCandidates.Credentials.AddRange(credentials);
+                    result.Add(credentialCandidates);
+                    continue;
+                }
+
+                var matchingCredentials =
+                    FindMatchingCredentialsForFields(credentials, inputDescriptor.Constraints.Fields);
+                if (matchingCredentials.Length == 0)
+                {
+                    continue;
+                }
+
+                credentialCandidates.InputDescriptorId = inputDescriptor.Id;
+                credentialCandidates.Credentials.AddRange(matchingCredentials);
+
+                if (string.Equals(inputDescriptor.Constraints.LimitDisclosure, "required"))
+                {
+                    credentialCandidates.LimitDisclosuresRequired = true; 
+                }
+                
+                if (inputDescriptor.Group != null)
+                {
+                    credentialCandidates.Group = inputDescriptor.Group;
+                }
+                
+                result.Add(credentialCandidates);
+            }
+
+            return Task.FromResult(result.ToArray());
         }
 
         /// <inheritdoc />
@@ -71,20 +134,20 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             return record.Id;
         }
 
-        /// <inheritdoc />
-        public virtual async Task<bool> DeleteAsync(IAgentContext context, string recordId)
+        private static SdJwtRecord[] FindMatchingCredentialsForFields(
+            SdJwtRecord[] records, Field[] fields)
         {
-            return await RecordService.DeleteAsync<SdJwtRecord>(context.Wallet, recordId);
-        }
-
-        public Task<CredentialCandidates[]> GetCredentialCandidates(InputDescriptor[] inputDescriptors)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> CreateSdJwtPresentationFormat(InputDescriptor inputDescriptor, string credentialId)
-        {
-            throw new NotImplementedException();
+            return (from sdJwtRecord in records
+                let claimsJson = JsonConvert.SerializeObject(sdJwtRecord.Claims)
+                let claimsJObject = JObject.Parse(claimsJson)
+                let isFound =
+                    (from field in fields
+                        let candidate = claimsJObject.SelectToken(field.Path[0])
+                        where candidate != null && (field.Filter == null ||
+                                                    string.Equals(field.Filter.Const, candidate.ToString()))
+                        select field).Count() == fields.Length
+                where isFound
+                select sdJwtRecord).ToArray();
         }
     }
 }

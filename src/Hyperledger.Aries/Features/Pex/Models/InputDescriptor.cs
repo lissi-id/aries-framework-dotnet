@@ -82,7 +82,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         ///     Gets the filter associated with the field to evaluate values against.
         /// </summary>
         [JsonProperty("filter")]
-        public Filter Filter { get; private set; } = null!;
+        public Filter? Filter { get; private set; }
 
         /// <summary>
         ///     Gets an array of JSONPath string expressions that select a target value from the input.
@@ -98,7 +98,6 @@ namespace Hyperledger.Aries.Features.Pex.Models
     {
         /// <summary>
         ///     Gets the constant value which the selected value is evaluated against.
-        ///     This property is optional.
         /// </summary>
         [JsonProperty("const")]
         public string Const { get; private set; } = null!;

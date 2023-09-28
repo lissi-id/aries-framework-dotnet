@@ -4,7 +4,6 @@ using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
-using Hyperledger.Aries.Features.SdJwt.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Storage;
 
@@ -61,14 +60,8 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// </returns>
         Task<bool> DeleteAsync(IAgentContext context, string recordId);
         
-        Task<CredentialCandidates[]> GetCredentialCandidates(InputDescriptor[] inputDescriptors);
-
-        /// <summary>
-        ///  returns base64 representation
-        /// </summary>
-        /// <param name="inputDescriptor"></param>
-        /// <param name="credentialId"></param>
-        /// <returns></returns>
-        Task<string> CreateSdJwtPresentationFormat(InputDescriptor inputDescriptor, string credentialId);
+        Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials, InputDescriptor[] inputDescriptors);
+        
+        Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId);
     }
 }
