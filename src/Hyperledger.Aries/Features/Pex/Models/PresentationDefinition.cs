@@ -11,13 +11,19 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// <summary>
         /// This MUST be a string. The string SHOULD provide a unique ID for the desired context.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; private set; } = null!;
 
         /// <summary>
+        /// Represents a collection of submission requirements
+        /// </summary>
+        [JsonProperty("submission_requirements")]
+        public SubmissionRequirement[] SubmissionRequirements { get; private set; } = null!;
+        
+        /// <summary>
         /// Represents a collection of input descriptors.
         /// </summary>
-        [JsonProperty("input_descriptors")]
+        [JsonProperty("input_descriptors", Required = Required.Always)]
         public InputDescriptor[] InputDescriptors { get; private set; } = null!;
         
         /// <summary>

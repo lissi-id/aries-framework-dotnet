@@ -11,9 +11,9 @@ namespace Hyperledger.Aries.Features.Pex.Services
         /// <summary>
         /// Parses the presentation definition.
         /// </summary>
-        /// <param name="presentationDefinition">The JSON representation of a presentation definition.</param>
+        /// <param name="presentationDefinitionJson">The JSON representation of a presentation definition.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the PresentationDefinition.</returns>
-        Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinition);
+        Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinitionJson);
   
         /// <summary>
         /// Creates a presentation submission.

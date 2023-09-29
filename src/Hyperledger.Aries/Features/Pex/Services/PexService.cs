@@ -10,10 +10,10 @@ namespace Hyperledger.Aries.Features.Pex.Services
     public class PexService : IPexService
     {
         /// <inheritdoc />
-        public Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinition)
+        public Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinitionJson)
         {
-            var parsed = JsonConvert.DeserializeObject<PresentationDefinition>(presentationDefinition);
-            return Task.FromResult(parsed!);
+            var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(presentationDefinitionJson);
+            return Task.FromResult(presentationDefinition!);
         }
 
         /// <inheritdoc />

@@ -1,6 +1,12 @@
 {
     "id": "123",
     "name": "Parse example",
+    "submission_requirements": [{
+        "name": "Citizenship Information",
+        "rule": "pick",
+        "count": 1,
+        "from": "A"
+    }],
     "input_descriptors": [
         {
             "id": "citizenship_input_1",

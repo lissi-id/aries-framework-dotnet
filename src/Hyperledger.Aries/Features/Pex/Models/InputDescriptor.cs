@@ -13,7 +13,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         ///     Gets or sets the constraints for the input descriptor.
         ///     It defines conditions that must be met for the input.
         /// </summary>
-        [JsonProperty("constraints")]
+        [JsonProperty("constraints", Required = Required.Always)]
         public Constraints Constraints { get; private set; } = null!;
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         ///     This MUST be a string that does not conflict with the id of another Input Descriptor Object
         ///     in the same Presentation Definition.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; private set; } = null!;
 
         /// <summary>

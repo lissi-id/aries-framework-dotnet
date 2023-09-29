@@ -26,10 +26,21 @@ namespace Hyperledger.Aries.Tests.Features.Pex.Services
             
             presentationDefinition.Id.Should().Be("123");
             presentationDefinition.Name.Should().Be("Parse example");
+            presentationDefinition.SubmissionRequirements.Length.Should().Be(1);
+            presentationDefinition.SubmissionRequirements[0].Name.Should().Be("Citizenship Information");
             presentationDefinition.InputDescriptors.Length.Should().Be(2);
             presentationDefinition.InputDescriptors.Length.Should().Be(2);
             presentationDefinition.InputDescriptors[0].Name.Should().Be("EU Driver's License");
+            presentationDefinition.InputDescriptors[0].Group!.Length.Should().Be(1);
+            presentationDefinition.InputDescriptors[0].Group![0].Should().Be("A");
+            presentationDefinition.InputDescriptors[0].Constraints.Fields!.Length.Should().Be(3);
+            presentationDefinition.InputDescriptors[0].Constraints.Fields![0].Path.Length.Should().Be(2);
+            presentationDefinition.InputDescriptors[0].Constraints.Fields![0].Path[0].Should().Be("$.credentialSchema.id");
             presentationDefinition.InputDescriptors[1].Name.Should().Be("US Passport");
+            presentationDefinition.Formats.Count.Should().Be(6);
+            presentationDefinition.Formats.Keys.First().Should().Be("jwt");
+            presentationDefinition.Formats["jwt"].Alg.Length.Should().Be(3);
+            presentationDefinition.Formats["jwt"].Alg[2].Should().Be("ES384");
             
             presentationDefinition.Formats.Count.Should().Be(6);
         }
