@@ -34,6 +34,20 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             InputDescriptor[] inputDescriptors);
 
         /// <summary>
+        ///     Creates a SD-JWT in presentation format where the provided claims are disclosed.
+        ///     The key binding is optional and can be activated by providing an audience and a nonce.
+        /// </summary>
+        /// <remarks>
+        ///     The SD-JWT is created using the provided SD-JWT credential and the provided claims are disclosed
+        /// </remarks>
+        /// <param name="disclosureNames">The claims to disclose</param>
+        /// <param name="credential">The SD-JWT credential</param>
+        /// <param name="audience">The targeted audience</param>
+        /// <param name="nonce">The nonce</param>
+        /// <returns>The SD-JWT in presentation format</returns>
+        Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames, string? audience = null, string? nonce = null);
+        
+        /// <summary>
         ///     Retrieves a specific SD-JWT record by its ID.
         /// </summary>
         /// <param name="context">The agent context.</param>
@@ -55,7 +69,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         ///     A task representing the asynchronous operation. The task result contains a list of <see cref="SdJwtRecord" />
         ///     that match the criteria.
         /// </returns>
-        Task<List<SdJwtRecord>> ListAsync(IAgentContext context, ISearchQuery query = null, int count = 100,
+        Task<List<SdJwtRecord>> ListAsync(IAgentContext context, ISearchQuery? query = null, int count = 100,
             int skip = 0);
 
         /// <summary>
