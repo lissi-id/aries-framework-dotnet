@@ -91,12 +91,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 
             foreach (var inputDescriptor in inputDescriptors)
             {
-                if (inputDescriptor.Format != null &&
-                    !inputDescriptor.Format.SupportedAlgorithms.Keys.Contains("vc+sd-jwt"))
+                if (inputDescriptor.Formats.TryGetValue("vc+sd-jwt", out _))
                 {
                     throw new NotSupportedException("Only vc+sd-jwt format is supported");
                 }
-
+                
                 if (inputDescriptor.Constraints.Fields == null || inputDescriptor.Constraints.Fields.Length == 0)
                 {
                     throw new InvalidOperationException("Fields cannot be null or empty");
