@@ -1,6 +1,5 @@
-#nullable enable
-
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -38,24 +37,29 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         public Dictionary<string, string>? IssuerName { get; set; }
 
         /// <summary>
+        ///     Gets the disclosures.
+        /// </summary>
+        public ImmutableArray<string> Disclosures { get; private set; }
+
+        /// <summary>
         ///     Gets or sets the display of the credential.
         /// </summary>
         public List<OidCredentialDisplay>? Display { get; set; }
 
         /// <summary>
-        ///     Gets or sets the combined issuance.
+        ///     Gets the type of the credential.
         /// </summary>
-        public string CombinedIssuance { get; set; } = null!;
-
-        /// <summary>
-        ///     Gets or sets the type of the credential.
-        /// </summary>
-        public string CredentialType { get; set; } = null!;
+        public string CredentialType { get; private set; } = null!;
 
         /// <summary>
         ///     Gets or sets the identifier for the issuer.
         /// </summary>
         public string IssuerId { get; set; } = null!;
+
+        /// <summary>
+        ///     Gets the Issuer-signed JWT part of the SD-JWT.
+        /// </summary>
+        public string EncodedIssuerSignedJwt { get; private set; } = null!;
 
         /// <inheritdoc />
         public override string TypeName => "AF.SdJwtRecord";
@@ -74,9 +78,10 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         {
             var record = new SdJwtRecord
             {
-                CombinedIssuance = sdJwtDoc.EncodedJwt,
+                EncodedIssuerSignedJwt = sdJwtDoc.EncodedIssuerSignedJwt,
                 Claims = CreateClaimsDictionary(sdJwtDoc.Disclosures),
-                CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedJwt)
+                CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
+                Disclosures = sdJwtDoc.Disclosures.Select(x => x.Serialize()).ToImmutableArray()
             };
 
             return record;
@@ -108,9 +113,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             var claimsDictionary = new Dictionary<string, string>();
             foreach (var disclosure in disclosures)
                 if (disclosure.Value is JValue jValue)
+                {
                     claimsDictionary[disclosure.Name] = jValue.ToString(CultureInfo.InvariantCulture);
+                }
                 else
+                {
                     claimsDictionary[disclosure.Name] = string.Empty;
+                }
 
             return claimsDictionary;
         }
@@ -120,13 +129,15 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
         /// <returns>The dictionary of the issuer name in different languages.</returns>
-        private Dictionary<string, string>? CreateIssuerNameDictionary(OidIssuerMetadata issuerMetadata)
+        private static Dictionary<string, string>? CreateIssuerNameDictionary(OidIssuerMetadata issuerMetadata)
         {
             var issuerNameDictionary = new Dictionary<string, string>();
 
             foreach (var display in issuerMetadata.Display?.Where(d => d.Locale != null) ??
                                     Enumerable.Empty<OidIssuerDisplay>())
+            {
                 issuerNameDictionary[display.Locale!] = display.Name!;
+            }
 
             return issuerNameDictionary.Count > 0 ? issuerNameDictionary : null;
         }
@@ -144,7 +155,9 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             var payloadObj = JsonDocument.Parse(payloadJson).RootElement;
 
             if (payloadObj.TryGetProperty("type", out var typeValue))
+            {
                 return typeValue.GetString() ?? string.Empty;
+            }
 
             return string.Empty;
         }
