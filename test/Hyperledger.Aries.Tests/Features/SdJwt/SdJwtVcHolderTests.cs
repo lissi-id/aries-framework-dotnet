@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
@@ -15,7 +17,7 @@ using Xunit;
 
 namespace Hyperledger.Aries.Tests.Features.SdJwt
 {
-    public class DefaultSdJwtVcHolderServiceTests
+    public class SdJwtVcHolderTests
     {
         [Fact]
         public async Task Can_Get_Credential_Candidates_For_Input_Descriptors()
@@ -45,43 +47,37 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var driverLicenseInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[]
                     { CreateField("$.id", idFilter), CreateField("$.issuer"), CreateField("$.dateOfBirth") }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.",
-                new [] { "A" });
+                new[] { "A" });
 
             var universityInputDescriptor = CreateInputDescriptor(
                 CreateConstraints(new[] { CreateField("$.degree") }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "University Degree",
                 "We can only accept digital university degrees.");
 
             var expected = new List<CredentialCandidates>
             {
-                new CredentialCandidates
-                {
-                    InputDescriptorId = driverLicenseInputDescriptor.Id,
-                    Group = driverLicenseInputDescriptor.Group ?? new[] { "A" },
-                    Credentials = new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }
-                },
-                new CredentialCandidates
-                {
-                    InputDescriptorId = universityInputDescriptor.Id,
-                    Credentials = new List<ICredential> { universityCredential }
-                }
+                new CredentialCandidates(
+                    driverLicenseInputDescriptor.Id,
+                    new List<ICredential> { driverLicenseCredential, driverLicenseCredentialClone }),
+                new CredentialCandidates(
+                    universityInputDescriptor.Id, new List<ICredential> { universityCredential })
             };
 
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[]
                 {
                     driverLicenseCredential, driverLicenseCredentialClone, universityCredential
                 },
-                new [] { driverLicenseInputDescriptor, universityInputDescriptor });
+                new[] { driverLicenseInputDescriptor, universityInputDescriptor });
 
             // Assert
             credentialCandidatesArray.Should().BeEquivalentTo(expected);
@@ -106,7 +102,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                     CreateField("$.id"), CreateField("$.issuer"),
                     CreateField("$.dateOfBirth"), CreateField("$.name")
                 }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
@@ -114,7 +110,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { employeeCredential },
                 new[] { driverLicenseInputDescriptor });
 
@@ -144,7 +140,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
                 {
                     CreateField("$.id", idFilter), CreateField("$.issuer"), CreateField("$.dateOfBirth")
                 }),
-                CreateFormat(new[] { "ES256" }, "vc+sd-jwt"),
+                new Dictionary<string, Format> { {"vc+sd-jwt", CreateFormat(new[] { "ES256" }) }},
                 Guid.NewGuid().ToString(),
                 "EU Driver's License",
                 "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.");
@@ -152,7 +148,7 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             var sdJwtVcHolderService = CreateSdJwtVcHolderService();
 
             // Act
-            var credentialCandidatesArray = await sdJwtVcHolderService.GetCredentialCandidates(
+            var credentialCandidatesArray = await sdJwtVcHolderService.FindCredentialCandidates(
                 new[] { driverLicenseCredential },
                 new[] { driverLicenseInputDescriptor });
 
@@ -160,6 +156,33 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             credentialCandidatesArray.Should().BeEmpty();
         }
 
+        [Fact]
+        public async Task Can_Create_Sd_Jwt_Presentation_Without_Key_Binding()
+        {
+            // Arrange
+            var credential = new SdJwtRecord();
+
+            const string issuerSignedJwt = "eyJhbGciOiAiRVMyNTYifQ.eyJfc2QiOiBbIkNyUWU3UzVrcUJBSHQtbk1ZWGdjNmJkdDJTSDVhVFkxc1VfTS1QZ2tqUEkiLCAiSnpZakg0c3ZsaUgwUjNQeUVNZmVadTZKdDY5dTVxZWhabzdGN0VQWWxTRSIsICJQb3JGYnBLdVZ1Nnh5bUphZ3ZrRnNGWEFiUm9jMkpHbEFVQTJCQTRvN2NJIiwgIlRHZjRvTGJnd2Q1SlFhSHlLVlFaVTlVZEdFMHc1cnREc3JaemZVYW9tTG8iLCAiWFFfM2tQS3QxWHlYN0tBTmtxVlI2eVoyVmE1TnJQSXZQWWJ5TXZSS0JNTSIsICJYekZyendzY002R242Q0pEYzZ2Vks4QmtNbmZHOHZPU0tmcFBJWmRBZmRFIiwgImdiT3NJNEVkcTJ4Mkt3LXc1d1BFemFrb2I5aFYxY1JEMEFUTjNvUUw5Sk0iLCAianN1OXlWdWx3UVFsaEZsTV8zSmx6TWFTRnpnbGhRRzBEcGZheVF3TFVLNCJdLCAiaXNzIjogImh0dHBzOi8vZXhhbXBsZS5jb20vaXNzdWVyIiwgImlhdCI6IDE2ODMwMDAwMDAsICJleHAiOiAxODgzMDAwMDAwLCAic3ViIjogInVzZXJfNDIiLCAibmF0aW9uYWxpdGllcyI6IFt7Ii4uLiI6ICJwRm5kamtaX1ZDem15VGE2VWpsWm8zZGgta284YUlLUWM5RGxHemhhVllvIn0sIHsiLi4uIjogIjdDZjZKa1B1ZHJ5M2xjYndIZ2VaOGtoQXYxVTFPU2xlclAwVmtCSnJXWjAifV0sICJfc2RfYWxnIjogInNoYS0yNTYiLCAiY25mIjogeyJqd2siOiB7Imt0eSI6ICJFQyIsICJjcnYiOiAiUC0yNTYiLCAieCI6ICJUQ0FFUjE5WnZ1M09IRjRqNFc0dmZTVm9ISVAxSUxpbERsczd2Q2VHZW1jIiwgInkiOiAiWnhqaVdXYlpNUUdIVldLVlE0aGJTSWlyc1ZmdWVjQ0U2dDRqVDlGMkhaUSJ9fX0.kmx687kUBiIDvKWgo2Dub-TpdCCRLZwtD7TOj4RoLsUbtFBI8sMrtH2BejXtm_P6fOAjKAVc_7LRNJFgm3PJhg";
+            const string givenNameDisclosure = "WyIyR0xDNDJzS1F2ZUNmR2ZyeU5STjl3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd";
+            const string familyNameDisclosure = "WyJlbHVWNU9nM2dTTklJOEVZbnN4QV9BIiwgImZhbWlseV9uYW1lIiwgIkRvZSJd";
+            const string nationalityDisclosure = "WyJsa2x4RjVqTVlsR1RQVW92TU5JdkNBIiwgIm5hdGlvbmFsaXR5IiwgImdlcm1hbiJd"; 
+            
+            credential.PrivateSet(x => x.EncodedIssuerSignedJwt, issuerSignedJwt);
+            credential.PrivateSet(x => x.Disclosures, ImmutableArray.Create<string>(nationalityDisclosure, familyNameDisclosure, givenNameDisclosure));
+            
+            var claimsToDisclose = new[] { "given_name", "family_name" };
+
+            const string expected = issuerSignedJwt + "~" + givenNameDisclosure + "~" + familyNameDisclosure;
+            
+            var service = CreateSdJwtVcHolderService();
+
+            // Act
+            var presentation = await service.CreatePresentation(credential, claimsToDisclose);
+            
+            // Assert
+            presentation.Should().BeEquivalentTo(expected);
+        }
+        
         private static Constraints CreateConstraints(Field[] fields)
         {
             var constraints = new Constraints();
@@ -192,28 +215,21 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
             return field;
         }
 
-        private static Format CreateFormat(string[] supportedAlg, string supportedFormat)
+        private static Format CreateFormat(string[] supportedAlg)
         {
-            var alg = new Algorithm();
-            alg.PrivateSet(x => x.Alg, supportedAlg);
-
             var format = new Format();
-            format.PrivateSet(x => x.SupportedAlgorithms,
-                new Dictionary<string, Algorithm>
-                {
-                    { supportedFormat, alg }
-                });
+            format.PrivateSet(x => x.Alg, supportedAlg);
 
             return format;
         }
 
-        private static InputDescriptor CreateInputDescriptor(Constraints constraints, Format format, string id,
+        private static InputDescriptor CreateInputDescriptor(Constraints constraints, Dictionary<string, Format> formats, string id,
             string name, string purpose, string[]? group = null)
         {
             var inputDescriptor = new InputDescriptor();
 
             inputDescriptor.PrivateSet(x => x.Constraints, constraints);
-            inputDescriptor.PrivateSet(x => x.Format, format);
+            inputDescriptor.PrivateSet(x => x.Formats, formats);
             inputDescriptor.PrivateSet(x => x.Id, id);
             inputDescriptor.PrivateSet(x => x.Name, name);
             inputDescriptor.PrivateSet(x => x.Purpose, purpose);
@@ -229,9 +245,33 @@ namespace Hyperledger.Aries.Tests.Features.SdJwt
         private static ISdJwtVcHolderService CreateSdJwtVcHolderService()
         {
             var holder = new Holder();
+            var keystore = new MockKeystore();
             var walletRecordService = new Mock<IWalletRecordService>();
 
-            return new DefaultSdJwtVcHolderService(holder, walletRecordService.Object);
+            return new DefaultSdJwtVcHolderService(holder, keystore, walletRecordService.Object);
+        }
+
+        private class MockKeystore : IKeyStore
+        {
+            public Task<string> GenerateKey(string alg = "ES256")
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<string> GenerateProofOfPossessionAsync(string keyId, string audience, string nonce, string type)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<string> LoadKey(string keyId)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<byte[]> Sign(string keyId, byte[] payload)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
