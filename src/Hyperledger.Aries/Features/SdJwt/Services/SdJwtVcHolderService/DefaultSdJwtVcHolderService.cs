@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
@@ -51,7 +52,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         }
 
         /// <inheritdoc />
-        public async Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames,
+        public async Task<string> CreatePresentation(SdJwtRecord credential, string[] fieldNames,
             string? audience = null,
             string? nonce = null)
         {
@@ -62,7 +63,17 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
                 disclosureNamesDict.Add(i, disclosureName);
             }
 
-            var disclosures = disclosureNames
+            var actualDisclosures = new List<string>();
+            
+            foreach (var fieldName in fieldNames)
+            {
+                if (disclosureNamesDict.ContainsValue(fieldName))
+                {
+                    actualDisclosures.Add(fieldName);
+                }
+            }
+            
+            var disclosures = actualDisclosures
                 .Select(disclosureName => disclosureNamesDict.FirstOrDefault(x => x.Value == disclosureName).Key)
                 .Select(index => Disclosure.Deserialize(credential.Disclosures[index])).ToArray();
 
@@ -91,7 +102,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 
             foreach (var inputDescriptor in inputDescriptors)
             {
-                if (inputDescriptor.Formats.TryGetValue("vc+sd-jwt", out _))
+                if (!inputDescriptor.Formats.TryGetValue("vc+sd-jwt", out _))
                 {
                     throw new NotSupportedException("Only vc+sd-jwt format is supported");
                 }
@@ -145,6 +156,8 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             var record = SdJwtRecord.FromSdJwtDoc(sdJwtDoc);
             record.Id = Guid.NewGuid().ToString();
 
+            Debug.WriteLine("recordSaved: " + JsonConvert.SerializeObject(record));
+            
             record.SetDisplayFromIssuerMetadata(issuerMetadata);
             record.KeyId = keyId;
 
@@ -156,17 +169,60 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         private static SdJwtRecord[] FindMatchingCredentialsForFields(
             SdJwtRecord[] records, Field[] fields)
         {
-            return (from sdJwtRecord in records
-                let claimsJson = JsonConvert.SerializeObject(sdJwtRecord.Claims)
-                let claimsJObject = JObject.Parse(claimsJson)
-                let isFound =
-                    (from field in fields
-                        let candidate = claimsJObject.SelectToken(field.Path[0])
-                        where candidate != null && (field.Filter == null ||
-                                                    string.Equals(field.Filter.Const, candidate.ToString()))
-                        select field).Count() == fields.Length
-                where isFound
-                select sdJwtRecord).ToArray();
+            var foundRecords = new List<SdJwtRecord>(); // Replace SomeType with the actual type of sdJwtRecord
+
+            foreach (var sdJwtRecord in records)
+            {
+                var claimsJson = JsonConvert.SerializeObject(sdJwtRecord.Claims);
+                
+                Debug.WriteLine("claimsJson: " + claimsJson);
+                
+                var claimsJObject = JObject.Parse(claimsJson);
+
+                Debug.WriteLine("claimsJObject: " + claimsJObject);
+                
+                var isFound = true;
+
+                foreach (var field in fields)
+                {
+                    Debug.WriteLine("field.Path[0]: " + field.Path[0]);
+                    
+                    var candidate = claimsJObject.SelectToken(field.Path[0]);
+
+                    Debug.WriteLine("field.Filter.Const: " + field.Filter?.Const);
+                    Debug.WriteLine("candidate: " + candidate?.ToString());
+                    
+                    if (candidate == null || (field.Filter != null && !string.Equals(field.Filter.Const, candidate.ToString())))
+                    {
+                        Debug.WriteLine("not found");
+                        isFound = false;
+                        break;
+                    }
+                    
+                    Debug.WriteLine("found");
+                }
+
+                if (isFound)
+                {
+                    foundRecords.Add(sdJwtRecord);
+                }
+            }
+
+            var resultArray = foundRecords.ToArray();
+
+            return resultArray;
+            
+            // return (from sdJwtRecord in records
+            //     let claimsJson = JsonConvert.SerializeObject(sdJwtRecord.Claims)
+            //     let claimsJObject = JObject.Parse(claimsJson)
+            //     let isFound =
+            //         (from field in fields
+            //             let candidate = claimsJObject.SelectToken(field.Path[0])
+            //             where candidate != null && (field.Filter == null ||
+            //                                         string.Equals(field.Filter.Const, candidate.ToString()))
+            //             select field).Count() == fields.Length
+            //     where isFound
+            //     select sdJwtRecord).ToArray();
         }
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
@@ -10,6 +12,8 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attrib
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Storage.Models.Interfaces;
+using Hyperledger.Aries.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SD_JWT.Models;
 
@@ -29,7 +33,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets or sets the claims made.
         /// </summary>
-        public Dictionary<string, string> Claims { get; set; } = null!;
+        public Dictionary<string, object> Claims { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the name of the issuer in different languages.
@@ -39,7 +43,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the disclosures.
         /// </summary>
-        public ImmutableArray<string> Disclosures { get; private set; }
+        public string[] Disclosures { get; set; }
 
         /// <summary>
         ///     Gets or sets the display of the credential.
@@ -49,7 +53,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the type of the credential.
         /// </summary>
-        public string CredentialType { get; private set; } = null!;
+        public string CredentialType { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the identifier for the issuer.
@@ -59,7 +63,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the Issuer-signed JWT part of the SD-JWT.
         /// </summary>
-        public string EncodedIssuerSignedJwt { get; private set; } = null!;
+        public string EncodedIssuerSignedJwt { get; set; } = null!;
 
         /// <inheritdoc />
         public override string TypeName => "AF.SdJwtRecord";
@@ -76,14 +80,36 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <returns>The SdJwtRecord.</returns>
         public static SdJwtRecord FromSdJwtDoc(SdJwtDoc sdJwtDoc)
         {
+            Debug.WriteLine("FromSdJwtDoc: " + JsonConvert.SerializeObject(sdJwtDoc));
+            
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(sdJwtDoc.EncodedIssuerSignedJwt);
+
+            var claims = CreateClaimsDictionary(sdJwtDoc.Disclosures);
+            foreach (var payloadClaim in jwtToken.Payload.Claims)
+            {
+                if (string.Equals(payloadClaim.Type, "_sd") || string.Equals(payloadClaim.Type, "..."))
+                {
+                    continue; 
+                }
+                
+                claims.Add(payloadClaim.Type, payloadClaim.Value);
+            }
+            
             var record = new SdJwtRecord
             {
                 EncodedIssuerSignedJwt = sdJwtDoc.EncodedIssuerSignedJwt,
-                Claims = CreateClaimsDictionary(sdJwtDoc.Disclosures),
+                Claims = claims,
                 CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
-                Disclosures = sdJwtDoc.Disclosures.Select(x => x.Serialize()).ToImmutableArray()
             };
 
+            var disclosures = new List<string>();
+            foreach (var disclosure in sdJwtDoc.Disclosures)
+            {
+                disclosures.Add(disclosure.Serialize());
+            }
+            record.Disclosures = disclosures.ToArray(); 
+            
             return record;
         }
 
@@ -108,10 +134,11 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// </summary>
         /// <param name="disclosures">The list of disclosures.</param>
         /// <returns>The dictionary of claims.</returns>
-        private static Dictionary<string, string> CreateClaimsDictionary(IEnumerable<Disclosure> disclosures)
+        private static Dictionary<string, object> CreateClaimsDictionary(IEnumerable<Disclosure> disclosures)
         {
-            var claimsDictionary = new Dictionary<string, string>();
+            var claimsDictionary = new Dictionary<string, object>();
             foreach (var disclosure in disclosures)
+            { 
                 if (disclosure.Value is JValue jValue)
                 {
                     claimsDictionary[disclosure.Name] = jValue.ToString(CultureInfo.InvariantCulture);
@@ -120,8 +147,14 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
                 {
                     claimsDictionary[disclosure.Name] = string.Empty;
                 }
+            }
 
             return claimsDictionary;
+        }
+        
+        public string GetId()
+        {
+            return Id;
         }
 
         /// <summary>

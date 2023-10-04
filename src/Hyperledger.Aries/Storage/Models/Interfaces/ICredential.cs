@@ -5,5 +5,6 @@ namespace Hyperledger.Aries.Storage.Models.Interfaces
     /// </summary>
     public interface ICredential
     {
+        public string GetId();
     }
 }

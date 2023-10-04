@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Features.Pex.Models;
@@ -12,6 +13,7 @@ namespace Hyperledger.Aries.Features.Pex.Services
         /// <inheritdoc />
         public Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinitionJson)
         {
+            Debug.WriteLine("ParsePresentationDefinition: " + presentationDefinitionJson);
             var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(presentationDefinitionJson);
             return Task.FromResult(presentationDefinition!);
         }
@@ -20,8 +22,8 @@ namespace Hyperledger.Aries.Features.Pex.Services
         public Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentialDescriptors)
         {
             var inputDescriptorIds = presentationDefinition.InputDescriptors.Select(x => x.Id);
-            if (!credentialDescriptors.Select(x => x.Id).All(inputDescriptorIds.Contains))
-                throw new ArgumentException("Missing descriptors for given input descriptors in presentation definition.", nameof(credentialDescriptors));
+            // if (!credentialDescriptors.Select(x => x.Id).All(inputDescriptorIds.Contains))
+            //     throw new ArgumentException("Missing descriptors for given input descriptors in presentation definition.", nameof(credentialDescriptors));
             
             var presentationSubmission = new PresentationSubmission
             {

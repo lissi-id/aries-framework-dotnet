@@ -40,12 +40,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// <remarks>
         ///     The SD-JWT is created using the provided SD-JWT credential and the provided claims are disclosed
         /// </remarks>
-        /// <param name="disclosureNames">The claims to disclose</param>
+        /// <param name="fieldNames">The claims to disclose</param>
         /// <param name="credential">The SD-JWT credential</param>
         /// <param name="audience">The targeted audience</param>
         /// <param name="nonce">The nonce</param>
         /// <returns>The SD-JWT in presentation format</returns>
-        Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames, string? audience = null, string? nonce = null);
+        Task<string> CreatePresentation(SdJwtRecord credential, string[] fieldNames, string? audience = null, string? nonce = null);
         
         /// <summary>
         ///     Retrieves a specific SD-JWT record by its ID.

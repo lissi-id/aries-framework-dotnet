@@ -9,6 +9,7 @@ using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
 using Hyperledger.Aries.Features.OutOfBand;
+using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
@@ -86,6 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.TryAddSingleton<IMessageService, DefaultMessageService>();
             builder.TryAddSingleton<IOutOfBandService, DefaultOutOfBandService>();
             builder.TryAddSingleton<IPaymentService, DefaultPaymentService>();
+            builder.TryAddSingleton<IPexService, PexService>();
             builder.TryAddSingleton<IPoolService, DefaultPoolService>();
             builder.TryAddSingleton<IProofService, DefaultProofService>();
             builder.TryAddSingleton<IProvisioningService, DefaultProvisioningService>();
