@@ -9,18 +9,13 @@ namespace Hyperledger.Aries.Features.Pex.Services
     public interface IPexService
     {
         /// <summary>
-        /// Parses the presentation definition.
-        /// </summary>
-        /// <param name="presentationDefinitionJson">The JSON representation of a presentation definition.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the PresentationDefinition.</returns>
-        Task<PresentationDefinition> ParsePresentationDefinition(string presentationDefinitionJson);
-  
-        /// <summary>
         /// Creates a presentation submission.
         /// </summary>
         /// <param name="presentationDefinition">The presentation definition.</param>
-        /// <param name="credentialDescriptors">The credential descriptors.</param>
-        /// <returns></returns>
-        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, CredentialDescriptor[] credentialDescriptors);
+        /// <param name="descriptorMaps">Data used to build Descriptor Maps.</param>
+        /// <returns>
+        ///     A task representing the asynchronous operation. The task result contains the Presentation Submission.
+        /// </returns>
+        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, DescriptorMap[] descriptorMaps);
     }
 }

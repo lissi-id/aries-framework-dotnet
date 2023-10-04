@@ -39,7 +39,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the disclosures.
         /// </summary>
-        public ImmutableArray<string> Disclosures { get; private set; }
+        public ImmutableArray<string> Disclosures { get; set; }
 
         /// <summary>
         ///     Gets or sets the display of the credential.
@@ -49,7 +49,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the type of the credential.
         /// </summary>
-        public string CredentialType { get; private set; } = null!;
+        public string CredentialType { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the identifier for the issuer.
@@ -59,7 +59,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets the Issuer-signed JWT part of the SD-JWT.
         /// </summary>
-        public string EncodedIssuerSignedJwt { get; private set; } = null!;
+        public string EncodedIssuerSignedJwt { get; set; } = null!;
 
         /// <inheritdoc />
         public override string TypeName => "AF.SdJwtRecord";
@@ -75,17 +75,15 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <param name="sdJwtDoc">The SdJwtDoc.</param>
         /// <returns>The SdJwtRecord.</returns>
         public static SdJwtRecord FromSdJwtDoc(SdJwtDoc sdJwtDoc)
-        {
-            var record = new SdJwtRecord
+            => new SdJwtRecord
             {
                 EncodedIssuerSignedJwt = sdJwtDoc.EncodedIssuerSignedJwt,
-                Claims = CreateClaimsDictionary(sdJwtDoc.Disclosures),
                 CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
-                Disclosures = sdJwtDoc.Disclosures.Select(x => x.Serialize()).ToImmutableArray()
+                Disclosures = sdJwtDoc.Disclosures.Select(x => x.Serialize()).ToImmutableArray(),
+                Claims = WithDisclosedClaims(sdJwtDoc.EncodedIssuerSignedJwt)
+                    .Concat(WithSelectivelyDisclosableClaims(sdJwtDoc.Disclosures))
+                    .ToDictionary(x => x.key, x => x.value)
             };
-
-            return record;
-        }
 
         /// <summary>
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
@@ -101,27 +99,6 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
 
             SetCredentialDisplayProperties(issuerMetadata, credentialFormatAndType);
             SetOidIssuerDisplayProperties(issuerMetadata);
-        }
-
-        /// <summary>
-        ///     Creates a dictionary of claims based on the list of disclosures.
-        /// </summary>
-        /// <param name="disclosures">The list of disclosures.</param>
-        /// <returns>The dictionary of claims.</returns>
-        private static Dictionary<string, string> CreateClaimsDictionary(IEnumerable<Disclosure> disclosures)
-        {
-            var claimsDictionary = new Dictionary<string, string>();
-            foreach (var disclosure in disclosures)
-                if (disclosure.Value is JValue jValue)
-                {
-                    claimsDictionary[disclosure.Name] = jValue.ToString(CultureInfo.InvariantCulture);
-                }
-                else
-                {
-                    claimsDictionary[disclosure.Name] = string.Empty;
-                }
-
-            return claimsDictionary;
         }
 
         /// <summary>
@@ -183,5 +160,22 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             IssuerId = issuerMetadata.CredentialIssuer;
             IssuerName = CreateIssuerNameDictionary(issuerMetadata);
         }
+
+        private static IEnumerable<(string key, string value)> WithDisclosedClaims(string tokenAsString)
+            => new JwtSecurityTokenHandler()
+                .ReadJwtToken(tokenAsString).Claims
+                .Where(claim => !string.Equals(claim.Type, "_sd") && !string.Equals(claim.Type, "..."))
+                .Select(c => (c.Type, c.Value));
+
+        /// <summary>
+        ///     Creates a dictionary of claims based on the list of disclosures.
+        /// </summary>
+        /// <param name="disclosures">The list of disclosures.</param>
+        /// <returns>The dictionary of claims.</returns>
+        private static IEnumerable<(string key, string value)> WithSelectivelyDisclosableClaims(
+            IEnumerable<Disclosure> disclosures)
+            => disclosures
+                .Where(x => x.Value is JValue jValue)
+                .Select(d => (d.Name, ((JValue)d.Value).ToString(CultureInfo.InvariantCulture)));
     }
 }
