@@ -35,6 +35,5 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         
         [JsonIgnore]
         public PresentationDefinition PresentationDefinition { get; set; }
-
     }
 }

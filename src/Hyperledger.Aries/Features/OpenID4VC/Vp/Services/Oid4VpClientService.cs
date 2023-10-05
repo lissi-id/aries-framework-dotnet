@@ -44,24 +44,31 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
             var uri = new Uri(authorizationRequestUrl);
             //if (uri.Scheme != "haip") throw new InvalidOperationException("Only haip scheme is supported");
             
-            if (!uri.HasQueryParam("request_uri"))
+            if (uri.GetQueryParam("request_uri") == null)
                 throw new InvalidOperationException("Haip only supports request_uri");
             
-            AuthorizationRequest? authorizationRequest = null;
+            var authorizationRequest = new AuthorizationRequest();
             
             var request = uri.GetQueryParam("request_uri");
             var httpClient = _httpClientFactory.CreateClient();
             var response = await httpClient.GetAsync(request);
+            
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 authorizationRequest = await ParseFromJwt(content);
             }
 
+            //TODO: check for HAIP conformity 
             //if (!IsAuthorizationRequestHaipConform(authorizationRequest))
                 //throw new InvalidOperationException("Authorization request is not haip conform");
             
             return authorizationRequest;
+        }
+
+        public Task<(PresentationSubmission, string)> CreateAuthorizationResponse()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task SendAuthorizationResponse(SelectedCredential[] selectedCredentials, string authorizationRequestRecordId)
@@ -70,13 +77,11 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
             var authRecord =
                 await _recordService.GetAsync<AuthorizationRequestRecord>(context.Wallet, authorizationRequestRecordId);
 
-            List<CredentialDescriptor>? credentialDescriptors = null;
-            List<string>? vpToken = null;
+            List<CredentialDescriptor>? credentialDescriptors = new List<CredentialDescriptor>();
+            List<string>? vpToken = new List<string>();
             for (var credential = 0; credential < selectedCredentials.Length; credential++)
             {
-                //TODO: Other Credential Types
-                if (selectedCredentials[credential].Credential.GetType().BaseType != typeof(SdJwtRecord)) 
-                    throw new InvalidOperationException("only SD-JWT credentials are supported");
+                //TODO: Other Credential Types than SD-JWT
                 
                 var inputDescriptor = authRecord.AuthorizationRequest.PresentationDefinition.InputDescriptors.FirstOrDefault(x =>
                     x.Id == selectedCredentials[credential].InputDescriptorId);
@@ -87,7 +92,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
                 var credentialDescriptor = new CredentialDescriptor
                 {
                     CredentialId = ((SdJwtRecord) selectedCredentials[credential].Credential).Id,
-                    Format = "jwt_vp_json", //???
+                    Format = "vc+sd-jwt",
                     Path = "$[" + credential + "]",
                     InputDescriptorId = selectedCredentials[credential].InputDescriptorId,
                     PathNested = null
@@ -97,11 +102,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
 
             var presentationSubmission = await _pexService.CreatePresentationSubmission(authRecord.AuthorizationRequest.PresentationDefinition, credentialDescriptors.ToArray());
             
-            await PostAuthorizationResponse(authRecord.AuthorizationRequest, vpToken.ToString(), presentationSubmission.ToString());
-            
-            // Call SdJwtService.CreateSdJwtPresentationFormat(inputDesciptor, credentialId) for each SD JWT credential
-            // Call IPexService.CreatePresentationSubmission(presentationDefinition, credentials)
-            // --> send Response
+            await PostAuthorizationResponse(authRecord.AuthorizationRequest, vpToken.ToString(), JsonConvert.SerializeObject(presentationSubmission));
         }
         
         private async Task PostAuthorizationResponse(AuthorizationRequest authorizationRequest, string vpToken, string presentationSubmission)
