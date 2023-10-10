@@ -34,8 +34,6 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         private readonly Mock<IPexService> _pexServiceMock = new Mock<IPexService>();
-        private readonly Mock<IAgentProvider> _agentProviderMock = new Mock<IAgentProvider>();
-        private readonly Mock<IWalletRecordService> _walletRecordServiceMock = new Mock<IWalletRecordService>();
         private readonly Mock<ISdJwtVcHolderService> _sdJwtVcHolderServiceMock = new Mock<ISdJwtVcHolderService>();
 
         [Fact]
@@ -50,7 +48,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
             
-            _oid4VpClientService = new Oid4VpClientService(_pexServiceMock.Object, _sdJwtVcHolderServiceMock.Object, _httpClientFactoryMock.Object, _agentProviderMock.Object, _walletRecordServiceMock.Object);
+            _oid4VpClientService = new Oid4VpClientService(_pexServiceMock.Object, _sdJwtVcHolderServiceMock.Object, _httpClientFactoryMock.Object);
             //SetupHttpClientSequence(_issuerMetadataResponse);
 
 

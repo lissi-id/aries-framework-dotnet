@@ -45,6 +45,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             throw new NotImplementedException();
         }
 
+        public Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames, string? audience = null,
+            string? nonce = null)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc />
         public virtual async Task<bool> DeleteAsync(IAgentContext context, string recordId)
         {

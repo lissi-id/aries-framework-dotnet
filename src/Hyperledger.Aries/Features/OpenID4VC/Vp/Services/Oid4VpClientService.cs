@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
-using Hyperledger.Aries.Storage;
 using Hyperledger.Aries.Utils;
 using Newtonsoft.Json;
 
@@ -22,138 +19,71 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         private readonly IPexService _pexService;
         private readonly ISdJwtVcHolderService _sdJwtVcHolderService;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IAgentProvider _agentProvider;
-        private readonly IWalletRecordService _recordService;
 
         public Oid4VpClientService(
             IPexService pexService,
             ISdJwtVcHolderService sdJwtVcHolderService,
-            IHttpClientFactory httpClientFactory,
-            IAgentProvider agentProvider,
-            IWalletRecordService recordService)
+            IHttpClientFactory httpClientFactory)
         {
             _pexService = pexService;
             _sdJwtVcHolderService = sdJwtVcHolderService;
             _httpClientFactory = httpClientFactory;
-            _agentProvider = agentProvider;
-            _recordService = recordService;
         }
 
         public async Task<AuthorizationRequest> ProcessAuthorizationRequest(string authorizationRequestUrl)
         {
+            var json = "%7B%22response_type%22:%22vp_token%22,%22client_id%22:%22https://nc-sd-jwt.lambda.d3f.me/index.php/apps/ssi_login/oidc/callback%22,%22redirect_uri%22:%22https://nc-sd-jwt.lambda.d3f.me/index.php/apps/ssi_login/oidc/callback%22,%22nonce%22:%2287554784260280280442092184171274132458%22,%22presentation_definition%22:%7B%22id%22:%224dd1c26a-2f46-43ae-a711-70888c93fb4f%22,%22input_descriptors%22:%5B%7B%22id%22:%22NextcloudCredential%22,%22format%22:%7B%22vc+sd-jwt%22:%7B%22proof_type%22:%5B%22JsonWebSignature2020%22%5D%7D%7D,%22constraints%22:%7B%22limit_disclosure%22:%22required%22,%22fields%22:%5B%7B%22path%22:%5B%22$.type%22%5D,%22filter%22:%7B%22type%22:%22string%22,%22const%22:%22VerifiedEMail%22%7D%7D,%7B%22path%22:%5B%22$.credentialSubject.email%22%5D%7D%5D%7D%7D%5D%7D%7D";
+            authorizationRequestUrl = "openid4vp://?response_type=vp_token&client_id=https%3A%2F%2Fclient.example.org%2Fcb&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb&presentation_definition=" + json;
+
             var uri = new Uri(authorizationRequestUrl);
-            //if (uri.Scheme != "haip") throw new InvalidOperationException("Only haip scheme is supported");
-            
-            if (uri.GetQueryParam("request_uri") == null)
-                throw new InvalidOperationException("Haip only supports request_uri");
+            //TODO: Update to HAIP later
+            if (uri.Scheme != "openid4vp") 
+                throw new InvalidOperationException("Only openId4VP scheme is supported");
             
             var authorizationRequest = new AuthorizationRequest();
             
             var request = uri.GetQueryParam("request_uri");
-            var httpClient = _httpClientFactory.CreateClient();
-            var response = await httpClient.GetAsync(request);
-            
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (!String.IsNullOrEmpty(request))
             {
-                var content = await response.Content.ReadAsStringAsync();
-                authorizationRequest = await ParseFromJwt(content);
+                var httpClient = _httpClientFactory.CreateClient();
+                var response = await httpClient.GetAsync(request);
+                
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    authorizationRequest = AuthorizationRequest.ParseFromJwt(content);
+                }
+            }
+            else
+            {
+                authorizationRequest = AuthorizationRequest.ParseFromUri(uri);
             }
 
-            //TODO: check for HAIP conformity 
-            //if (!IsAuthorizationRequestHaipConform(authorizationRequest))
-                //throw new InvalidOperationException("Authorization request is not haip conform");
-            
+            if (authorizationRequest == null) 
+                throw new InvalidOperationException("Couldn't not parse Authorization Request Url");
+
+            //TODO: check for HAIP conformity ==> IsAuthorizationRequestHaipConform()
+
             return authorizationRequest;
         }
 
-        public Task<(PresentationSubmission, string)> CreateAuthorizationResponse()
+        public Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials,
+            PresentationSubmission presentationSubmission)
         {
             throw new NotImplementedException();
         }
 
-        public async Task SendAuthorizationResponse(SelectedCredential[] selectedCredentials, string authorizationRequestRecordId)
+        /// <inheritdoc />
+        public async Task<AuthorizationResponse> CreateAuthorizationResponse(string[] vpToken, PresentationSubmission presentationSubmission)
         {
-            var context = await _agentProvider.GetContextAsync();
-            var authRecord =
-                await _recordService.GetAsync<AuthorizationRequestRecord>(context.Wallet, authorizationRequestRecordId);
-
-            List<CredentialDescriptor>? credentialDescriptors = new List<CredentialDescriptor>();
-            List<string>? vpToken = new List<string>();
-            for (var credential = 0; credential < selectedCredentials.Length; credential++)
-            {
-                //TODO: Other Credential Types than SD-JWT
-                
-                var inputDescriptor = authRecord.AuthorizationRequest.PresentationDefinition.InputDescriptors.FirstOrDefault(x =>
-                    x.Id == selectedCredentials[credential].InputDescriptorId);
-                    
-                var presentationFormat = await _sdJwtVcHolderService.CreateSdJwtPresentationFormat(inputDescriptor, ((SdJwtRecord) selectedCredentials[credential].Credential).Id);
-                vpToken.Add(presentationFormat);
-                    
-                var credentialDescriptor = new CredentialDescriptor
-                {
-                    CredentialId = ((SdJwtRecord) selectedCredentials[credential].Credential).Id,
-                    Format = "vc+sd-jwt",
-                    Path = "$[" + credential + "]",
-                    InputDescriptorId = selectedCredentials[credential].InputDescriptorId,
-                    PathNested = null
-                };
-                credentialDescriptors.Add(credentialDescriptor);
-            }
-
-            var presentationSubmission = await _pexService.CreatePresentationSubmission(authRecord.AuthorizationRequest.PresentationDefinition, credentialDescriptors.ToArray());
             
-            await PostAuthorizationResponse(authRecord.AuthorizationRequest, vpToken.ToString(), JsonConvert.SerializeObject(presentationSubmission));
-        }
-        
-        private async Task PostAuthorizationResponse(AuthorizationRequest authorizationRequest, string vpToken, string presentationSubmission)
-        {
-            var content = new List<KeyValuePair<string, string>>();
-            content.Add(new KeyValuePair<string, string>("vp_token", vpToken));
-            content.Add(new KeyValuePair<string, string>("presentation_submission", presentationSubmission));
             
-            var request = new HttpRequestMessage
+            return new AuthorizationResponse
             {
-                RequestUri = new Uri(authorizationRequest.RedirectUri),
-                Method = HttpMethod.Post,
-                Content = new FormUrlEncodedContent(content)
+                PresentationSubmission = JsonConvert.SerializeObject(presentationSubmission),
+                VpToken = vpToken.ToString()
             };
-
-            var httpClient = _httpClientFactory.CreateClient();
-            await httpClient.SendAsync(request);
         }
         
-        private async Task<AuthorizationRequest> ParseFromJwt(string jwt)
-        {
-            var jwtHandler = new JwtSecurityTokenHandler();
-            var token = jwtHandler.ReadToken(jwt) as JwtSecurityToken;
-            var json = token?.Payload.SerializeToJson() ?? "";
-
-            var authorizationRequest = JsonConvert.DeserializeObject<AuthorizationRequest>(json);
-                    
-            authorizationRequest.PresentationDefinition =
-                await _pexService.ParsePresentationDefinition(authorizationRequest
-                    .PresentationDefinitionAsString.ToString());
-
-            return authorizationRequest;
-        }
-
-        private bool IsAuthorizationRequestHaipConform(AuthorizationRequest authorizationRequest)
-        {
-            //TODO: Complete the validation
-            
-            if (authorizationRequest.ResponseType != "vp_token")
-                return false;
-                
-            if (authorizationRequest.ClientId != "vp_token") 
-                return false;
-            
-            if (authorizationRequest.ResponseMode != "direct_post") 
-                return false;
-            
-            if (!(authorizationRequest.ClientIdScheme == "x509_san_dns" || authorizationRequest.ClientIdScheme == "verifier_attestation")) 
-                return false;
-
-            return true;
-        }
     }
 }

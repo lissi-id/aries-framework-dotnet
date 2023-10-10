@@ -64,5 +64,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         Task<CredentialCandidates[]> GetCredentialCandidates(SdJwtRecord[] credentials, InputDescriptor[] inputDescriptors);
         
         Task<string> CreateSdJwtPresentationFormatAsync(InputDescriptor inputDescriptors, string credentialId);
+        
+        Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames, string? audience = null, string? nonce = null);
     }
 }
