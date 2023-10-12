@@ -23,6 +23,6 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// This MUST be the id value of a valid Presentation Definition.
         /// </summary>
         [JsonProperty("descriptor_map")]
-        public Descriptor[] DescriptorMap { get; internal set; } = null!;
+        public DescriptorMap[] DescriptorMap { get; internal set; } = null!;
     }
 }

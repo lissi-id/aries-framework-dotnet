@@ -5,7 +5,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
     /// <summary>
     /// The descriptor.
     /// </summary>
-    public class Descriptor
+    public class DescriptorMap
     {
         /// <summary>
         /// This MUST be a string that matches the id property of the Input Descriptor in the Presentation Definition that this Presentation Submission is related to.
@@ -30,6 +30,6 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// This indicate the presence of a multi-Claim envelope format. This means the Claim indicated is to be decoded separately from its parent enclosure
         /// </summary>
         [JsonProperty("path_nested")]
-        public Descriptor? PathNested { get; set; }
+        public DescriptorMap? PathNested { get; set; }
     }
 }
