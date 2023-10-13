@@ -35,6 +35,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
 
         [JsonProperty("response_mode")] 
         public string? ResponseMode { get; set; }
+        
+        [JsonProperty("response_uri")] 
+        public string? ResponseUri { get; set; }
 
         [JsonProperty("state")] 
         public string? State { get; set; }

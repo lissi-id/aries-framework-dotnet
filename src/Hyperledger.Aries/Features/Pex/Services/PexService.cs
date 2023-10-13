@@ -10,30 +10,17 @@ namespace Hyperledger.Aries.Features.Pex.Services
     public class PexService : IPexService
     {
         /// <inheritdoc />
-        public Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, (string inputDescriptorId, string pathToVerifiablePresentation, string format)[] mapping)
+        public Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, DescriptorMap[] descriptorMaps)
         {
             var inputDescriptorIds = presentationDefinition.InputDescriptors.Select(x => x.Id);
-            if (!mapping.All(descriptor => inputDescriptorIds.Contains(descriptor.inputDescriptorId)))
-                throw new ArgumentException("Missing descriptors for given input descriptors in presentation definition.", nameof(mapping));
-            
-            var descriptorMaps = new List<DescriptorMap>();
-            for (int index = 0; index < mapping.Count(); index++)
-            {
-                var descriptorMap = new DescriptorMap
-                {
-                    Format = mapping[index].format,
-                    Path = mapping[index].pathToVerifiablePresentation,
-                    Id = mapping[index].inputDescriptorId,
-                    PathNested = null
-                };
-                descriptorMaps.Add(descriptorMap);
-            }
+            if (!descriptorMaps.Select(x => x.Id).All(inputDescriptorIds.Contains))
+                throw new ArgumentException("Missing descriptors for given input descriptors in presentation definition.", nameof(descriptorMaps));
             
             var presentationSubmission = new PresentationSubmission
             {
                 Id = Guid.NewGuid().ToString(),
                 DefinitionId = presentationDefinition.Id,
-                DescriptorMap = descriptorMaps.ToArray()
+                DescriptorMap = descriptorMaps.Cast<DescriptorMap>().ToArray()
             };
             
             return Task.FromResult(presentationSubmission);

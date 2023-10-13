@@ -12,9 +12,10 @@ namespace Hyperledger.Aries.Features.Pex.Services
         /// Creates a presentation submission.
         /// </summary>
         /// <param name="presentationDefinition">The presentation definition.</param>
-        /// <param name="descriptorMapInfo">Data used to build Descriptor Maps.</param>
-        /// <returns></returns>
-        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, 
-            (string inputDescriptorId, string pathToVerifiablePresentation, string format)[] descriptorMapInfo);
+        /// <param name="descriptorMaps">Data used to build Descriptor Maps.</param>
+        /// <returns>
+        ///     A task representing the asynchronous operation. The task result contains the Presentation Submission.
+        /// </returns>
+        Task<PresentationSubmission> CreatePresentationSubmission(PresentationDefinition presentationDefinition, DescriptorMap[] descriptorMaps);
     }
 }

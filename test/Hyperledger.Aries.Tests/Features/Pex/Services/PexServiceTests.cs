@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hyperledger.Aries.Features.Pex.Models;
@@ -20,23 +21,34 @@ namespace Hyperledger.Aries.Tests.Features.Pex.Services
         {
             var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(PexTestsDataProvider.GetJsonForTestCase());
             
-            var mappings = new (string inputDescriptorId, string pathToVerifiablePresentation, string format)[]
+            var credentials = new[]
             {
-                (presentationDefinition.InputDescriptors[0].Id, "$.credentials[0]", "vc+sd-jwt"),
-                (presentationDefinition.InputDescriptors[1].Id, "$.credentials[1]", "vc+sd-jwt")
+                new DescriptorMap
+                {
+                    Id = presentationDefinition.InputDescriptors[0].Id,
+                    Format = presentationDefinition.InputDescriptors[0].Formats.First().Key,
+                    Path = "$.credentials[0]"
+                },
+                new DescriptorMap
+                {
+                    Id = presentationDefinition.InputDescriptors[1].Id,
+                    Format = presentationDefinition.InputDescriptors[1].Formats.First().Key,
+                    Path = "$.credentials[1]"
+                },
             };
 
-            var presentationSubmission = await _pexService.CreatePresentationSubmission(presentationDefinition, mappings);
+            
+            var presentationSubmission = await _pexService.CreatePresentationSubmission(presentationDefinition, credentials);
 
             presentationSubmission.Id.Should().NotBeNullOrWhiteSpace();
             presentationSubmission.DefinitionId.Should().Be(presentationDefinition.Id);
-            presentationSubmission.DescriptorMap.Length.Should().Be(mappings.Length);
+            presentationSubmission.DescriptorMap.Length.Should().Be(credentials.Length);
 
             for (var i = 0; i < presentationDefinition.InputDescriptors.Length; i++)
             {
                 presentationSubmission.DescriptorMap[i].Id.Should().Be(presentationDefinition.InputDescriptors[i].Id);
-                presentationSubmission.DescriptorMap[i].Format.Should().Be(mappings[i].format);
-                presentationSubmission.DescriptorMap[i].Path.Should().Be(mappings[i].pathToVerifiablePresentation);   
+                presentationSubmission.DescriptorMap[i].Format.Should().Be(credentials[i].Format);
+                presentationSubmission.DescriptorMap[i].Path.Should().Be(credentials[i].Path);   
             }
         }
         
@@ -51,12 +63,17 @@ namespace Hyperledger.Aries.Tests.Features.Pex.Services
             presentationDefinition.PrivateSet(x => x.Id, Guid.NewGuid().ToString());
             presentationDefinition.PrivateSet(x => x.InputDescriptors, new[] { inputDescriptor });
             
-            var mappings = new []
+            var credentials = new []
             {
-                (Guid.NewGuid().ToString(), "$.credentials[0]", "vc+sd-jwt")
+                new DescriptorMap
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Format = presentationDefinition.InputDescriptors[0].Formats.First().Key,
+                    Path = "$.credentials[0]"
+                }
             };
-        
-            await Assert.ThrowsAsync<ArgumentException>(() => _pexService.CreatePresentationSubmission(presentationDefinition, mappings));
+
+            await Assert.ThrowsAsync<ArgumentException>(() => _pexService.CreatePresentationSubmission(presentationDefinition, credentials));
         }
     }
 }

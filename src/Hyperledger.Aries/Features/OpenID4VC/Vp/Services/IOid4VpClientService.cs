@@ -1,6 +1,6 @@
+using System;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
-using Hyperledger.Aries.Features.Pex.Models;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
 {
@@ -17,7 +17,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url.
         /// </returns>
-        public Task<AuthorizationRequest> ProcessAuthorizationRequest(string authorizationRequestUrl);
+        public Task<AuthorizationRequest> ProcessAuthorizationRequest(Uri authorizationRequestUrl);
 
         
         //Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials, PresentationSubmission presentationSubmission);
@@ -25,11 +25,11 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         /// <summary>
         ///     Creates the Parameters that are necessary to send an OpenId4VP Authorization Response.
         /// </summary>
-        /// <param name="vpToken"></param>
-        /// /// <param name="presentationSubmission"></param>
+        /// <param name="authorizationRequest"></param>
+        /// /// <param name="presentationMap"></param>
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Presentation Submission and the VP Token.
         /// </returns>
-        AuthorizationResponse CreateAuthorizationResponse(string[] vpToken, PresentationSubmission presentationSubmission);
+        Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, (string inputDescriptorId, string presentation)[] presentationMap);
     }
 }
