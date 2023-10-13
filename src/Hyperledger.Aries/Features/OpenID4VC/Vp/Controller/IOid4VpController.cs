@@ -7,7 +7,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
     /// <summary>
     ///   This Service offers methods to handle the OpenId4Vp protocol according to the HAIP
     /// </summary>
-    public interface IOid4VpHaipController
+    public interface IOid4VpController
     {
         /// <summary>
         ///     Processes an OpenID4VP Authorization Request Url.

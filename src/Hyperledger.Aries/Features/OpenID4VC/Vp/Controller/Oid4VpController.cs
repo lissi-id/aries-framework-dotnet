@@ -14,7 +14,7 @@ using Hyperledger.Aries.Utils;
 
 namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
 {
-    public class Oid4VpHaipController : IOid4VpHaipController
+    public class Oid4VpController : IOid4VpController
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentProvider _agentProvider;
@@ -22,7 +22,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
         private readonly IPexService _pexService;
         private readonly IOid4VpClientService _oid4VpClientService;
 
-        public Oid4VpHaipController(
+        public Oid4VpController(
             IHttpClientFactory httpClientFactory,
             IAgentProvider agentProvider,
             ISdJwtVcHolderService sdJwtVcHolderService,
