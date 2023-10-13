@@ -8,7 +8,6 @@ using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
 using Hyperledger.Aries.Features.Pex.Models;
-using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
 using Hyperledger.Aries.Storage;
@@ -17,27 +16,22 @@ using Newtonsoft.Json.Linq;
 
 namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
 {
+    /// <inheritdoc />
     public class Oid4VpController : IOid4VpController
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IAgentProvider _agentProvider;
         private readonly ISdJwtVcHolderService _sdJwtVcHolderService;
-        private readonly IPexService _pexService;
         private readonly IOid4VpClientService _oid4VpClientService;
         private readonly IWalletRecordService _walletRecordService;
 
         public Oid4VpController(
             IHttpClientFactory httpClientFactory,
-            IAgentProvider agentProvider,
             ISdJwtVcHolderService sdJwtVcHolderService,
-            IPexService pexService,
             IOid4VpClientService oid4VpClientService,
             IWalletRecordService walletRecordService)
         {
             _httpClientFactory = httpClientFactory;
-            _agentProvider = agentProvider;
             _sdJwtVcHolderService = sdJwtVcHolderService;
-            _pexService = pexService;
             _oid4VpClientService = oid4VpClientService;
             _walletRecordService = walletRecordService;
         }
