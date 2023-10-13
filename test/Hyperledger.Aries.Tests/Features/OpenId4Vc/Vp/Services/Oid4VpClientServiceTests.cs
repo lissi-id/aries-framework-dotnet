@@ -8,6 +8,7 @@ using FluentAssertions;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
 using Hyperledger.Aries.Features.Pex.Models;
+using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Tests.Extensions;
 using Moq;
 using Moq.Protected;
@@ -51,7 +52,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
             
-            _oid4VpClientService = new Oid4VpClientService(_httpClientFactoryMock.Object);
+            _oid4VpClientService = new Oid4VpClientService(_httpClientFactoryMock.Object, new PexService());
             
             var format = new Format();
             format.PrivateSet(x => x.ProofTypes, new[] { "JsonWebSignature2020" });
@@ -90,7 +91,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             };
 
             // Act
-            var authorizationRequest = await _oid4VpClientService.ProcessAuthorizationRequest(authorizationRequestUri);
+            var authorizationRequest = await _oid4VpClientService.ProcessAuthorizationRequest(new Uri(authorizationRequestUri));
 
             // Assert
             authorizationRequest.Should().BeEquivalentTo(authorizationRequestResult);

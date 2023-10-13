@@ -9,7 +9,6 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
     /// </summary>
     public interface IOid4VpClientService
     {
-        
         /// <summary>
         ///     Processes an OpenID4VP Authorization Request Url.
         /// </summary>
