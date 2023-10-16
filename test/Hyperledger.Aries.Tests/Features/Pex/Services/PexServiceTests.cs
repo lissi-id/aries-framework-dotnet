@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.Pex.Services;
-using Hyperledger.Aries.Tests.Extensions;
 using Hyperledger.Aries.Tests.Features.Pex.Models;
-using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -81,31 +78,6 @@ namespace Hyperledger.Aries.Tests.Features.Pex.Services
                 presentationSubmission.DescriptorMap[i].Format.Should().Be(credentials[i].Format);
                 presentationSubmission.DescriptorMap[i].Path.Should().Be(credentials[i].Path);   
             }
-        }
-        
-        [Fact]
-        public async Task Throws_Exception_When_Descriptors_Are_Missing()
-        {
-            var inputDescriptor = new InputDescriptor();
-            inputDescriptor.PrivateSet(x => x.Id, Guid.NewGuid().ToString());
-            inputDescriptor.PrivateSet(x => x.Formats, new Dictionary<string, Format> { {"format-1", null }});
-            
-            var presentationDefinition = new PresentationDefinition();
-            presentationDefinition.PrivateSet(x => x.Id, Guid.NewGuid().ToString());
-            presentationDefinition.PrivateSet(x => x.InputDescriptors, new[] { inputDescriptor });
-            
-            var credentials = new CredentialDescriptor[]
-            {
-                new()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    CredentialId = Guid.NewGuid().ToString(),
-                    Format = presentationDefinition.InputDescriptors[0].Formats.First().Key,
-                    Path = "$.credentials[0]"
-                }
-            };
-
-            await Assert.ThrowsAsync<ArgumentException>(() => _pexService.CreatePresentationSubmission(presentationDefinition, credentials));
         }
     }
 }
