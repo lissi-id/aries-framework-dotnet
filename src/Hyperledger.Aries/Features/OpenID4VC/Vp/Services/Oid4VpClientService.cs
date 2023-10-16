@@ -79,7 +79,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
             return new AuthorizationResponse
             {
                 PresentationSubmission = JsonConvert.SerializeObject(presentationSubmission),
-                VpToken = vpToken.ToString()
+                VpToken = JsonConvert.SerializeObject(vpToken)
             };
         }
         

@@ -10,6 +10,6 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         
         public PresentedCredential[] PresentedCredentials { get; set; }
 
-        public override string TypeName { get; }
+        public override string TypeName => "AF.OidPresentationRecord";
     }
 }

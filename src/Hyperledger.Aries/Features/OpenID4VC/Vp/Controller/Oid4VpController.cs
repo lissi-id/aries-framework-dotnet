@@ -68,8 +68,10 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
                 var inputDescriptor = authorizationRequest.PresentationDefinition.InputDescriptors
                     .FirstOrDefault(x => x.Id == selectedCredentials[index].InputDescriptorId);
 
-                var presentationMap = await _sdJwtVcHolderService.CreatePresentation((SdJwtRecord) selectedCredentials[index].Credential, GetDisclosureNamesFromInputDescriptor(inputDescriptor), authorizationRequest.ClientId, authorizationRequest.Nonce);
-                presentationFormatMaps.Add((selectedCredentials[index].InputDescriptorId, presentationMap));
+                var claimsToDisclose = GetDisclosureNamesFromInputDescriptor(inputDescriptor);
+                var presentation = await _sdJwtVcHolderService.CreatePresentation((SdJwtRecord) selectedCredentials[index].Credential, claimsToDisclose, authorizationRequest.ClientId, authorizationRequest.Nonce);
+                
+                presentationFormatMaps.Add((selectedCredentials[index].InputDescriptorId, presentation));
                 
                 presentedCredentials.Add(new PresentedCredential
                 {
@@ -82,6 +84,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
             
             await _walletRecordService.AddAsync(agentContext.Wallet, new OidPresentationRecord
             {
+                Id = Guid.NewGuid().ToString(),
                 ClientId = authorizationRequest.ClientId,
                 ClientMetadata = authorizationRequest.ClientMetadata,
                 PresentedCredentials = presentedCredentials.ToArray()
@@ -94,15 +97,15 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
         /// <inheritdoc />
         public async Task<string?> SendAuthorizationResponse(Uri responseUri, AuthorizationResponse authorizationResponse)
         {
-            var content = new List<KeyValuePair<string, string>>();
-            content.Add(new KeyValuePair<string, string>("vp_token", authorizationResponse.VpToken));
-            content.Add(new KeyValuePair<string, string>("presentation_submission", authorizationResponse.PresentationSubmission));
+            var requestContent = new List<KeyValuePair<string, string>>();
+            requestContent.Add(new KeyValuePair<string, string>("vp_token", authorizationResponse.VpToken));
+            requestContent.Add(new KeyValuePair<string, string>("presentation_submission", authorizationResponse.PresentationSubmission));
             
             var request = new HttpRequestMessage
             {
                 RequestUri = responseUri,
                 Method = HttpMethod.Post,
-                Content = new FormUrlEncodedContent(content)
+                Content = new FormUrlEncodedContent(requestContent)
             };
 
             var httpClient = _httpClientFactory.CreateClient();
@@ -114,7 +117,8 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
             if (responseMessage.Content == null)
                 return null;
 
-            return JObject.Parse(responseMessage.Content.ToJson())["redirect_uri"]?.ToString();
+            var content = await responseMessage.Content.ReadAsStringAsync();
+            return JObject.Parse(content)["redirect_uri"]?.ToString();
         }
         
         private static string[] GetDisclosureNamesFromInputDescriptor(InputDescriptor inputDescriptor)
