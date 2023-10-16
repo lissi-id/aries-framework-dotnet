@@ -13,22 +13,22 @@ namespace Hyperledger.Aries.Features.Pex.Models
         ///     Gets or sets the constraints for the input descriptor.
         ///     It defines conditions that must be met for the input.
         /// </summary>
-        [JsonProperty("constraints")]
+        [JsonProperty("constraints", Required = Required.Always)]
         public Constraints Constraints { get; private set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the format of the input descriptor.
+        ///     Gets or sets the formats of the input descriptor.
         ///     This property is optional.
         /// </summary>
         [JsonProperty("format")]
-        public Format? Format { get; private set; }
+        public Dictionary<string, Format> Formats { get; private set; } = null!;
 
         /// <summary>
         ///     Gets or sets the unique identifier for the input descriptor.
         ///     This MUST be a string that does not conflict with the id of another Input Descriptor Object
         ///     in the same Presentation Definition.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; private set; } = null!;
 
         /// <summary>
@@ -50,29 +50,6 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// </summary>
         [JsonProperty("group")]
         public string[]? Group { get; private set; }
-    }
-
-    /// <summary>
-    ///     Represents the format of the input descriptor, encapsulating supported algorithms.
-    /// </summary>
-    public class Format
-    {
-        /// <summary>
-        ///     Gets a dictionary of supported algorithms for the format, keyed by their designations
-        /// </summary>
-        public Dictionary<string, Algorithm> SupportedAlgorithms { get; private set; } = null!;
-    }
-
-    /// <summary>
-    ///     Represents the details of a supported algorithm.
-    /// </summary>
-    public class Algorithm
-    {
-        /// <summary>
-        ///     Gets the names of supported algorithms.
-        /// </summary>
-        [JsonProperty("alg")]
-        public string[] Alg { get; private set; } = null!;
     }
 
     /// <summary>

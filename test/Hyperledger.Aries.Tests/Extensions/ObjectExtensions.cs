@@ -6,7 +6,7 @@ namespace Hyperledger.Aries.Tests.Extensions
 {
     public static class ObjectExtensions
     {
-        public static void PrivateSet<T, TProperty>(this T member, Expression<Func<T, TProperty>> property, object value)
+        public static void PrivateSet<T, TProperty>(this T member, Expression<Func<T, TProperty>> property, TProperty value)
         {
             var name = ((MemberExpression)property.Body).Member.Name;
         

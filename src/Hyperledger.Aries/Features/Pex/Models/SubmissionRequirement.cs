@@ -24,7 +24,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         ///     This property must contain a group string matching one of the group strings
         ///     specified for one or more Input Descriptor Objects.
         /// </remarks>
-        [JsonProperty("from")]
+        [JsonProperty("from", Required = Required.Always)]
         public string From { get; private set; } = null!;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Hyperledger.Aries.Features.Pex.Models
         /// <remarks>
         ///     According to the HAIP, this property must be "pick".
         /// </remarks>
-        [JsonProperty("rule")]
+        [JsonProperty("rule", Required = Required.Always)]
         public string Rule { get; private set; } = null!;
 
         /// <summary>
