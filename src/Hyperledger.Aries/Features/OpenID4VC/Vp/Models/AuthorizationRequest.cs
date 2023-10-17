@@ -45,28 +45,37 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         [JsonIgnore]
         public PresentationDefinition PresentationDefinition { get; set; } = null!;
 
-        public static AuthorizationRequest ParseFromJwt(string jwt)
+        public static AuthorizationRequest? ParseFromJwt(string jwt)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
             var token = jwtHandler.ReadToken(jwt) as JwtSecurityToken;
+            if (token == null) return null;
             
+            var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(token.Payload["presentation_definition"].ToString());
             var authorizationRequest = JsonConvert.DeserializeObject<AuthorizationRequest>(token.Payload.SerializeToJson());
-            authorizationRequest.PresentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(token.Payload["presentation_definition"].ToString());
+            
+            if (!(authorizationRequest != null && presentationDefinition != null)) 
+                return null;
+
+            authorizationRequest.PresentationDefinition = presentationDefinition;
             
             return authorizationRequest;
         }
 
-        public static AuthorizationRequest ParseFromUri(Uri uri)
+        public static AuthorizationRequest? ParseFromUri(Uri uri)
         {
             var query = HttpUtility.ParseQueryString(uri.Query);
             var dict = query.AllKeys.ToDictionary(key => key, key => query[key]);
             var json = JsonConvert.SerializeObject(dict);
 
+            var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(query["presentation_definition"]);
             var authorizationRequest = JsonConvert.DeserializeObject<AuthorizationRequest>(json);
             
-            var presentationDefinition = JsonConvert.DeserializeObject<PresentationDefinition>(query["presentation_definition"]);
+            if (!(authorizationRequest != null && presentationDefinition != null)) 
+                return null;
+            
             authorizationRequest.PresentationDefinition = presentationDefinition;
-
+            
             return authorizationRequest;
         }
     }

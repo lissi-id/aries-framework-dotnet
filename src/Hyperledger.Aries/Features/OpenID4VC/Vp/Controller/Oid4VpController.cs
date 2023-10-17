@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
-using Hyperledger.Aries.Extensions;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
 using Hyperledger.Aries.Features.Pex.Models;
@@ -65,18 +64,22 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
             var presentedCredentials = new List<PresentedCredential>();
             for (int index = 0; index < selectedCredentials.Length; index++)
             {
+                var currentCredential = (SdJwtRecord)selectedCredentials[index].Credential;
+                    
                 var inputDescriptor = authorizationRequest.PresentationDefinition.InputDescriptors
                     .FirstOrDefault(x => x.Id == selectedCredentials[index].InputDescriptorId);
+                if (inputDescriptor == null)
+                    throw new InvalidOperationException($"Selected credential with ID: {currentCredential.Id} cannot be used to answer any Input Descriptors");
 
                 var claimsToDisclose = GetDisclosureNamesFromInputDescriptor(inputDescriptor);
-                var presentation = await _sdJwtVcHolderService.CreatePresentation((SdJwtRecord) selectedCredentials[index].Credential, claimsToDisclose, authorizationRequest.ClientId, authorizationRequest.Nonce);
+                var presentation = await _sdJwtVcHolderService.CreatePresentation(currentCredential, claimsToDisclose, authorizationRequest.ClientId, authorizationRequest.Nonce);
                 
                 presentationFormatMaps.Add((selectedCredentials[index].InputDescriptorId, presentation));
                 
                 presentedCredentials.Add(new PresentedCredential
                 {
-                    CredentialId = ((SdJwtRecord)selectedCredentials[index].Credential).Id,
-                    PresentedClaims = GetPresentedClaimsForCredential(inputDescriptor, (SdJwtRecord) selectedCredentials[index].Credential)
+                    CredentialId = currentCredential.Id,
+                    PresentedClaims = GetPresentedClaimsForCredential(inputDescriptor, currentCredential)
                 });
             }
 
@@ -124,7 +127,10 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
         private static string[] GetDisclosureNamesFromInputDescriptor(InputDescriptor inputDescriptor)
         {
             var disclosureNames = new List<string>();
-
+            
+            if (inputDescriptor.Constraints.Fields == null)
+                return null;
+            
             foreach (var field in inputDescriptor.Constraints.Fields)
             {
                 foreach (var path in field.Path)
@@ -157,7 +163,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
             if (authorizationRequest.ResponseType != "vp_token")
                 return false;
             
-            if (authorizationRequest.ResponseMode != "direct_post") //redirect_rui?
+            if (authorizationRequest.ResponseMode != "direct_post")
                 return false;
             
             if (authorizationRequest.ResponseMode == "direct_post" 

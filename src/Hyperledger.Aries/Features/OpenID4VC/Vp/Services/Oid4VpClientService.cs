@@ -45,12 +45,11 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
             }
             else
             {
-                //TODO: Add functionality to parse presentation_definition_uri parameter
                 authorizationRequest = AuthorizationRequest.ParseFromUri(authorizationRequestUri);
             }
 
             if (authorizationRequest == null) 
-                throw new InvalidOperationException("Couldn't not parse Authorization Request Url");
+                throw new InvalidOperationException("Could not parse Authorization Request Url");
 
             return authorizationRequest;
         }

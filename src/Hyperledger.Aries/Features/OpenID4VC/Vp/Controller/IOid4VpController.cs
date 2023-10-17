@@ -16,7 +16,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
         /// <param name="authorizationRequestUrl"></param>
         /// /// <param name="agentContext"></param>
         /// <returns>
-        ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url.
+        ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url and Credentials Candidates that can be used to answer the request.
         /// </returns>
         public Task<(AuthorizationRequest authorizationRequest, CredentialCandidates[] credentialCandidates)> ProcessAuthorizationRequest(Uri authorizationRequestUrl, IAgentContext agentContext);
 
