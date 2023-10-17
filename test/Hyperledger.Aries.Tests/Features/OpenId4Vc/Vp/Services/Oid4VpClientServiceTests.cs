@@ -54,6 +54,17 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             
             _oid4VpClientService = new Oid4VpClientService(_httpClientFactoryMock.Object, new PexService());
             
+            var expectedAuthorizationRequest = GetExpectedAuthorizationRequest();
+
+            // Act
+            var authorizationRequest = await _oid4VpClientService.ProcessAuthorizationRequest(new Uri(authorizationRequestUri));
+
+            // Assert
+            authorizationRequest.Should().BeEquivalentTo(expectedAuthorizationRequest);
+        }
+
+        private AuthorizationRequest GetExpectedAuthorizationRequest()
+        {
             var format = new Format();
             format.PrivateSet(x => x.ProofTypes, new[] { "JsonWebSignature2020" });
             
@@ -81,7 +92,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             presentationDefinition.PrivateSet(x => x.Id, "4dd1c26a-2f46-43ae-a711-70888c93fb4f");
             presentationDefinition.PrivateSet(x => x.InputDescriptors, new[] { inputDescriptor });
             
-            var authorizationRequestResult = new AuthorizationRequest()
+            return new AuthorizationRequest()
             {
                 ResponseType = "vp_token",
                 ClientId = "https://nc-sd-jwt.lambda.d3f.me/index.php/apps/ssi_login/oidc/callback",
@@ -89,12 +100,6 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
                 Nonce = "87554784260280280442092184171274132458",
                 PresentationDefinition = presentationDefinition,
             };
-
-            // Act
-            var authorizationRequest = await _oid4VpClientService.ProcessAuthorizationRequest(new Uri(authorizationRequestUri));
-
-            // Assert
-            authorizationRequest.Should().BeEquivalentTo(authorizationRequestResult);
         }
         
     }
