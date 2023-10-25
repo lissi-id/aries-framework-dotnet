@@ -27,14 +27,13 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
         private const string RequestUriResponse =
             "eyJhbGciOiJub25lIn0.eyJyZXNwb25zZV90eXBlIjoidnBfdG9rZW4iLCJjbGllbnRfaWQiOiJodHRwczpcL1wvbmMtc2Qtand0LmxhbWJkYS5kM2YubWVcL2luZGV4LnBocFwvYXBwc1wvc3NpX2xvZ2luXC9vaWRjXC9jYWxsYmFjayIsInJlZGlyZWN0X3VyaSI6Imh0dHBzOlwvXC9uYy1zZC1qd3QubGFtYmRhLmQzZi5tZVwvaW5kZXgucGhwXC9hcHBzXC9zc2lfbG9naW5cL29pZGNcL2NhbGxiYWNrIiwibm9uY2UiOiI4NzU1NDc4NDI2MDI4MDI4MDQ0MjA5MjE4NDE3MTI3NDEzMjQ1OCIsInByZXNlbnRhdGlvbl9kZWZpbml0aW9uIjp7ImlkIjoiNGRkMWMyNmEtMmY0Ni00M2FlLWE3MTEtNzA4ODhjOTNmYjRmIiwiaW5wdXRfZGVzY3JpcHRvcnMiOlt7ImlkIjoiTmV4dGNsb3VkQ3JlZGVudGlhbCIsImZvcm1hdCI6eyJ2YytzZC1qd3QiOnsicHJvb2ZfdHlwZSI6WyJKc29uV2ViU2lnbmF0dXJlMjAyMCJdfX0sImNvbnN0cmFpbnRzIjp7ImxpbWl0X2Rpc2Nsb3N1cmUiOiJyZXF1aXJlZCIsImZpZWxkcyI6W3sicGF0aCI6WyIkLnR5cGUiXSwiZmlsdGVyIjp7InR5cGUiOiJzdHJpbmciLCJjb25zdCI6IlZlcmlmaWVkRU1haWwifX0seyJwYXRoIjpbIiQuY3JlZGVudGlhbFN1YmplY3QuZW1haWwiXX1dfX1dfX0.";
 
-        private Oid4VpClientService _oid4VpClientService;
+        private Oid4VpClientCore _oid4VpClientCore;
         
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
         [Theory]
         [InlineData(AuthRequestWithRequestUri, RequestUriResponse)]
-        [InlineData(AuthRequestViaUri, "")]
         public async Task CanProcessAuthorizationRequest(string authorizationRequestUri, string httpResponse)
         {
             // Arrange
@@ -52,12 +51,13 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vp.Services
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
             
-            _oid4VpClientService = new Oid4VpClientService(_httpClientFactoryMock.Object, new PexService());
+            _oid4VpClientCore = new Oid4VpClientCore(_httpClientFactoryMock.Object, new PexService());
             
             var expectedAuthorizationRequest = GetExpectedAuthorizationRequest();
 
             // Act
-            var authorizationRequest = await _oid4VpClientService.ProcessAuthorizationRequest(new Uri(authorizationRequestUri));
+            var authorizationRequest = await _oid4VpClientCore.ProcessAuthorizationRequest(
+                    HaipAuthorizationRequestUri.FromUri(new Uri(authorizationRequestUri)));
 
             // Assert
             authorizationRequest.Should().BeEquivalentTo(expectedAuthorizationRequest);

@@ -1,11 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 
-namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
+namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
 {
     /// <summary>
-    ///    This Service offers methods to handle the OpenId4Vp protocol
+    ///   This Service offers methods to handle the OpenId4Vp protocol according to the HAIP
     /// </summary>
     public interface IOid4VpClientService
     {
@@ -13,22 +14,22 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         ///     Processes an OpenID4VP Authorization Request Url.
         /// </summary>
         /// <param name="authorizationRequestUrl"></param>
+        /// /// <param name="agentContext"></param>
         /// <returns>
-        ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url.
+        ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url and Credentials Candidates that can be used to answer the request.
         /// </returns>
-        public Task<AuthorizationRequest> ProcessAuthorizationRequest(Uri authorizationRequestUrl);
+        public Task<(AuthorizationRequest authorizationRequest, CredentialCandidates[] credentialCandidates)> ProcessAuthorizationRequest(IAgentContext agentContext, Uri authorizationRequestUrl);
 
-        
-        //Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials, PresentationSubmission presentationSubmission);
-        
         /// <summary>
-        ///     Creates the Parameters that are necessary to send an OpenId4VP Authorization Response.
+        ///     Prepares and sends an Authorization Response containing a Presentation Submission and the VP Token to the Redirect Uri.
         /// </summary>
+        /// <param name="agentContext"></param>
+        /// /// <param name="responseUri"></param>
         /// <param name="authorizationRequest"></param>
-        /// /// <param name="presentationMap"></param>
+        /// <param name="selectedCredentials"></param>
         /// <returns>
-        ///     A task representing the asynchronous operation. The task result contains the Presentation Submission and the VP Token.
+        ///     A task representing the asynchronous operation. The task result contains the Callback Url of the Authorization Response if present.
         /// </returns>
-        Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, (string inputDescriptorId, string presentation)[] presentationMap);
+        public Task<string?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, Uri responseUri, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials);
     }
 }

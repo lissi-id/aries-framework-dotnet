@@ -84,6 +84,11 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         [JsonIgnore]
         public PresentationDefinition PresentationDefinition { get; set; } = null!;
 
+        /// <summary>
+        ///  Parses an Authorization Request from a Jwt.
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <returns>The AuthorizationRequest</returns>
         public static AuthorizationRequest? ParseFromJwt(string jwt)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
@@ -101,6 +106,11 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
             return authorizationRequest;
         }
 
+        /// <summary>
+        ///    Parses an Authorization Request from a Uri.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns>The AuthorizationRequest</returns>
         public static AuthorizationRequest? ParseFromUri(Uri uri)
         {
             var query = HttpUtility.ParseQueryString(uri.Query);
@@ -116,6 +126,46 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
             authorizationRequest.PresentationDefinition = presentationDefinition;
             
             return authorizationRequest;
+        }
+    }
+
+    /// <summary>
+    ///    Extension methods for the <see cref="AuthorizationRequest"/> class.
+    /// </summary>
+    public static class AuthorizationRequestExtension
+    {
+        /// <summary>
+        ///   Checks if the Authorization Request is HAIP conform.
+        /// </summary>
+        /// <param name="authorizationRequest"></param>
+        /// <returns>Returns bool indicating whether the AuthorizationRequest is haip conform</returns>
+        public static bool IsHaipConform(this AuthorizationRequest authorizationRequest)
+        {
+            if (authorizationRequest.ResponseType != "vp_token")
+                return false;
+            
+            if (authorizationRequest.ResponseMode != "direct_post")
+                return false;
+            
+            if (authorizationRequest.ResponseMode == "direct_post" 
+                && !String.IsNullOrEmpty(authorizationRequest.RedirectUri))
+                return false; //TODO: throw invalid_request
+            
+            if (!String.IsNullOrEmpty(authorizationRequest.ResponseUri) &&
+                !String.IsNullOrEmpty(authorizationRequest.RedirectUri))
+                return false;
+            
+            if (authorizationRequest.ClientIdScheme == "redirect_uri"
+                && authorizationRequest.ResponseMode == "direct_post"
+                && !String.IsNullOrEmpty(authorizationRequest.RedirectUri)
+                && authorizationRequest.ClientId != authorizationRequest.ResponseUri)
+                return false;
+            
+            //TODO: Not supported yet
+            //if (!(authorizationRequest.ClientIdScheme == "x509_san_dns" || authorizationRequest.ClientIdScheme == "verifier_attestation")) 
+            //return false;
+
+            return true;
         }
     }
 }

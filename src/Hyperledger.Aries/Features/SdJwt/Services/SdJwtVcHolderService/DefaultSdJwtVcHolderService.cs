@@ -51,7 +51,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         }
 
         /// <inheritdoc />
-        public async Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames,
+        public async Task<string> CreatePresentation(SdJwtRecord credential, string[]? disclosureNames,
             string? audience = null,
             string? nonce = null)
         {
