@@ -29,6 +29,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
         /// <param name="httpClientFactory">The http client factory to create http clients.</param>
         /// <param name="sdJwtVcHolderService">The service responsible for SD-JWT related operations.</param>
         /// <param name="oid4VpClientCore">The service responsible for OpenId4VP related operations.</param>
+        /// <param name="oid4VpRecordService">The service responsible for OidPresentationRecord related operations.</param>
         public Oid4VpClientService(
             IHttpClientFactory httpClientFactory,
             ISdJwtVcHolderService sdJwtVcHolderService,
