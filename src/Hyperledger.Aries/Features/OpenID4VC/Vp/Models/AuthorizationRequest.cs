@@ -157,7 +157,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
             
             if (authorizationRequest.ClientIdScheme == "redirect_uri"
                 && authorizationRequest.ResponseMode == "direct_post"
-                && !String.IsNullOrEmpty(authorizationRequest.RedirectUri)
+                && !String.IsNullOrEmpty(authorizationRequest.ResponseUri)
                 && authorizationRequest.ClientId != authorizationRequest.ResponseUri)
                 return false;
             
