@@ -15,7 +15,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url.
         /// </returns>
-        public Task<AuthorizationRequest> ProcessAuthorizationRequest(HaipAuthorizationRequestUri haipAuthorizationRequestUri);
+        Task<AuthorizationRequest> ProcessAuthorizationRequest(HaipAuthorizationRequestUri haipAuthorizationRequestUri);
 
         //Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials, PresentationSubmission presentationSubmission);
         

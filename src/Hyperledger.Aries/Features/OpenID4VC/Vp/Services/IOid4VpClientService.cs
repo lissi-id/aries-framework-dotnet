@@ -18,7 +18,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Authorization Response object associated with the OpenID4VP Authorization Request Url and Credentials Candidates that can be used to answer the request.
         /// </returns>
-        public Task<(AuthorizationRequest authorizationRequest, CredentialCandidates[] credentialCandidates)> ProcessAuthorizationRequest(IAgentContext agentContext, Uri authorizationRequestUrl);
+        Task<(AuthorizationRequest authorizationRequest, CredentialCandidates[] credentialCandidates)> ProcessAuthorizationRequest(IAgentContext agentContext, Uri authorizationRequestUrl);
 
         /// <summary>
         ///     Prepares and sends an Authorization Response containing a Presentation Submission and the VP Token to the Redirect Uri.
@@ -30,6 +30,6 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Callback Url of the Authorization Response if present.
         /// </returns>
-        public Task<string?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, Uri responseUri, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials);
+        Task<string?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, Uri responseUri, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials);
     }
 }
