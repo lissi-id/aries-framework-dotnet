@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
+namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
 {
     /// <summary>
     ///   This Service offers methods to handle the OpenId4Vp protocol according to the HAIP

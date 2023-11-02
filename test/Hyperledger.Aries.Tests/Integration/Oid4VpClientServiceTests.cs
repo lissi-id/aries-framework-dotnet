@@ -10,7 +10,6 @@ using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
-using Hyperledger.Aries.Features.OpenID4VC.Vp.Controller;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
 using Hyperledger.Aries.Features.OpenID4VC.Vp.Services;

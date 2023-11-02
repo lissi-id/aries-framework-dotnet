@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
 {
     /// <summary>
@@ -8,11 +10,19 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         /// <summary>
         ///     Gets or sets the VP Token.
         /// </summary>
+        [JsonProperty ("vp_token")]
         public string VpToken { get; set; } = null!;
         
         /// <summary>
         ///   Gets or sets the Presentation Submission.
         /// </summary>
+        [JsonProperty ("presentation_submission"), ]
         public string PresentationSubmission { get; set; } = null!;
+        
+        /// <summary>
+        ///     Gets or sets the State.
+        /// </summary>
+        [JsonProperty ("state")]
+        public string? State { get; set; } = null!;
     }
 }

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
-using Hyperledger.Aries.Features.OpenID4VC.Vp.Services;
 using Hyperledger.Aries.Features.Pex.Models;
 using Hyperledger.Aries.Features.SdJwt.Models.Records;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
+namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
 {
     /// <inheritdoc />
     public class Oid4VpClientService : IOid4VpClientService
@@ -101,11 +101,15 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Controller
 
         private async Task<string?> SendAuthorizationResponse(AuthorizationResponse authorizationResponse, Uri responseUri)
         {
-            var requestContent = new List<KeyValuePair<string, string>>
-            {
-                new("vp_token", authorizationResponse.VpToken),
-                new("presentation_submission", authorizationResponse.PresentationSubmission)
-            };
+            var authorizationResponseJson = JsonConvert.SerializeObject(
+                authorizationResponse, 
+                new JsonSerializerSettings() 
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                }
+            );
+            var authorizationResponseDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(authorizationResponseJson);
+            var requestContent = new List<KeyValuePair<string, string>>(authorizationResponseDict);
 
             var request = new HttpRequestMessage
             {
