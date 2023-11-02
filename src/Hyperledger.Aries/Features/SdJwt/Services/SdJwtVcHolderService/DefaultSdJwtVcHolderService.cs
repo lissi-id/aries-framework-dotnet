@@ -51,7 +51,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         }
 
         /// <inheritdoc />
-        public async Task<string> CreatePresentation(SdJwtRecord credential, string[] disclosureNames,
+        public async Task<string> CreatePresentation(SdJwtRecord credential, string[]? disclosureNames,
             string? audience = null,
             string? nonce = null)
         {
@@ -91,8 +91,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
 
             foreach (var inputDescriptor in inputDescriptors)
             {
-                if (inputDescriptor.Format != null &&
-                    !inputDescriptor.Format.SupportedAlgorithms.Keys.Contains("vc+sd-jwt"))
+                if (!inputDescriptor.Formats.Keys.Contains("vc+sd-jwt"))
                 {
                     throw new NotSupportedException("Only vc+sd-jwt format is supported");
                 }
