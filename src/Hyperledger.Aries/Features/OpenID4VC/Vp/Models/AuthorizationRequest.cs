@@ -65,12 +65,12 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         /// </summary>
         [JsonProperty("response_mode")] 
         public string? ResponseMode { get; set; }
-        
+
         /// <summary>
         ///  Gets or sets the response mode. Determines where to send the Authorization Response to.
         /// </summary>
-        [JsonProperty("response_uri")] 
-        public string? ResponseUri { get; set; }
+        [JsonProperty("response_uri")]
+        public string ResponseUri { get; set; } = null!;
 
         /// <summary>
         ///    Gets or sets the state.
@@ -149,7 +149,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
             
             if (authorizationRequest.ResponseMode == "direct_post" 
                 && !String.IsNullOrEmpty(authorizationRequest.RedirectUri))
-                return false; //TODO: throw invalid_request
+                return false;
             
             if (!String.IsNullOrEmpty(authorizationRequest.ResponseUri) &&
                 !String.IsNullOrEmpty(authorizationRequest.RedirectUri))

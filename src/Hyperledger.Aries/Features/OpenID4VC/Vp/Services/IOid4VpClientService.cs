@@ -30,6 +30,6 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         /// <returns>
         ///     A task representing the asynchronous operation. The task result contains the Callback Url of the Authorization Response if present.
         /// </returns>
-        Task<string?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, Uri responseUri, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials);
+        Task<Uri?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials);
     }
 }

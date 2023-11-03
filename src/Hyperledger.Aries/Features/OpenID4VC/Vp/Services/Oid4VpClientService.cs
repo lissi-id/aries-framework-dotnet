@@ -50,7 +50,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
             
             var authorizationRequest = await _oid4VpClientCore.ProcessAuthorizationRequest(haipAuthorizationRequestUri);
 
-            if (authorizationRequest.IsHaipConform())
+            if (!authorizationRequest.IsHaipConform())
                 throw new InvalidOperationException("Authorization Request is not HAIP conform");
 
             var credentials = await _sdJwtVcHolderService.ListAsync(agentContext);
@@ -61,10 +61,10 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         }
 
         /// <inheritdoc />
-        public async Task<string?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, Uri responseUri, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials)
+        public async Task<Uri?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials)
         {
             var authorizationResponse = await PrepareAuthorizationResponse(authorizationRequest, selectedCredentials);
-            var redirectUri = await SendAuthorizationResponse(authorizationResponse, responseUri);
+            var redirectUri = await SendAuthorizationResponse(authorizationResponse, new Uri(authorizationRequest.ResponseUri));
             
             var presentedCredentials = 
                 (from credential in selectedCredentials 
@@ -99,7 +99,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
                 await presentationMaps.ToArray());
         }
 
-        private async Task<string?> SendAuthorizationResponse(AuthorizationResponse authorizationResponse, Uri responseUri)
+        private async Task<Uri?> SendAuthorizationResponse(AuthorizationResponse authorizationResponse, Uri responseUri)
         {
             var authorizationResponseJson = JsonConvert.SerializeObject(
                 authorizationResponse, 
@@ -128,7 +128,8 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
                 return null;
 
             var content = await responseMessage.Content.ReadAsStringAsync();
-            return JObject.Parse(content)["redirect_uri"]?.ToString();
+            var redirectUri = JObject.Parse(content)["redirect_uri"]?.ToString();
+            return redirectUri != null ? new Uri(redirectUri) : null;
         }
 
         private async Task<string> CreatePresentation(InputDescriptor inputDescriptor, SdJwtRecord credential,
