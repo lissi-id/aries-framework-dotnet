@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
 using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
@@ -138,14 +139,18 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         }
 
         /// <inheritdoc />
-        public virtual async Task<string> StoreAsync(IAgentContext context, string combinedIssuance,
-            string keyId, OidIssuerMetadata issuerMetadata)
+        public virtual async Task<string> StoreAsync(
+            IAgentContext context,
+            string combinedIssuance,
+            string keyId,
+            OidIssuerMetadata issuerMetadata,
+            OidCredentialMetadataId credentialMetadataId)
         {
             var sdJwtDoc = Holder.ReceiveCredential(combinedIssuance);
             var record = SdJwtRecord.FromSdJwtDoc(sdJwtDoc);
             record.Id = Guid.NewGuid().ToString();
 
-            record.SetDisplayFromIssuerMetadata(issuerMetadata);
+            record.SetDisplayFromIssuerMetadata(issuerMetadata, credentialMetadataId);
             record.KeyId = keyId;
 
             await RecordService.AddAsync(context.Wallet, record);

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hyperledger.Aries.Agents;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Models;
 using Hyperledger.Aries.Features.Pex.Models;
@@ -79,8 +80,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// <param name="combinedIssuance">The combined issuance.</param>
         /// <param name="keyId">The key id.</param>
         /// <param name="issuerMetadata">The issuer metadata.</param>
+        /// <param name="credentialMetadataId">The credential metadata ID.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored JWT record.</returns>
-        Task<string> StoreAsync(IAgentContext context, string combinedIssuance, string keyId,
-            OidIssuerMetadata issuerMetadata);
+        Task<string> StoreAsync(
+            IAgentContext context,
+            string combinedIssuance,
+            string keyId,
+            OidIssuerMetadata issuerMetadata,
+            OidCredentialMetadataId credentialMetadataId);
     }
 }

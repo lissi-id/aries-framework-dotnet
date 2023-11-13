@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text.Json;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
@@ -52,14 +51,14 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         public string CredentialType { get; set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the identifier for the issuer.
-        /// </summary>
-        public string IssuerId { get; set; } = null!;
-
-        /// <summary>
         ///     Gets the Issuer-signed JWT part of the SD-JWT.
         /// </summary>
         public string EncodedIssuerSignedJwt { get; set; } = null!;
+
+        /// <summary>
+        ///     Gets or sets the identifier for the issuer.
+        /// </summary>
+        public string IssuerId { get; set; } = null!;
 
         /// <inheritdoc />
         public override string TypeName => "AF.SdJwtRecord";
@@ -75,7 +74,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <param name="sdJwtDoc">The SdJwtDoc.</param>
         /// <returns>The SdJwtRecord.</returns>
         public static SdJwtRecord FromSdJwtDoc(SdJwtDoc sdJwtDoc)
-            => new SdJwtRecord
+            => new()
             {
                 EncodedIssuerSignedJwt = sdJwtDoc.EncodedIssuerSignedJwt,
                 CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
@@ -89,15 +88,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        public void SetDisplayFromIssuerMetadata(OidIssuerMetadata issuerMetadata)
+        /// <param name="credentialMetadataId">The credential metadata ID.</param>
+        public void SetDisplayFromIssuerMetadata(
+            OidIssuerMetadata issuerMetadata,
+            OidCredentialMetadataId credentialMetadataId)
         {
-            var credentialFormatAndType = new OidCredentialFormatAndType
-            {
-                Format = "vc+sd-jwt",
-                Type = CredentialType
-            };
-
-            SetCredentialDisplayProperties(issuerMetadata, credentialFormatAndType);
+            SetCredentialDisplayProperties(issuerMetadata, credentialMetadataId);
             SetOidIssuerDisplayProperties(issuerMetadata);
         }
 
@@ -131,7 +127,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             var payloadJson = jwtToken.Payload.SerializeToJson();
             var payloadObj = JsonDocument.Parse(payloadJson).RootElement;
 
-            if (payloadObj.TryGetProperty("type", out var typeValue))
+            if (payloadObj.TryGetProperty("vct", out var typeValue))
             {
                 return typeValue.GetString() ?? string.Empty;
             }
@@ -143,12 +139,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties related to the credential based on the issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="credentialFormatAndType">The credential format and type.</param>
-        private void SetCredentialDisplayProperties(OidIssuerMetadata issuerMetadata,
-            OidCredentialFormatAndType credentialFormatAndType)
+        /// <param name="credentialMetadataId">The credential metadata ID.</param>
+        private void SetCredentialDisplayProperties(
+            OidIssuerMetadata issuerMetadata,
+            OidCredentialMetadataId credentialMetadataId)
         {
-            Display = issuerMetadata.GetCredentialDisplay(credentialFormatAndType);
-            DisplayedAttributes = issuerMetadata.GetCredentialSubject(credentialFormatAndType);
+            Display = issuerMetadata.GetCredentialDisplay(credentialMetadataId);
+            DisplayedAttributes = issuerMetadata.GetCredentialSubject(credentialMetadataId);
         }
 
         /// <summary>

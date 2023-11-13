@@ -1,7 +1,9 @@
-#nullable enable
-
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
 {
@@ -25,7 +27,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
         ///     the credential to be requested.
         /// </summary>
         [JsonProperty("credentials")]
-        public List<OidCredentialFormatAndType> Credentials { get; set; } = null!;
+        [JsonConverter(typeof(OidCredentialMetadataIdConverter))]
+        public List<OidCredentialMetadataId> Credentials { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the URL of the Credential Issuer from where the Wallet is requested to obtain one or more Credentials
@@ -33,5 +36,26 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
         /// </summary>
         [JsonProperty("credential_issuer")]
         public string CredentialIssuer { get; set; } = null!;
+
+        private class OidCredentialMetadataIdConverter : JsonConverter<List<OidCredentialMetadataId>>
+        {
+            public override List<OidCredentialMetadataId> ReadJson(
+                JsonReader reader,
+                Type objectType,
+                List<OidCredentialMetadataId>? existingValue,
+                bool hasExistingValue,
+                JsonSerializer serializer)
+            {
+                return JArray.Load(reader)
+                    .Select(x => new OidCredentialMetadataId(x.Value<string>()!))
+                    .ToList();
+            }
+
+            public override void WriteJson(JsonWriter writer, List<OidCredentialMetadataId>? value,
+                JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

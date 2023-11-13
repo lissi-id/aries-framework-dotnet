@@ -1,11 +1,10 @@
-#nullable enable
-
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
 {
@@ -18,7 +17,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     Gets or sets a list of metadata about separate credential types that the Credential Issuer can issue.
         /// </summary>
         [JsonProperty("credentials_supported")]
-        public List<OidCredentialMetadata> CredentialsSupported { get; set; } = null!;
+        [JsonConverter(typeof(CredentialsSupportedConverter))]
+        public Dictionary<OidCredentialMetadataId, OidCredentialMetadata> CredentialsSupported { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets a list of display properties of a Credential Issuer for different languages.
@@ -56,12 +56,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     A list of display properties for the specified Credential or null if the Credential is not found in the
         ///     metadata.
         /// </returns>
-        public List<OidCredentialDisplay>? GetCredentialDisplay(OidCredentialFormatAndType credentialFormatAndType)
+        public List<OidCredentialDisplay>? GetCredentialDisplay(OidCredentialMetadataId credentialMetadataId)
         {
-            var matchingCredential = CredentialsSupported
-                .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format &&
-                    credMetadata.Type == credentialFormatAndType.Type);
+            var matchingCredential = CredentialsSupported[credentialMetadataId];
 
             return matchingCredential?.Display;
         }
@@ -75,13 +72,9 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     null if the Credential is not found in the metadata.
         /// </returns>
         public Dictionary<string, OidCredentialSubjectAttribute>? GetCredentialSubject(
-            OidCredentialFormatAndType credentialFormatAndType)
+            OidCredentialMetadataId credentialMetadataId)
         {
-            var matchingCredential = CredentialsSupported
-                .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format &&
-                    credMetadata.Type == credentialFormatAndType.Type);
-
+            var matchingCredential = CredentialsSupported[credentialMetadataId];
             return matchingCredential?.CredentialSubject;
         }
 
@@ -94,15 +87,12 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         ///     A list of localized attribute names for the specified Credential and locale, or null if no matching attributes
         ///     are found.
         /// </returns>
-        public List<string>? GetLocalizedCredentialAttributeNames(OidCredentialFormatAndType credentialFormatAndType,
+        public List<string>? GetLocalizedCredentialAttributeNames(OidCredentialMetadataId credentialMetadataId,
             string locale)
         {
             var displayNames = new List<string>();
 
-            var matchingCredential = CredentialsSupported
-                .FirstOrDefault(credMetadata =>
-                    credMetadata.Format == credentialFormatAndType.Format &&
-                    credMetadata.Type == credentialFormatAndType.Type);
+            var matchingCredential = CredentialsSupported[credentialMetadataId];
 
             if (matchingCredential == null)
                 return null;
@@ -131,6 +121,31 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
 
             var display = Display.FirstOrDefault(display => display.Locale == locale);
             return display?.Name;
+        }
+
+        private class CredentialsSupportedConverter : JsonConverter<Dictionary<OidCredentialMetadataId, OidCredentialMetadata>>
+        {
+            public override Dictionary<OidCredentialMetadataId, OidCredentialMetadata> ReadJson(
+                JsonReader reader,
+                Type objectType,
+                Dictionary<OidCredentialMetadataId, OidCredentialMetadata>? existingValue,
+                bool hasExistingValue,
+                JsonSerializer serializer)
+            {
+                return JObject.Load(reader)
+                    .Properties()
+                    .Select(x =>
+                        new KeyValuePair<OidCredentialMetadataId, OidCredentialMetadata>(
+                            new OidCredentialMetadataId(x.Name),
+                            x.Value.ToObject<OidCredentialMetadata>()!))
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            public override void WriteJson(
+                JsonWriter writer,
+                Dictionary<OidCredentialMetadataId, OidCredentialMetadata>? value,
+                JsonSerializer serializer) =>
+                throw new NotImplementedException();
         }
     }
 }

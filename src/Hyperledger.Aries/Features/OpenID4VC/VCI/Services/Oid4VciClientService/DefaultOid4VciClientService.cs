@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Net.Http;
 using System.Text;
@@ -126,7 +124,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
             var httpClient = _httpClientFactory.CreateClient();
             var response = await httpClient.PostAsync(authServer.TokenEndpoint, formUrlEncodedRequest);
             var responseString = await response.Content.ReadAsStringAsync();
-
+            
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<TokenResponse>(responseString) ??
