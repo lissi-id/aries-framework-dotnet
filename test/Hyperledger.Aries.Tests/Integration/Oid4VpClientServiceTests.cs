@@ -53,13 +53,13 @@ namespace Hyperledger.Aries.Tests.Integration
             var walletRecordService = new DefaultWalletRecordService();
             var pexService = new PexService();
             _sdJwtVcHolderService = new DefaultSdJwtVcHolderService(holder, _keyStoreMock.Object, walletRecordService);
-            _oid4VpClientCore = new Oid4VpClientCore(_httpClientFactoryMock.Object, pexService);
+            _oid4VpHaipClient = new Oid4VpHaipClient(_httpClientFactoryMock.Object, pexService);
             _oid4VpRecordService = new Oid4VpRecordService(walletRecordService);
 
             _oid4VpClientService = new Oid4VpClientService(
                 _httpClientFactoryMock.Object,
                 _sdJwtVcHolderService,
-                _oid4VpClientCore,
+                _oid4VpHaipClient,
                 _oid4VpRecordService
             );
 
@@ -78,7 +78,7 @@ namespace Hyperledger.Aries.Tests.Integration
         private readonly Oid4VpClientService _oid4VpClientService;
         private readonly Oid4VpRecordService _oid4VpRecordService;
         private readonly DefaultSdJwtVcHolderService _sdJwtVcHolderService;
-        private readonly Oid4VpClientCore _oid4VpClientCore;
+        private readonly Oid4VpHaipClient _oid4VpHaipClient;
 
         private readonly OidIssuerMetadata _oidIssuerMetadata = new OidIssuerMetadata
         {
@@ -108,7 +108,7 @@ namespace Hyperledger.Aries.Tests.Integration
 
             //Act
             var (authorizationRequest, credentials) =
-                await _oid4VpClientService.ProcessAuthorizationRequest(_agent1.Context,
+                await _oid4VpClientService.ProcessAuthorizationRequestAsync(_agent1.Context,
                     new Uri(AuthRequestWithRequestUri));
 
             var selectedCandidates = new SelectedCredential
@@ -120,7 +120,7 @@ namespace Hyperledger.Aries.Tests.Integration
             SetupHttpClient(
                 "{'redirect_uri':'https://client.example.org/cb#response_code=091535f699ea575c7937fa5f0f454aee'}");
             
-            var response = await _oid4VpClientService.PrepareAndSendAuthorizationResponse(_agent1.Context,
+            var response = await _oid4VpClientService.PrepareAndSendAuthorizationResponseAsync(_agent1.Context,
                 authorizationRequest, new[] { selectedCandidates });
 
             var expectedAuthorizationRequest = GetExpectedAuthorizationRequest();

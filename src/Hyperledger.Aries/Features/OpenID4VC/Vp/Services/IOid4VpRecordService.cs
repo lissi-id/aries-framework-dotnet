@@ -45,7 +45,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         /// <param name="presentedCredentials">The issuer metadata.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored OidPresentation record.</returns>
         Task<string> StoreAsync(IAgentContext context, string clientId, string? clientMetadata, PresentedCredential[] presentedCredentials);
-        
+
         /// <summary>
         ///     Deletes a specific OidPresentation record by its ID.
         /// </summary>

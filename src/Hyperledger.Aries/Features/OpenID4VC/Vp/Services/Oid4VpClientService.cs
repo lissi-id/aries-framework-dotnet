@@ -16,10 +16,10 @@ using Newtonsoft.Json.Linq;
 namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
 {
     /// <inheritdoc />
-    public class Oid4VpClientService : IOid4VpClientService
+    internal class Oid4VpClientService : IOid4VpClientService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IOid4VpClientCore _oid4VpClientCore;
+        private readonly IOid4VpHaipClient _oid4VpHaipClient;
         private readonly IOid4VpRecordService _oid4VpRecordService;
         private readonly ISdJwtVcHolderService _sdJwtVcHolderService;
         
@@ -28,30 +28,27 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         /// </summary>
         /// <param name="httpClientFactory">The http client factory to create http clients.</param>
         /// <param name="sdJwtVcHolderService">The service responsible for SD-JWT related operations.</param>
-        /// <param name="oid4VpClientCore">The service responsible for OpenId4VP related operations.</param>
+        /// <param name="oid4VpHaipClient">The service responsible for OpenId4VP related operations.</param>
         /// <param name="oid4VpRecordService">The service responsible for OidPresentationRecord related operations.</param>
         public Oid4VpClientService(
             IHttpClientFactory httpClientFactory,
             ISdJwtVcHolderService sdJwtVcHolderService,
-            IOid4VpClientCore oid4VpClientCore,
+            IOid4VpHaipClient oid4VpHaipClient,
             IOid4VpRecordService oid4VpRecordService)
         {
             _httpClientFactory = httpClientFactory;
             _sdJwtVcHolderService = sdJwtVcHolderService;
-            _oid4VpClientCore = oid4VpClientCore;
+            _oid4VpHaipClient = oid4VpHaipClient;
             _oid4VpRecordService = oid4VpRecordService;
         }
 
         /// <inheritdoc />
-        public async Task<(AuthorizationRequest, CredentialCandidates[])> ProcessAuthorizationRequest(
+        public async Task<(AuthorizationRequest, CredentialCandidates[])> ProcessAuthorizationRequestAsync(
             IAgentContext agentContext, Uri authorizationRequestUri)
         {
             var haipAuthorizationRequestUri = HaipAuthorizationRequestUri.FromUri(authorizationRequestUri);
             
-            var authorizationRequest = await _oid4VpClientCore.ProcessAuthorizationRequest(haipAuthorizationRequestUri);
-
-            if (!authorizationRequest.IsHaipConform())
-                throw new InvalidOperationException("Authorization Request is not HAIP conform");
+            var authorizationRequest = await _oid4VpHaipClient.ProcessAuthorizationRequestAsync(haipAuthorizationRequestUri);
 
             var credentials = await _sdJwtVcHolderService.ListAsync(agentContext);
             var credentialCandidates = await _sdJwtVcHolderService.FindCredentialCandidates(credentials.ToArray(),
@@ -61,7 +58,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         }
 
         /// <inheritdoc />
-        public async Task<Uri?> PrepareAndSendAuthorizationResponse(IAgentContext agentContext, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials)
+        public async Task<Uri?> PrepareAndSendAuthorizationResponseAsync(IAgentContext agentContext, AuthorizationRequest authorizationRequest, SelectedCredential[] selectedCredentials)
         {
             var authorizationResponse = await PrepareAuthorizationResponse(authorizationRequest, selectedCredentials);
             var redirectUri = await SendAuthorizationResponse(authorizationResponse, new Uri(authorizationRequest.ResponseUri));
@@ -95,7 +92,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
                     authorizationRequest.Nonce))
                 select (inputDescriptor.Id, presentation);
 
-            return await _oid4VpClientCore.CreateAuthorizationResponse(authorizationRequest,
+            return await _oid4VpHaipClient.CreateAuthorizationResponseAsync(authorizationRequest,
                 await presentationMaps.ToArray());
         }
 
@@ -146,11 +143,11 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
                     from path in field.Path
                     select path.Split(".").Last()).ToArray();
 
-        private static Dictionary<string, string> GetPresentedClaimsForCredential(InputDescriptor inputDescriptor,
+        private static Dictionary<string, PresentedClaim> GetPresentedClaimsForCredential(InputDescriptor inputDescriptor,
             SdJwtRecord sdJwtRecord)
             => (from field in inputDescriptor.Constraints.Fields 
                     from path in field.Path
                     select sdJwtRecord.Claims.FirstOrDefault(x => x.Key == path.Split(".").Last()))
-                .ToDictionary(claim => claim.Key, claim => claim.Value);
+                .ToDictionary(claim => claim.Key, claim => new PresentedClaim(){Value = claim.Value});
     }
 }

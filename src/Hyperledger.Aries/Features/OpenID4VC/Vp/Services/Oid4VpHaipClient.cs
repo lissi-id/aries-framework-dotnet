@@ -11,17 +11,17 @@ using Newtonsoft.Json;
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
 {
     /// <inheritdoc />
-    public class Oid4VpClientCore : IOid4VpClientCore
+    internal class Oid4VpHaipClient : IOid4VpHaipClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IPexService _pexService;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Oid4VpClientCore" /> class.
+        ///     Initializes a new instance of the <see cref="Oid4VpHaipClient" /> class.
         /// </summary>
         /// <param name="httpClientFactory">The http client factory to create http clients.</param>
         /// <param name="pexService">The service responsible for presentation exchange protocol operations.</param>
-        public Oid4VpClientCore(
+        public Oid4VpHaipClient(
             IHttpClientFactory httpClientFactory,
             IPexService pexService)
         {
@@ -30,7 +30,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
         }
 
         /// <inheritdoc />
-        public async Task<AuthorizationRequest> ProcessAuthorizationRequest(HaipAuthorizationRequestUri haipAuthorizationRequestUri)
+        public async Task<AuthorizationRequest> ProcessAuthorizationRequestAsync(HaipAuthorizationRequestUri haipAuthorizationRequestUri)
         {
             var authorizationRequest = new AuthorizationRequest();
 
@@ -52,12 +52,15 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
 
             if (authorizationRequest == null) 
                 throw new InvalidOperationException("Could not parse Authorization Request Url");
+            
+            if (!authorizationRequest.IsHaipConform())
+                throw new InvalidOperationException("Authorization Request is not HAIP conform");
 
             return authorizationRequest;
         }
         
         /// <inheritdoc />
-        public async Task<AuthorizationResponse> CreateAuthorizationResponse(AuthorizationRequest authorizationRequest, (string inputDescriptorId, string presentation)[] presentationMap)
+        public async Task<AuthorizationResponse> CreateAuthorizationResponseAsync(AuthorizationRequest authorizationRequest, (string inputDescriptorId, string presentation)[] presentationMap)
         {
             var descriptorMaps = new List<DescriptorMap>();
             var vpToken = new List<string>();
@@ -68,7 +71,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Services
                 var descriptorMap = new DescriptorMap
                 {
                     Format = "vc+sd-jwt",
-                    Path = "$[" + index + "]",
+                    Path = vpToken.Count > 1 ? "$[" + index + "]" : "$",
                     Id = presentationMap[index].inputDescriptorId,
                     PathNested = null
                 };

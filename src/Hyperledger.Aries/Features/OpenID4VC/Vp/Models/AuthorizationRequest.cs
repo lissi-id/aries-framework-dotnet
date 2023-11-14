@@ -147,18 +147,14 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
             if (authorizationRequest.ResponseMode != "direct_post")
                 return false;
             
-            if (authorizationRequest.ResponseMode == "direct_post" 
-                && !String.IsNullOrEmpty(authorizationRequest.RedirectUri))
+            if (String.IsNullOrEmpty(authorizationRequest.ResponseUri))
                 return false;
             
-            if (!String.IsNullOrEmpty(authorizationRequest.ResponseUri) &&
-                !String.IsNullOrEmpty(authorizationRequest.RedirectUri))
+            if (!String.IsNullOrEmpty(authorizationRequest.RedirectUri))
                 return false;
-            
+
             if (authorizationRequest.ClientIdScheme == "redirect_uri"
-                && authorizationRequest.ResponseMode == "direct_post"
-                && !String.IsNullOrEmpty(authorizationRequest.ResponseUri)
-                && authorizationRequest.ClientId != authorizationRequest.ResponseUri)
+                & authorizationRequest.ClientId != authorizationRequest.ResponseUri)
                 return false;
             
             //TODO: Not supported yet

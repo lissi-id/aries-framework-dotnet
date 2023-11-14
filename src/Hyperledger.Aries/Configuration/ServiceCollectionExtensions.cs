@@ -11,6 +11,7 @@ using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
 using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
 using Hyperledger.Aries.Features.OpenID4VC.Vp.Services;
 using Hyperledger.Aries.Features.OutOfBand;
+using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
 using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
@@ -117,9 +118,10 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.AddSingleton<IHolder, Holder>();
             builder.AddSingleton<ISdJwtVcHolderService, DefaultSdJwtVcHolderService>();
+            builder.AddSingleton<IPexService, PexService>();
             builder.AddSingleton<IOid4VciClientService, DefaultOid4VciClientService>();
             builder.AddSingleton<IOid4VpClientService, Oid4VpClientService>();
-            builder.AddSingleton<IOid4VpClientCore, Oid4VpClientCore>();
+            builder.AddSingleton<IOid4VpHaipClient, Oid4VpHaipClient>();
             builder.AddSingleton<IOid4VpRecordService, Oid4VpRecordService>();
             
             return builder;

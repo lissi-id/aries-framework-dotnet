@@ -10,7 +10,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         /// <summary>
         ///     Gets or Sets the claims of the credential that were presented.
         /// </summary>
-        public Dictionary<string, string> PresentedClaims { get; set; } = null!;
+        public Dictionary<string, PresentedClaim> PresentedClaims { get; set; } = null!;
         
         /// <summary>
         ///     Gets or Sets the credential id.

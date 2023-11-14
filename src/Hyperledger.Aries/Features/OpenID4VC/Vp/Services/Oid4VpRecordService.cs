@@ -35,9 +35,9 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         }
 
         /// <inheritdoc />
-        public async Task<List<OidPresentationRecord>> ListAsync(IAgentContext context, ISearchQuery? query = null, int count = 100, int skip = 0)
+        public Task<List<OidPresentationRecord>> ListAsync(IAgentContext context, ISearchQuery? query = null, int count = 100, int skip = 0)
         {
-            return await RecordService.SearchAsync<OidPresentationRecord>(context.Wallet, query, null, count, skip);
+            return RecordService.SearchAsync<OidPresentationRecord>(context.Wallet, query, null, count, skip);
         }
 
         /// <inheritdoc />
@@ -56,9 +56,9 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
         }
 
         /// <inheritdoc />
-        public async Task<bool> DeleteAsync(IAgentContext context, string recordId)
+        public Task<bool> DeleteAsync(IAgentContext context, string recordId)
         {
-            return await RecordService.DeleteAsync<OidPresentationRecord>(context.Wallet, recordId);
+            return RecordService.DeleteAsync<OidPresentationRecord>(context.Wallet, recordId);
         }
     }
 }
