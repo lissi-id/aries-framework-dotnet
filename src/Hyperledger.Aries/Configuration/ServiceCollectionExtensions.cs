@@ -8,10 +8,13 @@ using Hyperledger.Aries.Features.Handshakes.Connection;
 using Hyperledger.Aries.Features.Handshakes.DidExchange;
 using Hyperledger.Aries.Features.IssueCredential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService;
+using Hyperledger.Aries.Features.OpenId4Vc.Vp.Services;
+using Hyperledger.Aries.Features.OpenID4VC.Vp.Services;
 using Hyperledger.Aries.Features.OutOfBand;
+using Hyperledger.Aries.Features.Pex.Services;
 using Hyperledger.Aries.Features.PresentProof;
 using Hyperledger.Aries.Features.RevocationNotification;
-using Hyperledger.Aries.Features.SdJwt.Services.SdJwtCredentialService;
+using Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService;
 using Hyperledger.Aries.Ledger;
 using Hyperledger.Aries.Ledger.V2;
 using Hyperledger.Aries.Payments;
@@ -114,8 +117,12 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOpenIdDefaultServices(this IServiceCollection builder)
         {
             builder.AddSingleton<IHolder, Holder>();
-            builder.AddSingleton<ISdJwtCredentialService, DefaultSdJwtCredentialService>();
+            builder.AddSingleton<ISdJwtVcHolderService, DefaultSdJwtVcHolderService>();
+            builder.AddSingleton<IPexService, PexService>();
             builder.AddSingleton<IOid4VciClientService, DefaultOid4VciClientService>();
+            builder.AddSingleton<IOid4VpClientService, Oid4VpClientService>();
+            builder.AddSingleton<IOid4VpHaipClient, Oid4VpHaipClient>();
+            builder.AddSingleton<IOid4VpRecordService, Oid4VpRecordService>();
             
             return builder;
         }
@@ -475,11 +482,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TService">The 1st type parameter.</typeparam>
         /// <typeparam name="TImplementation">The 2nd type parameter.</typeparam>
         public static IServiceCollection AddExtendedSdJwtCredentialService<TService, TImplementation>(this IServiceCollection builder)
-            where TService : class, ISdJwtCredentialService
-            where TImplementation : class, TService, ISdJwtCredentialService
+            where TService : class, ISdJwtVcHolderService
+            where TImplementation : class, TService, ISdJwtVcHolderService
         {
             builder.AddSingleton<TImplementation>();
-            builder.AddSingleton<ISdJwtCredentialService>(x => x.GetService<TImplementation>());
+            builder.AddSingleton<ISdJwtVcHolderService>(x => x.GetService<TImplementation>());
             builder.AddSingleton<TService>(x => x.GetService<TImplementation>());
             return builder;
         }
