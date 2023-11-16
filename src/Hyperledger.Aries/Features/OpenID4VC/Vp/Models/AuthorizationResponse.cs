@@ -22,7 +22,7 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vp.Models
         /// <summary>
         ///     Gets or sets the State.
         /// </summary>
-        [JsonProperty ("state")]
+        [JsonProperty ("state", NullValueHandling = NullValueHandling.Ignore)]
         public string? State { get; set; } = null!;
     }
 }
