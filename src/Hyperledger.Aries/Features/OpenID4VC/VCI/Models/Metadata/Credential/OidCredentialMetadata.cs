@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Collections.Generic;
-using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential.Attributes;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential
@@ -12,10 +11,10 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential
     public class OidCredentialMetadata
     {
         /// <summary>
-        ///     Gets or sets the dictionary representing the attributes of the credential in different languages.
+        ///     Gets or sets the credential definition which specifies a specific credential.
         /// </summary>
-        [JsonProperty("credentialSubject")]
-        public Dictionary<string, OidCredentialSubjectAttribute> CredentialSubject { get; set; } = null!;
+        [JsonProperty("credential_definition")]
+        public OidCredentialDefinition CredentialDefinition { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets a list of display properties of the supported credential for different languages.
