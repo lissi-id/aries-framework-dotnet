@@ -98,13 +98,7 @@ namespace Hyperledger.Aries.Features.OpenID4VC.Vp.Services
 
         private async Task<Uri?> SendAuthorizationResponse(AuthorizationResponse authorizationResponse, Uri responseUri)
         {
-            var authorizationResponseJson = JsonConvert.SerializeObject(
-                authorizationResponse, 
-                new JsonSerializerSettings() 
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                }
-            );
+            var authorizationResponseJson = JsonConvert.SerializeObject(authorizationResponse);
             var authorizationResponseDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(authorizationResponseJson);
             var requestContent = new List<KeyValuePair<string, string>>(authorizationResponseDict);
 

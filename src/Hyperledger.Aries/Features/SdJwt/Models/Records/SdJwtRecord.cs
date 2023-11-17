@@ -24,7 +24,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         /// <summary>
         ///     Gets or sets the attributes that should be displayed.
         /// </summary>
-        public Dictionary<string, OidCredentialSubjectAttribute>? DisplayedAttributes { get; set; }
+        public Dictionary<string, OidClaim>? DisplayedAttributes { get; set; }
 
         /// <summary>
         ///     Gets or sets the claims made.
@@ -89,15 +89,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        public void SetDisplayFromIssuerMetadata(OidIssuerMetadata issuerMetadata)
+        /// <param name="credentialType">The credential type.</param>
+        public void SetDisplayFromIssuerMetadata(
+            OidIssuerMetadata issuerMetadata, 
+            string credentialType)
         {
-            var credentialFormatAndType = new OidCredentialFormatAndType
-            {
-                Format = "vc+sd-jwt",
-                Type = CredentialType
-            };
-
-            SetCredentialDisplayProperties(issuerMetadata, credentialFormatAndType);
+            SetCredentialDisplayProperties(issuerMetadata, credentialType);
             SetOidIssuerDisplayProperties(issuerMetadata);
         }
 
@@ -143,12 +140,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties related to the credential based on the issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="credentialFormatAndType">The credential format and type.</param>
-        private void SetCredentialDisplayProperties(OidIssuerMetadata issuerMetadata,
-            OidCredentialFormatAndType credentialFormatAndType)
+        /// <param name="credentialType">The credential type.</param>
+        private void SetCredentialDisplayProperties(
+            OidIssuerMetadata issuerMetadata,
+            string credentialType)
         {
-            Display = issuerMetadata.GetCredentialDisplay(credentialFormatAndType);
-            DisplayedAttributes = issuerMetadata.GetCredentialSubject(credentialFormatAndType);
+            Display = issuerMetadata.GetCredentialDisplay(credentialType);
+            DisplayedAttributes = issuerMetadata.GetCredentialClaims(credentialType);
         }
 
         /// <summary>

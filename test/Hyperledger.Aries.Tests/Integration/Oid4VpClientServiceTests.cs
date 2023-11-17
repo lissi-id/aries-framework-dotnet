@@ -84,13 +84,19 @@ namespace Hyperledger.Aries.Tests.Integration
         {
             CredentialIssuer = "https://issuer.io",
             CredentialEndpoint = "https://issuer.io/credential",
-            CredentialsSupported = new List<OidCredentialMetadata>
+            CredentialsSupported = new Dictionary<string, OidCredentialMetadata>()
             {
-                new OidCredentialMetadata
-                {
-                    Format = "vc+sdjwt",
-                    Type = CredentialType,
-                    CredentialSubject = new Dictionary<string, OidCredentialSubjectAttribute>()
+                {"VerifiedEmail", new OidCredentialMetadata
+                    {
+                        Format = "vc+sdjwt",
+                        Type = CredentialType,
+                        CredentialDefinition = new OidCredentialDefinition()
+                        {
+                            Vct = CredentialType,
+                            Claims = new Dictionary<string, OidClaim>()
+                        }
+                    }
+                    
                 }
             }
         };
@@ -104,7 +110,7 @@ namespace Hyperledger.Aries.Tests.Integration
             //Arrange
             SetupHttpClient(RequestUriResponse);
             
-            await _sdJwtVcHolderService.StoreAsync(_agent1.Context, CombinedIssuance, KeyId, _oidIssuerMetadata);
+            await _sdJwtVcHolderService.StoreAsync(_agent1.Context, CombinedIssuance, KeyId, _oidIssuerMetadata, "VerifiedEmail");
 
             //Act
             var (authorizationRequest, credentials) =

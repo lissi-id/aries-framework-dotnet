@@ -10,6 +10,7 @@ using Hyperledger.Aries.Features.OpenId4Vc.KeyStore.Services;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Authorization;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialRequest;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialResponse;
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer;
 using Newtonsoft.Json;
 
@@ -74,7 +75,10 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Services.Oid4VciClientService
             var credentialRequest = new OidCredentialRequest
             {
                 Format = "vc+sd-jwt",
-                Type = type,
+                CredentialDefinition = new OidCredentialDefinition()
+                {
+                    Vct = type
+                },
                 Proof = new OidProofOfPossession
                 {
                     ProofType = "jwt",
