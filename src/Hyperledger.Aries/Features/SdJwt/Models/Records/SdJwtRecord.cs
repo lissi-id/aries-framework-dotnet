@@ -89,7 +89,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// /// <param name="credentialType">The credential type.</param>
+        /// <param name="credentialType">The credential type.</param>
         public void SetDisplayFromIssuerMetadata(
             OidIssuerMetadata issuerMetadata, 
             string credentialType)

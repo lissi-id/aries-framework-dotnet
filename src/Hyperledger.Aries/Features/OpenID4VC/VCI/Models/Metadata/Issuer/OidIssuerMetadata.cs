@@ -14,7 +14,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
     public class OidIssuerMetadata
     {
         /// <summary>
-        ///     Gets or sets a dictionary which maps a credential type to its credential metadata.
+        ///     Gets or sets a dictionary which maps a CredentialMetadataId to its credential metadata. The
+        ///     credential metadata identifier must map to the 
         /// </summary>
         [JsonProperty("credentials_supported")]
         public Dictionary<string, OidCredentialMetadata> CredentialsSupported { get; set; } = null!;

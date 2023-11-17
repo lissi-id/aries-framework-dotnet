@@ -20,8 +20,8 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialOffer
         public Grants? Grants { get; set; }
 
         /// <summary>
-        ///     Gets or sets the list of credentials that the Wallet may request. The List contains credential types that must map
-        ///     to the keys in the credentials_supported dictionary of the Issuer Metadata
+        ///     Gets or sets the list of credentials that the Wallet may request. The List contains CredentialMetadataIds
+        ///     that must map to the keys in the credentials_supported dictionary of the Issuer Metadata
         /// </summary>
         [JsonProperty("credentials")]
         public List<string> Credentials { get; set; } = null!;
