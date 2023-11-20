@@ -24,7 +24,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         private const string AuthServerMetadata =
             "{\"issuer\":\"https://issuer.io\",\"token_endpoint\":\"https://issuer.io/token\",\"token_endpoint_auth_methods_supported\":[\"urn:ietf:params:oauth:client-assertion-type:verifiable-presentation\"],\"response_types_supported\":[\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"]}\n";
 
-        private const string CredentialType = "VerifiedEmail";
+        private const string Vct = "VerifiedEmail";
 
         private const string IssuerMetadataResponseContent =  
             "{\"credential_issuer\":\"https://issuer.io/\",\"credential_endpoint\":\"https://issuer.io/credential\",\"display\":[{\"name\":\"Aussteller\",\"locale\":\"de-DE\"},{\"name\":\"Issuer\",\"locale\":\"en-US\"}],\"credentials_supported\":{\"IdentityCredential\":{\"format\":\"vc+sd-jwt\",\"scope\":\"IdentityCredential_SD-JWT-VC\",\"cryptographic_binding_methods_supported\":[\"did:example\"],\"cryptographic_suites_supported\":[\"ES256K\"],\"display\":[{\"name\":\"IdentityCredential\",\"locale\":\"en-US\",\"background_color\":\"#12107c\",\"text_color\":\"#FFFFFF\"}],\"credential_definition\":{\"type\":\"IdentityCredential\",\"claims\":{\"given_name\":{\"display\":[{\"name\":\"GivenName\",\"locale\":\"en-US\"},{\"name\":\"Vorname\",\"locale\":\"de-DE\"}]},\"last_name\":{\"display\":[{\"name\":\"Surname\",\"locale\":\"en-US\"},{\"name\":\"Nachname\",\"locale\":\"de-DE\"}]},\"email\":{},\"phone_number\":{},\"address\":{\"street_address\":{},\"locality\":{},\"region\":{},\"country\":{}},\"birthdate\":{},\"is_over_18\":{},\"is_over_21\":{},\"is_over_65\":{}}}}}}";
@@ -64,17 +64,16 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             CredentialEndpoint = "https://issuer.io/credential",
             CredentialsSupported = new Dictionary<string, OidCredentialMetadata>()
             {
-                {"VerifiedEmail", new OidCredentialMetadata
+                {
+                    "VerifiedEmail", new OidCredentialMetadata
                     {
                         Format = "vc+sdjwt",
-                        Type = CredentialType,
                         CredentialDefinition = new OidCredentialDefinition()
                         {
-                            Vct = CredentialType,
+                            Vct = Vct,
                             Claims = new Dictionary<string, OidClaim>()
                         }
                     }
-                    
                 }
             }
         };
@@ -182,7 +181,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var actualCredentialResponse = await _oid4VciClientService.RequestCredentialAsync(
                 _oidIssuerMetadata.CredentialIssuer,
                 mockTokenResponse.CNonce,
-                CredentialType,
+                Vct,
                 mockTokenResponse
             );
 

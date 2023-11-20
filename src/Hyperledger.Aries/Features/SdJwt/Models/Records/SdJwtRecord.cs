@@ -47,9 +47,9 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         public List<OidCredentialDisplay>? Display { get; set; }
 
         /// <summary>
-        ///     Gets the type of the credential.
+        ///     Gets the verifiable credential type.
         /// </summary>
-        public string CredentialType { get; set; } = null!;
+        public string Vct { get; set; } = null!;
 
         /// <summary>
         ///     Gets or sets the identifier for the issuer.
@@ -78,7 +78,7 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             => new SdJwtRecord
             {
                 EncodedIssuerSignedJwt = sdJwtDoc.EncodedIssuerSignedJwt,
-                CredentialType = ExtractTypeFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
+                Vct = ExtractVctFromJwtPayload(sdJwtDoc.EncodedIssuerSignedJwt),
                 Disclosures = sdJwtDoc.Disclosures.Select(x => x.Serialize()).ToImmutableArray(),
                 Claims = WithDisclosedClaims(sdJwtDoc.EncodedIssuerSignedJwt)
                     .Concat(WithSelectivelyDisclosableClaims(sdJwtDoc.Disclosures))
@@ -89,12 +89,12 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="credentialType">The credential type.</param>
+        /// <param name="vct">The verifiable credential type.</param>
         public void SetDisplayFromIssuerMetadata(
             OidIssuerMetadata issuerMetadata, 
-            string credentialType)
+            string vct)
         {
-            SetCredentialDisplayProperties(issuerMetadata, credentialType);
+            SetCredentialDisplayProperties(issuerMetadata, vct);
             SetOidIssuerDisplayProperties(issuerMetadata);
         }
 
@@ -117,22 +117,22 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         }
 
         /// <summary>
-        ///     Extracts the "type" property from the JWT payload.
+        ///     Extracts the "vct" property from the JWT payload.
         /// </summary>
         /// <param name="encodedJwt">The encoded JWT.</param>
-        /// <returns>The value of the "type" property.</returns>
-        private static string ExtractTypeFromJwtPayload(string encodedJwt)
+        /// <returns>The value of the verifiable credential type claim.</returns>
+        private static string ExtractVctFromJwtPayload(string encodedJwt)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
             var jwtToken = jwtHandler.ReadJwtToken(encodedJwt);
             var payloadJson = jwtToken.Payload.SerializeToJson();
             var payloadObj = JsonDocument.Parse(payloadJson).RootElement;
-
-            if (payloadObj.TryGetProperty("type", out var typeValue))
+        
+            if (payloadObj.TryGetProperty("vct", out var vct))
             {
-                return typeValue.GetString() ?? string.Empty;
+                return vct.GetString() ?? string.Empty;
             }
-
+        
             return string.Empty;
         }
 
@@ -140,13 +140,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties related to the credential based on the issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="credentialType">The credential type.</param>
+        /// <param name="vct">The verifiable credential type.</param>
         private void SetCredentialDisplayProperties(
             OidIssuerMetadata issuerMetadata,
-            string credentialType)
+            string vct)
         {
-            Display = issuerMetadata.GetCredentialDisplay(credentialType);
-            DisplayedAttributes = issuerMetadata.GetCredentialClaims(credentialType);
+            Display = issuerMetadata.GetCredentialDisplay(vct);
+            DisplayedAttributes = issuerMetadata.GetCredentialClaims(vct);
         }
 
         /// <summary>

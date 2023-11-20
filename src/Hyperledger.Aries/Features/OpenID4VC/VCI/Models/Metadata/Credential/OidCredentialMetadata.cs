@@ -48,12 +48,6 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential
         public string Format { get; set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the type of the credential.
-        /// </summary>
-        [JsonProperty("type")]
-        public string Type { get; set; } = null!;
-
-        /// <summary>
         ///     Gets or sets the unique identifier for the respective credential.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
