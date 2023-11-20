@@ -50,48 +50,39 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Issuer
         /// <summary>
         ///     Gets the display properties of a given Credential for different languages.
         /// </summary>
-        /// <param name="credentialType">The Credential type to retrieve the display properties for.</param>
+        /// <param name="credentialMetadataId">The credentialMetadataId to retrieve the display properties for.</param>
         /// <returns>
         ///     A list of display properties for the specified Credential or null if the Credential is not found in the
         ///     metadata.
         /// </returns>
-        public List<OidCredentialDisplay>? GetCredentialDisplay(string credentialType)
-        {
-            var matchingCredential = CredentialsSupported[credentialType];
-
-            return matchingCredential?.Display;
-        }
+        public List<OidCredentialDisplay>? GetCredentialDisplay(string credentialMetadataId) 
+            => CredentialsSupported[credentialMetadataId].Display;
 
         /// <summary>
         ///     Gets the claim attributes of a given Credential.
         /// </summary>
-        /// <param name="credentialType">The Credential type to retrieve the claim attributes for.</param>
+        /// <param name="credentialMetadataId">The credentialMetadataId to retrieve the claim attributes for.</param>
         /// <returns>
         ///     A dictionary of attribute names and their corresponding display properties for the specified Credential, or
         ///     null if the Credential is not found in the metadata.
         /// </returns>
-        public Dictionary<string, OidClaim>? GetCredentialClaims(
-            string credentialType)
-        {
-            var matchingCredential = CredentialsSupported[credentialType];
-            return matchingCredential?.CredentialDefinition.Claims;
-        }
+        public Dictionary<string, OidClaim>? GetCredentialClaims(string credentialMetadataId) =>
+            CredentialsSupported[credentialMetadataId].CredentialDefinition.Claims;
 
         /// <summary>
         ///     Gets the localized attribute names of a given Credential for a specific locale.
         /// </summary>
-        /// <param name="credentialType">The Credential type to retrieve the localized attribute names for.</param>
+        /// <param name="credentialMetadataId">The credentialMetadataId to retrieve the localized attribute names for.</param>
         /// <param name="locale">The locale to retrieve the attribute names in (e.g., "en-US").</param>
         /// <returns>
         ///     A list of localized attribute names for the specified Credential and locale, or null if no matching attributes
         ///     are found.
         /// </returns>
-        public List<string>? GetLocalizedCredentialAttributeNames(string credentialType,
-            string locale)
+        public List<string>? GetLocalizedCredentialAttributeNames(string credentialMetadataId, string locale)
         {
             var displayNames = new List<string>();
 
-            var matchingCredential = CredentialsSupported[credentialType];
+            var matchingCredential = CredentialsSupported[credentialMetadataId];
 
             if (matchingCredential == null)
                 return null;
