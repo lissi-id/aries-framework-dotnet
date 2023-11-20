@@ -1,3 +1,4 @@
+using Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.Metadata.Credential;
 using Newtonsoft.Json;
 
 namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialRequest
@@ -13,18 +14,18 @@ namespace Hyperledger.Aries.Features.OpenId4Vc.Vci.Models.CredentialRequest
         ///     Gets or sets the proof of possession of the key material the issued credential shall be bound to.
         /// </summary>
         [JsonProperty("proof")]
-        public OidProofOfPossession Proof { get; set; }
+        public OidProofOfPossession? Proof { get; set; }
 
         /// <summary>
         ///     Gets or sets the format of the credential to be issued.
         /// </summary>
         [JsonProperty("format")]
-        public string Format { get; set; }
+        public string Format { get; set; } = null!;
 
         /// <summary>
-        ///     Gets or sets the type of the credential.
+        ///     Gets or sets the Credential Definition.
         /// </summary>
-        [JsonProperty("type")]
-        public string Type { get; set; }
+        [JsonProperty("credential_definition")]
+        public OidCredentialDefinition CredentialDefinition { get; set; } = null!;
     }
 }

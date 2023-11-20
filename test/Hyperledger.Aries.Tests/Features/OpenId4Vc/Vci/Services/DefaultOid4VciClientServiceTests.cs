@@ -24,11 +24,11 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         private const string AuthServerMetadata =
             "{\"issuer\":\"https://issuer.io\",\"token_endpoint\":\"https://issuer.io/token\",\"token_endpoint_auth_methods_supported\":[\"urn:ietf:params:oauth:client-assertion-type:verifiable-presentation\"],\"response_types_supported\":[\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"]}\n";
 
-        private const string CredentialType = "VerifiedEmail";
+        private const string Vct = "VerifiedEmail";
 
-        private const string IssuerMetadataResponseContent =
-            "{\"credential_issuer\":\"https://issuer.io/\",\"credential_endpoint\":\"https://issuer.io/credential\",\"display\":[{\"name\":\"Aussteller\",\"locale\":\"de-DE\"},{\"name\":\"Issuer\",\"locale\":\"en-US\"}],\"credentials_supported\":[{\"format\":\"vc+sd-jwt\",\"id\":\"VerifiedEMail\",\"cryptographic_binding_methods_supported\":[\"jwk\"],\"cryptographic_suites_supported\":[\"ES256\"],\"type\":\"VerifiedEMail\",\"display\":[{\"name\":\"Verifizierte eMail-Adresse\",\"logo\":{\"url\":\"https://issuer.io/logo.png\",\"alternative_text\":\"Logo\"},\"text_color\":\"#FFFFFF\",\"background_color\":\"#12107c\",\"locale\":\"de-DE\"},{\"name\":\"Verified eMail address\",\"logo\":{\"url\":\"https://issuer.io/logo.png\",\"alternative_text\":\"Logo\"},\"text_color\":\"#FFFFFF\",\"background_color\":\"#12107c\",\"locale\":\"en-US\"}],\"credentialSubject\":{\"given_name\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"Vorname\"},{\"locale\":\"en-US\",\"name\":\"Given name\"}]},\"last_name\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"Nachname\"},{\"locale\":\"en-US\",\"name\":\"Surname\"}]},\"email\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"E-Mail Adresse\"},{\"locale\":\"en-US\",\"name\":\"e-Mail address\"}]}}},{\"format\":\"vc+sd-jwt\",\"id\":\"AttestedVerifiedEMail\",\"cryptographic_binding_methods_supported\":[\"jwk\"],\"cryptographic_suites_supported\":[\"ES256\"],\"type\":\"AttestedVerifiedEMail\",\"display\":[{\"name\":\"Verifizierte eMail-Adresse\",\"logo\":{\"url\":\"https://issuer.io/logo.png\",\"alternative_text\":\"Logo\"},\"text_color\":\"#FFFFFF\",\"background_color\":\"#12107c\",\"locale\":\"de-DE\"},{\"name\":\"Verified eMail address\",\"logo\":{\"url\":\"https://issuer.io/logo.png\",\"alternative_text\":\"Logo\"},\"text_color\":\"#FFFFFF\",\"background_color\":\"#12107c\",\"locale\":\"en-US\"}],\"credentialSubject\":{\"given_name\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"Vorname\"},{\"locale\":\"en-US\",\"name\":\"Given name\"}]},\"last_name\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"Nachname\"},{\"locale\":\"en-US\",\"name\":\"Surname\"}]},\"email\":{\"display\":[{\"locale\":\"de-DE\",\"name\":\"E-Mail Adresse\"},{\"locale\":\"en-US\",\"name\":\"e-Mail address\"}]}}}]}";
-
+        private const string IssuerMetadataResponseContent =  
+            "{\"credential_issuer\":\"https://issuer.io/\",\"credential_endpoint\":\"https://issuer.io/credential\",\"display\":[{\"name\":\"Aussteller\",\"locale\":\"de-DE\"},{\"name\":\"Issuer\",\"locale\":\"en-US\"}],\"credentials_supported\":{\"IdentityCredential\":{\"format\":\"vc+sd-jwt\",\"scope\":\"IdentityCredential_SD-JWT-VC\",\"cryptographic_binding_methods_supported\":[\"did:example\"],\"cryptographic_suites_supported\":[\"ES256K\"],\"display\":[{\"name\":\"IdentityCredential\",\"locale\":\"en-US\",\"background_color\":\"#12107c\",\"text_color\":\"#FFFFFF\"}],\"credential_definition\":{\"type\":\"IdentityCredential\",\"claims\":{\"given_name\":{\"display\":[{\"name\":\"GivenName\",\"locale\":\"en-US\"},{\"name\":\"Vorname\",\"locale\":\"de-DE\"}]},\"last_name\":{\"display\":[{\"name\":\"Surname\",\"locale\":\"en-US\"},{\"name\":\"Nachname\",\"locale\":\"de-DE\"}]},\"email\":{},\"phone_number\":{},\"address\":{\"street_address\":{},\"locality\":{},\"region\":{},\"country\":{}},\"birthdate\":{},\"is_over_18\":{},\"is_over_21\":{},\"is_over_65\":{}}}}}}";
+        
         private const string PreAuthorizedCode = "1234";
 
         private const string TokenResponse =
@@ -62,13 +62,18 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
         {
             CredentialIssuer = "https://issuer.io",
             CredentialEndpoint = "https://issuer.io/credential",
-            CredentialsSupported = new List<OidCredentialMetadata>
+            CredentialsSupported = new Dictionary<string, OidCredentialMetadata>()
             {
-                new OidCredentialMetadata
                 {
-                    Format = "vc+sdjwt",
-                    Type = CredentialType,
-                    CredentialSubject = new Dictionary<string, OidCredentialSubjectAttribute>()
+                    "VerifiedEmail", new OidCredentialMetadata
+                    {
+                        Format = "vc+sdjwt",
+                        CredentialDefinition = new OidCredentialDefinition()
+                        {
+                            Vct = Vct,
+                            Claims = new Dictionary<string, OidClaim>()
+                        }
+                    }
                 }
             }
         };
@@ -132,7 +137,11 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var actualMetadata = await _oid4VciClientService.FetchIssuerMetadataAsync(new Uri("https://issuer.io"));
 
             // Assert
-            actualMetadata.Should().BeEquivalentTo(expectedMetadata);
+            actualMetadata.Should().BeEquivalentTo(expectedMetadata, options =>
+            {
+                options.AllowingInfiniteRecursion();
+                return options;
+            });
         }
 
         [Fact]
@@ -172,7 +181,7 @@ namespace Hyperledger.Aries.Tests.Features.OpenId4Vc.Vci.Services
             var actualCredentialResponse = await _oid4VciClientService.RequestCredentialAsync(
                 _oidIssuerMetadata.CredentialIssuer,
                 mockTokenResponse.CNonce,
-                CredentialType,
+                Vct,
                 mockTokenResponse
             );
 
