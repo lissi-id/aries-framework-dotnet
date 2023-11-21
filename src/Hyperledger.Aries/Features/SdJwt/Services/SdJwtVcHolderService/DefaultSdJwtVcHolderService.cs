@@ -143,13 +143,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
             string combinedIssuance,
             string keyId, 
             OidIssuerMetadata issuerMetadata,
-            string vct)
+            string credentialMetadataId)
         {
             var sdJwtDoc = Holder.ReceiveCredential(combinedIssuance);
             var record = SdJwtRecord.FromSdJwtDoc(sdJwtDoc);
             record.Id = Guid.NewGuid().ToString();
 
-            record.SetDisplayFromIssuerMetadata(issuerMetadata, vct);
+            record.SetDisplayFromIssuerMetadata(issuerMetadata, credentialMetadataId);
             record.KeyId = keyId;
 
             await RecordService.AddAsync(context.Wallet, record);
