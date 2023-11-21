@@ -79,13 +79,13 @@ namespace Hyperledger.Aries.Features.SdJwt.Services.SdJwtVcHolderService
         /// <param name="combinedIssuance">The combined issuance.</param>
         /// <param name="keyId">The key id.</param>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="vct">The verifiable credential type.</param>
+        /// <param name="credentialMetadataId">The credential metadata ID.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the ID of the stored JWT record.</returns>
         Task<string> StoreAsync(
             IAgentContext context,
             string combinedIssuance,
             string keyId,
             OidIssuerMetadata issuerMetadata,
-            string vct);
+            string credentialMetadataId);
     }
 }

@@ -89,13 +89,16 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
         ///     Sets display properties of the SdJwtRecord based on the provided issuer metadata.
         /// </summary>
         /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="vct">The verifiable credential type.</param>
+        /// <param name="credentialMetadataId">The credential metadata ID.</param>
         public void SetDisplayFromIssuerMetadata(
             OidIssuerMetadata issuerMetadata, 
-            string vct)
+            string credentialMetadataId)
         {
-            SetCredentialDisplayProperties(issuerMetadata, vct);
-            SetOidIssuerDisplayProperties(issuerMetadata);
+            Display = issuerMetadata.GetCredentialDisplay(credentialMetadataId);
+            DisplayedAttributes = issuerMetadata.GetCredentialClaims(credentialMetadataId);
+            
+            IssuerId = issuerMetadata.CredentialIssuer;
+            IssuerName = CreateIssuerNameDictionary(issuerMetadata);
         }
 
         /// <summary>
@@ -134,29 +137,6 @@ namespace Hyperledger.Aries.Features.SdJwt.Models.Records
             }
         
             return string.Empty;
-        }
-
-        /// <summary>
-        ///     Sets display properties related to the credential based on the issuer metadata.
-        /// </summary>
-        /// <param name="issuerMetadata">The issuer metadata.</param>
-        /// <param name="vct">The verifiable credential type.</param>
-        private void SetCredentialDisplayProperties(
-            OidIssuerMetadata issuerMetadata,
-            string vct)
-        {
-            Display = issuerMetadata.GetCredentialDisplay(vct);
-            DisplayedAttributes = issuerMetadata.GetCredentialClaims(vct);
-        }
-
-        /// <summary>
-        ///     Sets display properties related to the issuer based on the issuer metadata.
-        /// </summary>
-        /// <param name="issuerMetadata">The issuer metadata.</param>
-        private void SetOidIssuerDisplayProperties(OidIssuerMetadata issuerMetadata)
-        {
-            IssuerId = issuerMetadata.CredentialIssuer;
-            IssuerName = CreateIssuerNameDictionary(issuerMetadata);
         }
 
         private static IEnumerable<(string key, string value)> WithDisclosedClaims(string tokenAsString)
