@@ -8,5 +8,7 @@ namespace Hyperledger.Aries.Agents.Edge
     {
         Task ProvisionAsync(AgentOptions options, CancellationToken cancellationToken = default);
         Task ProvisionAsync(CancellationToken cancellationToken = default);
+        Task CreateMediatorConnectionAndInboxAsync(AgentOptions agentOptions, CancellationToken cancellationToken = default);
+        Task CreateMediatorConnectionAndInboxAsync(CancellationToken cancellationToken = default);
     }
 }

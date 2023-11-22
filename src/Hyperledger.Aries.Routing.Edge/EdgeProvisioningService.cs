@@ -45,6 +45,41 @@ namespace Hyperledger.Aries.Agents.Edge
             this.options = options.Value;
         }
 
+        public async Task CreateMediatorConnectionAndInboxAsync(AgentOptions agentOptions, CancellationToken cancellationToken = default)
+        {
+            var agentContext = await agentProvider.GetContextAsync();
+            var discovery = await edgeClientService.DiscoverConfigurationAsync(agentOptions.EndpointUri);
+
+            await provisioningService.UpdateEndpointAsync(agentContext.Wallet, new AgentEndpoint { Uri = discovery.ServiceEndpoint, Verkey = new[] { discovery.RoutingKey}, Did = agentOptions.AgentDid});
+
+            await CreateMediatorConnection(agentContext, discovery);
+            
+            await edgeClientService.CreateInboxAsync(agentContext, agentOptions.MetaData);
+        }
+
+        private async Task CreateMediatorConnection(IAgentContext agentContext, AgentPublicConfiguration discovery)
+        {
+            var provisioning = await provisioningService.GetProvisioningAsync(agentContext.Wallet);
+            
+            // Check if connection has been established with mediator agent
+            if (provisioning.GetTag(MediatorConnectionIdTagName) != null)
+                return;
+            
+            var (request, record) = await connectionService.CreateRequestAsync(agentContext, discovery.Invitation);
+            var response = await messageService.SendReceiveAsync<ConnectionResponseMessage>(agentContext, request, record);
+        
+            await connectionService.ProcessResponseAsync(agentContext, response, record);
+        
+            // Remove the routing key explicitly as it won't ever be needed.
+            // Messages will always be sent directly with return routing enabled
+            record = await connectionService.GetAsync(agentContext, record.Id);
+            record.Endpoint = new AgentEndpoint(record.Endpoint.Uri, null, null);
+            await recordService.UpdateAsync(agentContext.Wallet, record);
+            
+            provisioning.SetTag(MediatorConnectionIdTagName, record.Id);
+            await recordService.UpdateAsync(agentContext.Wallet, provisioning);
+        }
+
         public async Task ProvisionAsync(AgentOptions options, CancellationToken cancellationToken = default)
         {
             var discovery = await edgeClientService.DiscoverConfigurationAsync(options.EndpointUri);
@@ -64,31 +99,17 @@ namespace Hyperledger.Aries.Agents.Edge
             {
                 // OK
             }
+            
             var agentContext = await agentProvider.GetContextAsync();
-            var provisioning = await provisioningService.GetProvisioningAsync(agentContext.Wallet);
 
-            // Check if connection has been established with mediator agent
-            if (provisioning.GetTag(MediatorConnectionIdTagName) == null)
-            {
-                var (request, record) = await connectionService.CreateRequestAsync(agentContext, discovery.Invitation);
-                var response = await messageService.SendReceiveAsync<ConnectionResponseMessage>(agentContext, request, record);
-
-                await connectionService.ProcessResponseAsync(agentContext, response, record);
-
-                // Remove the routing key explicitly as it won't ever be needed.
-                // Messages will always be sent directly with return routing enabled
-                record = await connectionService.GetAsync(agentContext, record.Id);
-                record.Endpoint = new AgentEndpoint(record.Endpoint.Uri, null, null);
-                await recordService.UpdateAsync(agentContext.Wallet, record);
-
-                provisioning.SetTag(MediatorConnectionIdTagName, record.Id);
-                await recordService.UpdateAsync(agentContext.Wallet, provisioning);
-            }
-
+            await CreateMediatorConnection(agentContext, discovery);
+            
             await edgeClientService.CreateInboxAsync(agentContext, options.MetaData);
         }
 
         public Task ProvisionAsync(CancellationToken cancellationToken = default) => ProvisionAsync(options, cancellationToken);
+        
+        public Task CreateMediatorConnectionAndInboxAsync(CancellationToken cancellationToken = default) => CreateMediatorConnectionAndInboxAsync(options, cancellationToken);
 
         public Task StartAsync(CancellationToken cancellationToken) => ProvisionAsync(cancellationToken);
 
