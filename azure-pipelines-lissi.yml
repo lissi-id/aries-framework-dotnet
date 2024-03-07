@@ -6,6 +6,7 @@ name: $(SourceBranchName)-$(Date:yyyyMMdd)$(Rev:.rrr)
 
 trigger:
   - azure-build
+  - 1.6.4-alpha5.1
 
 jobs:
   - job: buildWindows
