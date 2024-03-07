@@ -8,6 +8,7 @@ using Hyperledger.Aries.Routing;
 using Hyperledger.Aries.Storage;
 using Hyperledger.Indy.WalletApi;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 [assembly: InternalsVisibleTo("Hyperledger.Aries.Tests")]
@@ -21,6 +22,7 @@ namespace Hyperledger.Aries.Agents.Edge
 
         private readonly IProvisioningService provisioningService;
         private readonly IConnectionService connectionService;
+        private readonly ILogger<EdgeProvisioningService> _logger;
         private readonly IMessageService messageService;
         private readonly IEdgeClientService edgeClientService;
         private readonly IWalletRecordService recordService;
@@ -30,6 +32,7 @@ namespace Hyperledger.Aries.Agents.Edge
         public EdgeProvisioningService(
             IProvisioningService provisioningService,
             IConnectionService connectionService,
+            ILogger<EdgeProvisioningService> logger,
             IMessageService messageService,
             IEdgeClientService edgeClientService,
             IWalletRecordService recordService,
@@ -38,6 +41,7 @@ namespace Hyperledger.Aries.Agents.Edge
         {
             this.provisioningService = provisioningService;
             this.connectionService = connectionService;
+            _logger = logger;
             this.messageService = messageService;
             this.edgeClientService = edgeClientService;
             this.recordService = recordService;
@@ -56,13 +60,13 @@ namespace Hyperledger.Aries.Agents.Edge
 
                 await provisioningService.ProvisionAgentAsync(options);
             }
-            catch(WalletStorageException)
+            catch(WalletStorageException wse)
             {
-                // OK
+                _logger.LogError(wse, "Wallet storage exception");
             }
-            catch (WalletExistsException)
+            catch (WalletExistsException wee)
             {
-                // OK
+                _logger.LogError(wee, "Wallet exists exception");
             }
             var agentContext = await agentProvider.GetContextAsync();
             var provisioning = await provisioningService.GetProvisioningAsync(agentContext.Wallet);
